@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LiablePersonComponent } from './liable-person.component';
 import { ErrorMessageComponent } from './components/error-message/error-message.component';
-import { CustSharedModule } from 'app/customization/task-project-center-console/shared.module';
+import { CustSharedModule } from 'app/implementation/shared/cust-shared.module';
 
 
 

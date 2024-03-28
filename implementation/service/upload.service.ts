@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders, HttpRequest } from '@angular/common/http';
 import { Injectable, Inject } from '@angular/core';
-import { DmcRepositoryService } from '@ng-dynamic-forms/ui-ant-web';
+import { DmcRepositoryService } from '@athena/dynamic-ui';
 import { DwDmcRepository, DwUploadFileService } from '@webdpt/framework/dmc';
 import { DwSystemConfigService } from '@webdpt/framework/config';
 import { DwUserService } from '@webdpt/framework/user';
@@ -49,7 +49,11 @@ export class UploadAndDownloadService {
     dirId = dirId ? dirId : this.dmcRootDirId;
     return new Observable((observer) => {
       if (typeof file !== 'object' || !bucket || !dirId) {
-        this.pushFileMessage(observer, 'error', this.translateService.instant('dj-pcc-参数传递有误或者不能为空!'));
+        this.pushFileMessage(
+          observer,
+          'error',
+          this.translateService.instant('dj-pcc-参数传递有误或者不能为空!')
+        );
         return;
       }
       if (file.size <= SLICESECTION) {
@@ -82,7 +86,11 @@ export class UploadAndDownloadService {
   public coverUpload(file: File, bucket: string, dirId: string, fileId: string): Observable<any> {
     return new Observable((observer) => {
       if (typeof file !== 'object' || !bucket || !dirId || !fileId) {
-        this.pushFileMessage(observer, 'error', this.translateService.instant('dj-pcc-参数传递有误或者不能为空!'));
+        this.pushFileMessage(
+          observer,
+          'error',
+          this.translateService.instant('dj-pcc-参数传递有误或者不能为空!')
+        );
         return;
       }
       this.pushFileMessage(observer, 'ongoing', 0);
@@ -104,7 +112,11 @@ export class UploadAndDownloadService {
   public uploadAndShare(file: File, bucket: string, dirId: string): Observable<any> {
     return new Observable((observer) => {
       if (typeof file !== 'object' || !bucket || !dirId) {
-        this.pushFileMessage(observer, 'error', this.translateService.instant('dj-pcc-参数传递有误或者不能为空!'));
+        this.pushFileMessage(
+          observer,
+          'error',
+          this.translateService.instant('dj-pcc-参数传递有误或者不能为空!')
+        );
         return;
       }
       this.upload(file, bucket, dirId).subscribe(
@@ -352,7 +364,11 @@ export class UploadAndDownloadService {
   public download(bucket: string, fileId: string, fileName: string): Observable<any> {
     return new Observable((observer) => {
       if (!bucket || !fileId || !fileName) {
-        this.pushFileMessage(observer, 'error', this.translateService.instant('dj-default-函数参数不能为空'),);
+        this.pushFileMessage(
+          observer,
+          'error',
+          this.translateService.instant('dj-default-函数参数不能为空')
+        );
         return;
       }
       this.dwDmcRepository.login().subscribe(
@@ -398,7 +414,11 @@ export class UploadAndDownloadService {
   public deleteFile(bucket: string, fileIdArr: any = []): Observable<any> {
     return new Observable((observer) => {
       if (!bucket || fileIdArr.length === 0) {
-        this.pushFileMessage(observer, 'error', this.translateService.instant('dj-default-bucket不能为空或者删除数组不能为空'));
+        this.pushFileMessage(
+          observer,
+          'error',
+          this.translateService.instant('dj-default-bucket不能为空或者删除数组不能为空')
+        );
         return;
       }
       this.dwDmcRepository.login().subscribe(
@@ -425,7 +445,11 @@ export class UploadAndDownloadService {
   public createDirectory(bucket: string, name: string): Observable<any> {
     return new Observable((observer) => {
       if (!bucket || !name) {
-        this.pushFileMessage(observer, 'error', this.translateService.instant('dj-default-bucket不能为空或者文件夹名称不能为空'));
+        this.pushFileMessage(
+          observer,
+          'error',
+          this.translateService.instant('dj-default-bucket不能为空或者文件夹名称不能为空')
+        );
         return;
       }
       this.dwDmcRepository.login().subscribe(
@@ -459,7 +483,11 @@ export class UploadAndDownloadService {
   public dmcDirectoryList(bucket: string): Observable<any> {
     return new Observable((observer) => {
       if (!bucket) {
-        this.pushFileMessage(observer, 'error', this.translateService.instant('dj-default-bucket不能为空或者目录ID不能为空'));
+        this.pushFileMessage(
+          observer,
+          'error',
+          this.translateService.instant('dj-default-bucket不能为空或者目录ID不能为空')
+        );
         return;
       }
       this.dwDmcRepository.login().subscribe(
@@ -488,7 +516,11 @@ export class UploadAndDownloadService {
   public dmcDirectoryInfo(bucket: string, dirName: string, pDirId?: string): Observable<any> {
     return new Observable((observer) => {
       if (!bucket || !dirName) {
-        this.pushFileMessage(observer, 'error', this.translateService.instant('dj-default-bucket不能为空或者目录名称不能为空'));
+        this.pushFileMessage(
+          observer,
+          'error',
+          this.translateService.instant('dj-default-bucket不能为空或者目录名称不能为空')
+        );
         return;
       }
       pDirId = pDirId || this.dmcRootDirId;
@@ -576,10 +608,16 @@ export class UploadAndDownloadService {
   public getFileUrl(bucketName: string, params): Observable<any> {
     return new Observable((observer) => {
       this.dwDmcRepository.login().subscribe((r1) => {
-        this.getFile(bucketName, params, r1).subscribe((res) => {
-          observer.next(res);
-          observer.complete();
-        });
+        this.getFile(bucketName, params, r1).subscribe(
+          (res) => {
+            observer.next(res);
+            observer.complete();
+          },
+          (error) => {
+            observer.next(error);
+            observer.complete();
+          }
+        );
       });
     });
   }

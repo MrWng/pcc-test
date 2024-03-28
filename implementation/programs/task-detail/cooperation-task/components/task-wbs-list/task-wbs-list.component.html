@@ -2,55 +2,71 @@
   <div class="task-wbs project-plan">
     <!-- 协同计划排定 -->
     <div class="wbs-title">
-      <div class="operate-info">
-        <span *ngIf="wbsService.needRefresh">
-          {{ wbsService.needRefresh }}
-        </span>
-      </div>
       <div class="wbs-right">
-        <!-- 任务比重提示信息 -->
-        {{ projectInfo?.project_name }}
-        <div class="project_property">
-          <span>{{
-            projectInfo?.project_property === '10'
-              ? ('dj-default-潜在' | translate)
-              : ('dj-default-正式' | translate)
-          }}</span>
+        <div class="project_name" athTooltip [athTooltipTitle]="projectInfo?.project_no + '['+ projectInfo?.project_name + ']'">
+          {{ projectInfo?.project_no }}[{{ projectInfo?.project_name }}]
         </div>
-        <div class="status">
+        <div
+          class="project_property nowrap"
+          [ngStyle]='getPropertyColor()'
+        >
+          <span>{{ projectInfo?.project_property === '10' ? ('dj-default-潜在' | translate) : ('dj-default-正式' | translate) }}</span>
+        </div>
+        <div
+          class="status nowrap"
+          [ngStyle]='getStatusColor()'
+        >
           <span>{{ switchProjectStatus(projectInfo?.project_status) }}</span>
         </div>
-        <span *ngIf="isApproveStatus">
-          【{{ switchApproveAction(wbsService.projectInfo?.approve_action)
-          }}{{ 'dj-pcc-签核中' | translate }}】
-        </span>
-        <!-- 任务比重提示信息 -->
-        <div class="error_card" *ngIf="wbsService.taskProportionCheck['project_info']?.length > 0">
-          <span class="text">
-            {{
-              'dj-pcc-存在一级任务的任务比重 < 100%，则所有一级任务的任务比重累计必须等于100%！'
-                | translate
-            }}
-          </span>
+        <div *ngIf="isApproveStatus">
+          【{{ switchApproveAction(wbsService.projectInfo?.approve_action) }}{{ 'dj-pcc-签核中' | translate }}】
         </div>
+        <!-- 任务比重提示信息 -->
+<!--        <div class="error_card" *ngIf="wbsService.taskProportionCheck?.projectInfoTip">-->
+<!--          {{ 'dj-pcc-存在一级任务的任务比重 < 100%，则所有一级任务的任务比重累计必须等于100%！' | translate }}-->
+<!--        </div>-->
       </div>
     </div>
     <!-- 专案计划维护 -->
-    <div class="wbs-content" dCanvas (click)="closeOperation(pageDatas)">
-      <ul class="corridor" *ngFor="let data of pageDatas; let i = index">
-        <app-project-plan-card
+    <div
+      class="wbs-content"
+      dCanvas
+      (click)="closeOperation(pageDatas)"
+      [ngClass]="{ marginLeft: wbsService.typeChange === 'table'}"
+    >
+      <div *ngIf="wbsService.typeChange === 'card'">
+        <ul class="corridor" *ngFor="let data of pageDatas; let i = index">
+          <app-project-plan-card
+            [source]="Entry.collaborate"
+            [root_task_card] = "taskWbsListService.root_task_card"
+            [planCardList]="[data]"
+            (changeWbsTaskCardProportion)="changeWbsTaskCardProportion($event)"
+            recursive-root
+            [listIndex]="i"
+          ></app-project-plan-card>
+        </ul>
+      </div>
+      <!-- 列表专案计划维护 -->
+      <div
+        class='wbs-table-box'
+        *ngIf="wbsService.typeChange === 'table'"
+      >
+        <app-project-table
+          [editable]='wbsService.editable'
           [source]="Entry.collaborate"
-          [planCardList]="[data]"
+          [pageDatas]="pageDatas"
+          [root_task_card] = "taskWbsListService.root_task_card"
+          [showAddIcon]="getShowAddIcon"
           (changeWbsTaskCardProportion)="changeWbsTaskCardProportion($event)"
-          recursive-root
-          [listIndex]="i"
-        ></app-project-plan-card>
-      </ul>
+          [personList]='taskWbsListService.personList'
+        ></app-project-table>
+      </div>
     </div>
     <div class="add-subproject-card-box">
       <app-add-subproject-card
         *ngIf="addSubProjectCardService.showAddTaskCard"
         [source]="Entry.collaborate"
+        [root_task_card] = "taskWbsListService.root_task_card"
         (currentTaskInfo)="getAddTaskCardInfo($event)"
       >
       </app-add-subproject-card>
@@ -63,10 +79,10 @@
     [peopleObject]="wbsService.peopleObject"
     (changeMaskStatus)="changeMaskStatus($event)"
   ></app-human-resource-load>
-  <div class="submit-btn-box" *ngIf="wbsService.editable && !hasClickSubmit">
+  <div class="submit-btn-box" *ngIf="wbsService.editable && canClickSubmit">
     <button
       class="submit-button"
-      [ngClass]="{ active: this.wbsService.projectInfo.approve_status !== 'N' }"
+      [ngClass]="{ active: canSubmit }"
       nz-button
       nzType="primary"
       (click)="teamworkTaskPlanUpdate()"

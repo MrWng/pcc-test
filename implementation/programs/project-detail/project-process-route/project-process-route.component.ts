@@ -14,11 +14,11 @@ import {
   DynamicFormLayout,
   DynamicFormLayoutService,
   DynamicFormValidationService,
-} from '@ng-dynamic-forms/core';
+} from '@athena/dynamic-core';
 import { TranslateService } from '@ngx-translate/core';
 import { DynamicProjectProcessRouteModel }
-  from 'app/customization/task-project-center-console/model/project-process-route/project-process-route.model';
-import { CommonService } from 'app/customization/task-project-center-console/service/common.service';
+  from 'app/implementation/model/project-process-route/project-process-route.model';
+import { CommonService } from 'app/implementation/service/common.service';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';

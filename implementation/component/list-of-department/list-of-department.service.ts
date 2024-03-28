@@ -4,7 +4,7 @@ import { DwSystemConfigService } from '@webdpt/framework/config';
 import { TranslateService } from '@ngx-translate/core';
 import { CommonService } from '../../service/common.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { cloneDeep } from '@ng-dynamic-forms/core';
+import { cloneDeep } from '@athena/dynamic-core';
 
 @Injectable()
 export class ListOfDepartmentService {
@@ -49,7 +49,7 @@ export class ListOfDepartmentService {
         const catalogList = res.map((o) => {
           return { id: o.id, name: o.name };
         });
-        catalogList.unshift({ id: '', name: '无角色' });
+        catalogList.unshift({ id: '#%#@%##', name: this.translateService.instant('dj-pcc-无角色') });
         resolve(catalogList);
       }, (err) => {
         this.messageService.error(this.translateService.instant('dj-pcc-获取角色失败'));
@@ -108,7 +108,7 @@ export class ListOfDepartmentService {
   getSelectList(rolelist: any, disabledList: any, list: any): any {
     list.forEach(target => {
       const { employee_no: empId, department_no: deptId, role_no, role_name } = target;
-      target.role_name = target.role_name ? target.role_name : '无角色';
+      target.role_name = target.role_name ? target.role_name : this.translateService.instant('dj-pcc-无角色');
       const roleTarget = rolelist?.find(o => (o.key === role_no));
       const deTarget = roleTarget?.children?.find(o => (o.deptId === deptId));
       target.len = deTarget?.children?.length;
@@ -146,7 +146,7 @@ export class ListOfDepartmentService {
       });
       return { role_no: group.role_no, role_name: group.role_name, deptGroups };
     });
-    const targetIndex = result.findIndex(o => o.role_no === '');
+    const targetIndex = result.findIndex(o => o.role_no === '#%#@%##');
     if (targetIndex !== -1) {
       const newArray = [result[targetIndex], ...result.slice(0, targetIndex), ...result.slice(targetIndex + 1)];
       result = newArray;
@@ -228,7 +228,7 @@ export class ListOfDepartmentService {
     nodeList.forEach(node => {
       // 选中的如果是角色，无角色添加在首位其他添加到末位
       if (node.level === 0) {
-        if (node.key === '') {
+        if (node.key === '#%#@%##') {
           personTree.unshift(cloneDeep(node.origin));
         } else {
           personTree.push(cloneDeep(node.origin));
@@ -240,7 +240,7 @@ export class ListOfDepartmentService {
           if (roleItem) {
             roleItem.deptGroups.push(cloneDeep(node.origin));
           } else {
-            if (node.origin.role_no === '') {
+            if (node.origin.role_no === '#%#@%##') {
               personTree.unshift({ role_no: node.origin.role_no, role_name: node.origin.role_name, deptGroups: [cloneDeep(node.origin)] });
             } else {
               personTree.push({ role_no: node.origin.role_no, role_name: node.origin.role_name, deptGroups: [cloneDeep(node.origin)] });

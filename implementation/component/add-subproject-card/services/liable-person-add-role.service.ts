@@ -3,13 +3,14 @@
  * @createDate 2022/10/9
  */
 import { Injectable } from '@angular/core';
-import { CommonService, Entry } from 'app/customization/task-project-center-console/service/common.service';
+import { CommonService, Entry } from 'app/implementation/service/common.service';
 import { Observable } from 'rxjs';
 import { WbsTabsService } from '../../wbs-tabs/wbs-tabs.service';
 import { AddSubProjectCardService } from '../add-subproject-card.service';
 import { IPersonListItem, ISetPeopleList } from '../types/liable-person';
-import { cloneDeep } from '@ng-dynamic-forms/core';
+import { cloneDeep } from '@athena/dynamic-core';
 import { DwLanguageService } from '@webdpt/framework/language';
+import { NzMessageService } from 'ng-zorro-antd/message';
 
 @Injectable()
 export class LiablePersonAddRoleService {
@@ -19,6 +20,7 @@ export class LiablePersonAddRoleService {
     public commonService: CommonService,
     public wbsTabsService: WbsTabsService,
     private languageService: DwLanguageService,
+    private messageService: NzMessageService,
   ) { }
 
   /**
@@ -27,7 +29,7 @@ export class LiablePersonAddRoleService {
    * @param personList 缓存的数据
    * @returns Observable<ISetPeopleList >
    */
-  getSelectPersonList(project_no: string, personList = [], source?: string): Observable<ISetPeopleList> {
+  getSelectPersonList(project_no: string, personList = [], source?: string, change_version?): Observable<ISetPeopleList> {
     return new Observable((observable2) => {
       // if (personList.length) {
       //   let peopleList = null;
@@ -38,8 +40,14 @@ export class LiablePersonAddRoleService {
       //   }
       //   observable2.next({ ...peopleList });
       // } else {
-      const params = { project_member_info: [{ project_no }] };
-      this.commonService.getInvData('employee.info.process', params).subscribe((res: any): void => {
+      let params = { project_member_info: [{ project_no }] };
+      let url = 'employee.info.process';
+      if(source === Entry.projectChange){
+        // @ts-ignore
+        params = { search_type: '2', include_no_department_employee: false ,project_info: [{ project_no, change_version }] };
+        url = 'bm.pisc.project.employee.get';
+      }
+      this.commonService.getInvData(url, params).subscribe((res: any): void => {
         if (res.code === 0 && res.data.project_member_info && res.data.project_member_info.length) {
           const list = res.data.project_member_info;
           let peopleList = null;
@@ -49,6 +57,8 @@ export class LiablePersonAddRoleService {
             peopleList = this.setPeopleListForRole(list);
           }
           observable2.next({ ...peopleList });
+        } else {
+          observable2.next();
         }
       });
       // }
@@ -307,6 +317,11 @@ export class LiablePersonAddRoleService {
     });
   }
 
+  /**
+   * 进行中的任务不可以删除执行人，清空与清除，按钮管控
+   * @param selectList 已选择的执行人
+   * @param list 执行人数据集合TREE
+   */
   noChangeSelectedPersonList(selectList: any[], list: any[]) {
     list.forEach((o) => {
       o.children?.forEach((e) => {
@@ -395,7 +410,7 @@ export class LiablePersonAddRoleService {
    * @param type
    * @returns
    */
-  setSameValue(project_no, source, taskCategoryType): Observable<any> {
+  setSameValue(project_no, source, taskCategoryType, is_sync_document, change_version?): Observable<any> {
     return new Observable(observable2 => {
       const { currentCardInfo, validateForm } = this.addSubProjectCardService;
       const {
@@ -405,15 +420,43 @@ export class LiablePersonAddRoleService {
         liable_person_department_code,
         liable_person_department_name,
         liable_person_role_name,
-        liable_person_role_no
+        liable_person_role_no,
+        liable_person_code_data
       }
         = validateForm.getRawValue();
       if ((currentCardInfo.task_status !== '10' && source === Entry.card) || this.addSubProjectCardService.buttonType !== 'EDIT') {
         observable2.next(false);
         return;
       }
+
+      const liable_perso_info = {
+        liable_person_code:'',
+        liable_person_name:'',
+        liable_person_department_code:'',
+        liable_person_department_name:'',
+        liable_person_role_no:'',
+        liable_person_role_name:'',
+      };
+      if (!liable_person_code && liable_person_code_data) {
+        if (liable_person_code_data) {
+          // 格式参考："id:pvq017;name:erp内勤1;deptId:C001;deptName:仓管部;roleNo:;roleName:無角色"
+          const arr1 = liable_person_code_data.split(';');
+          const item = {};
+          arr1.forEach(v => {
+            const temp = v.split(':');
+            item[temp[0]] = temp[1];
+          });
+          liable_perso_info['liable_person_code'] = item['id'];
+          liable_perso_info['liable_person_name'] = item['name'];
+          liable_perso_info['liable_person_department_code'] = item['deptId'];
+          liable_perso_info['liable_person_department_name'] = item['deptName'];
+          liable_perso_info['liable_person_role_no'] = item['roleNo'];
+          liable_perso_info['liable_person_role_name'] = item['roleName'];
+        }
+      }
+
       let params: any = {};
-      const taskMemberInfo: Array<string> = cloneDeep(validateForm.getRawValue().task_member_info);
+      const taskMemberInfo: Array<string> = cloneDeep(validateForm.getRawValue().task_member_info || []);
       const task_member_info = [];
       taskMemberInfo.forEach(element => {
         const arr = element.split(';');
@@ -425,7 +468,7 @@ export class LiablePersonAddRoleService {
 
         task_member_info.push({
           executor_role_no: obj['roleNo'] ? obj['roleNo'] : '',
-          executor_role_name: obj['roleName'] ? obj['roleName'] : '',
+          executor_role_name: obj['roleNo'] ? obj['roleName'] : '',
           executor_department_name: obj['deptName'],
           executor_department_no: obj['deptId'],
           executor_name: obj['name'],
@@ -438,37 +481,72 @@ export class LiablePersonAddRoleService {
         site_no: '',
         enterprise_no: '',
         sync_steady_state: this.wbsTabsService.hasGroundEnd,
+        is_sync_document,
         project_info: [{
           project_no,
           task_no,
-          liable_person_name,
-          liable_person_code,
-          liable_person_department_code,
-          liable_person_department_name,
-          liable_person_role_name,
-          liable_person_role_no: liable_person_role_no ? liable_person_role_no : '',
+          liable_person_name: liable_person_name ? liable_person_name : liable_perso_info.liable_person_name,
+          liable_person_code: liable_person_code ? liable_person_code : liable_perso_info.liable_person_code,
+          liable_person_department_code: liable_person_department_code
+            ? liable_person_department_code : liable_perso_info.liable_person_department_code,
+          liable_person_department_name: liable_person_department_name
+            ? liable_person_department_name : liable_perso_info.liable_person_department_name,
+          liable_person_role_name: liable_person_role_name
+            ? liable_person_role_name : liable_perso_info.liable_person_role_name,
+          liable_person_role_no: (liable_person_role_no || liable_perso_info.liable_person_role_no)
+            ? (liable_person_role_no ? liable_person_role_no : liable_perso_info.liable_person_role_no): '',
           task_member_info,
           task_category: taskCategoryType,
           task_property: source === Entry.maintain ? '2' : '1',
         }],
-
       };
 
-      if (liable_person_code || task_member_info?.length) {
-        this.commonService.getInvData('lower.level.task.info.update', params)
-          .subscribe((res: any): void => {
-            const result = { success: true, error_msgs: [] };
-            res.data.task_info.forEach(element => {
-              if (element.task_name_mistake_message) {
-                result.error_msgs.push(element.task_name_mistake_message);
+      if ((liable_perso_info|| liable_perso_info.liable_person_name) || task_member_info?.length) {
+        if (source === Entry.collaborate) {
+          const bpmData = this.commonService.content?.executeContext?.taskWithBacklogData?.bpmData;
+          const taskInfo = bpmData?.assist_schedule_info ? bpmData?.assist_schedule_info[0] : bpmData?.task_info[0];
+          params['project_info'][0]['assist_schedule_seq'] =
+          taskInfo['assist_schedule_seq'] ? taskInfo['assist_schedule_seq'] : taskInfo['teamwork_plan_seq'];
+          params['project_info'][0]['root_task_no'] = this.addSubProjectCardService?.firstLevelTaskCard?.task_no;
+          if (params.project_info[0]?.liable_person_role_no === '') {
+            params.project_info[0].liable_person_role_name = '';
+          }
+          Reflect.deleteProperty(params['project_info'][0], 'task_property');
+          this.commonService.getInvData('lower.level.assist.task.info.update', params)
+            .subscribe((res: any): void => {
+              if (res?.data?.error_msg) {
+                this.messageService.error(res.data.error_msg);
               }
+              observable2.next(res);
             });
-            const task_info = res.data?.task_info?.filter(item => item?.is_issue_task_card);
-            if (task_info.length && source !== Entry.maintain) {
-              this.addSubProjectCardService.updateTaskMainProject(task_info, '', true);
-            }
-            observable2.next(result);
-          });
+        } else if (source === Entry.projectChange) {
+          if(params['project_info'][0]['liable_person_role_no'] === ''){
+            params['project_info'][0]['liable_person_role_name'] = '';
+          }
+          params['project_info'][0]['change_version'] = change_version;
+          this.commonService.getInvData('lower.level.project.change.task.info.update', params)
+            .subscribe((res: any): void => {
+              if (res?.data?.error_msg) {
+                this.messageService.error(res.data.error_msg);
+              }
+              observable2.next(res);
+            });
+        }else {
+          this.commonService.getInvData('lower.level.task.info.update', params)
+            .subscribe((res: any): void => {
+              const result = { success: true, error_msgs: [] };
+              res.data.task_info.forEach(element => {
+                if (element.task_name_mistake_message) {
+                  result.error_msgs.push(element.task_name_mistake_message);
+                }
+              });
+              const task_info = res.data?.task_info?.filter(item => item?.is_issue_task_card);
+              if (task_info.length && source !== Entry.maintain) {
+                this.addSubProjectCardService.updateTaskMainProject(task_info, '', true);
+              }
+              observable2.next(result);
+            });
+        }
       }
     });
   }

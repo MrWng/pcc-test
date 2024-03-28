@@ -16,18 +16,17 @@ import {
   DynamicFormLayout,
   DynamicFormLayoutService,
   DynamicFormValidationService,
-} from '@ng-dynamic-forms/core';
+} from '@athena/dynamic-core';
 import { TranslateService } from '@ngx-translate/core';
 import { DynamicCooperationTaskModel } from '../../../model/cooperation-task/cooperation-task.model';
 import { CommonService, Entry } from '../../../service/common.service';
 import { OnDestroy } from '@angular/core';
 import { DynamicWbsService } from '../../../component/wbs/wbs.service';
-import { AddSubProjectCardService } from 'app/customization/task-project-center-console/component/add-subproject-card/add-subproject-card.service';
+import { AddSubProjectCardService } from 'app/implementation/component/add-subproject-card/add-subproject-card.service';
 import { DynamicTaskWbsListComponent } from './components/task-wbs-list/task-wbs-list.component';
-import { AthModalService } from 'ngx-ui-athena/src/components/modal';
-import { ApprovalProgressComponent } from 'app/customization/task-project-center-console/component/wbs/components/task-detail/components/approval-progress/approval-progress.component';
-import { WbsTabsService } from 'app/customization/task-project-center-console/component/wbs-tabs/wbs-tabs.service';
-
+import { AthModalService } from '@athena/design-ui/src/components/modal';
+import { ApprovalProgressComponent } from 'app/implementation/component/wbs/components/task-detail/components/approval-progress/approval-progress.component';
+import { WbsTabsService } from 'app/implementation/component/wbs-tabs/wbs-tabs.service';
 
 @Component({
   selector: 'app-cooperation-task',
@@ -39,7 +38,8 @@ import { WbsTabsService } from 'app/customization/task-project-center-console/co
 // tslint:disable-next-line
 export class CooperationTaskComponent
   extends DynamicFormControlComponent
-  implements OnInit, OnDestroy {
+  implements OnInit, OnDestroy
+{
   @Input() formLayout: DynamicFormLayout;
   @Input() group: FormGroup;
   @Input() layout: DynamicFormControlLayout;
@@ -53,10 +53,13 @@ export class CooperationTaskComponent
   private dynamicTaskWbsListComponent!: DynamicTaskWbsListComponent;
 
   // wbs入口
-  Entry = Entry
+  Entry = Entry;
 
   tabIndex: number = 0;
   datas: Array<any>;
+  taskTipInfo = this.translateService.instant(
+    'dj-pcc-存在一级任务的任务比重 < 100%，则所有一级任务的任务比重累计必须等于100%！'
+  );
 
   constructor(
     protected changeRef: ChangeDetectorRef,
@@ -66,21 +69,21 @@ export class CooperationTaskComponent
     public wbsService: DynamicWbsService,
     public commonService: CommonService,
     private modalService: AthModalService,
+    private translateService: TranslateService
   ) {
     super(layoutService, validationService, changeRef, elementRef);
   }
 
   get isApproveStatus() {
-    return this.wbsService.projectInfo.approve_status === 'N';
+    return this.wbsService.projectInfo?.approve_status === 'N';
   }
 
   ngOnInit(): void {
     this.commonService.content = this.model.content;
-    // spring 3.2 更换api名称 [入参、出参]：'teamwork.task.plan.info.get' ==> 'bm.pisc.assist.schedule.get'
-    // 配合标准前端修改
     const bpmData = this.model?.content?.executeContext?.taskWithBacklogData?.bpmData;
     this.wbsService.project_no = bpmData?.assist_schedule_info
-      ? bpmData?.assist_schedule_info[0]?.project_no : bpmData?.task_info[0]?.project_no;
+      ? bpmData?.assist_schedule_info[0]?.project_no
+      : bpmData?.task_info[0]?.project_no;
     // 任务比重校验
     this.changeWbsTaskProportion();
     this.monitorTaskProportionChange();
@@ -97,22 +100,43 @@ export class CooperationTaskComponent
     this.tabIndex = $event;
   }
 
+  // 协同，页面初始化，增删改任务卡
   changeWbsTaskProportion() {
-    this.commonService.getInvData(
-      'task.proportion.check',
-      { project_info: [{ project_no: this.wbsService.project_no }], check_all_task: '2' }
-    ).subscribe((res: any): void => {
-      const { project_info, task_info } = res.data ?? {};
-      this.wbsService.taskProportionCheck = {
-        project_info,
-        task_info,
-        taskInfoTip: !!task_info.length,
-        projectInfoTip: !!project_info.length,
-        tip: !!task_info.length || !!project_info.length
-      };
-      this.changeRef.markForCheck();
-      this.dynamicTaskWbsListComponent.markForCheck();
-    });
+    this.commonService.content = this.model.content;
+    const bpmData = this.model?.content?.executeContext?.taskWithBacklogData?.bpmData;
+    const taskInfo = bpmData?.assist_schedule_info
+      ? bpmData?.assist_schedule_info[0]
+      : bpmData?.task_info[0];
+    this.commonService
+      .getTaskProportionInfo('collaborate', taskInfo?.project_no, taskInfo)
+      .subscribe((res: any): void => {
+        if (res.data && res.data?.project_info) {
+          const project_info = res.data?.project_info.filter(
+            (item) => item.project_no === taskInfo?.project_no
+          );
+          const task_no = [];
+          project_info.forEach((item) => {
+            if (item.upper_level_task_no) {
+              task_no.push(item.upper_level_task_no);
+            }
+          });
+          this.wbsService.taskProportionCheck = {
+            project_info,
+            task_no: task_no,
+            taskInfoTip: !!task_no.length,
+            projectInfoTip: task_no.length < project_info.length && project_info.length,
+            tip: !!task_no.length || !!project_info.length,
+          };
+        }
+        this.changeRef.markForCheck();
+        this.dynamicTaskWbsListComponent.markForCheck();
+      });
+  }
+
+  changeType(type) {
+    this.wbsService.changeType(type);
+    this.changeRef.markForCheck();
+    this.dynamicTaskWbsListComponent.markForCheck();
   }
 
   lookSignOffProgress(): void {
@@ -124,12 +148,15 @@ export class CooperationTaskComponent
       nzCancelText: null,
       nzComponentParams: {
         taskOrProjectId: this.wbsService.projectInfo.projectId,
+        idType: 'project',
+        project_no: this.wbsService.project_no,
+        wbsService: this.wbsService,
       },
       nzWidth: 550,
       nzClassName: 'signOffProgress-modal-center-sty',
       nzNoAnimation: true,
       nzClosable: true,
-      nzOnOk: (): void => { },
+      nzOnOk: (): void => {},
     });
   }
 }

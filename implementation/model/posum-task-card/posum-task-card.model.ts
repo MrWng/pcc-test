@@ -3,11 +3,11 @@ import {
   DynamicFormValueControlModel,
   serializable,
   DynamicFormControlLayout,
-} from '@ng-dynamic-forms/core';
+} from '@athena/dynamic-core';
 import { DefaultModelConfig, StateCode } from '../model';
 
 export const DYNAMIC_CUSTOM_PCC_TASK_DETAIL = 'purchaseRequestSumAssignment-task-detail-all';
-export const DYNAMIC_CUSTOM_PCC_MO_PROCESS_DTD_ASSIGNMENT_TASK_DETAIL_ALL = 'moProcess_DTD_Assignment-task-detail-all';
+export const DYNAMIC_CUSTOM_PCC_MO_PROCESS_DTD_ASSIGNMENT_TASK_DETAIL_ALL = 'moProcess_DTD_Assignment-task-detail-waitting';
 export const DYNAMIC_CUSTOM_PCC_MO_PROCESS_BPM_ASSIGNMENT = 'moProcessAssignment';
 export const DYNAMIC_CUSTOM_PCC_TASK_DETAIL_DTD = 'purchaseRequestSum_DTD_Assignment-task-detail-all';
 export const DYNAMIC_CUSTOM_PCC_PURCHASE_SUM_DTD_ASSIGNMENT_TASK_DETAIL_ALL = 'purchaseSum_DTD_Assignment-task-detail-all';

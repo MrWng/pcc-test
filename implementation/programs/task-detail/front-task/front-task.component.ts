@@ -17,13 +17,13 @@ import {
   DynamicFormLayoutService,
   DynamicFormService,
   DynamicFormValidationService,
-} from '@ng-dynamic-forms/core';
+} from '@athena/dynamic-core';
 import { TranslateService } from '@ngx-translate/core';
 import { FrontTaskService } from './front-task.service';
-import { DynamicFrontTaskModel } from 'app/customization/task-project-center-console/model/front-task/front-task.model';
-import { CommonService } from 'app/customization/task-project-center-console/service/common.service';
-import { APIService } from 'app/customization/task-project-center-console/service/api.service';
-import { DwUserService } from '@webdpt/framework';
+import { DynamicFrontTaskModel } from 'app/implementation/model/front-task/front-task.model';
+import { CommonService } from 'app/implementation/service/common.service';
+import { APIService } from 'app/implementation/service/api.service';
+import { DwUserService } from '@webdpt/framework/user';
 
 
 @Component({
@@ -90,7 +90,7 @@ export class FrontTaskComponent extends DynamicFormControlComponent implements O
         : doc_info && doc_info[0].task_no
           ? doc_info[0].task_no
           : '';
-    this.getData();
+    // this.getData();
   }
 
   getData() {
@@ -154,6 +154,7 @@ export class FrontTaskComponent extends DynamicFormControlComponent implements O
     this.dynamicLayout = initializedData.formLayout; // 样式
     this.dynamicModel = initializedData.formModel; // 组件数据模型
     this.dynamicGroup = initializedData.formGroup; // formGroup
+    this.isVisible = true;
     this.changeRef.markForCheck();
   }
 
@@ -166,7 +167,8 @@ export class FrontTaskComponent extends DynamicFormControlComponent implements O
   }
 
   showTable() {
-    this.isVisible = true;
+    this.getData();
+    // this.isVisible = true;
   }
 
   /**

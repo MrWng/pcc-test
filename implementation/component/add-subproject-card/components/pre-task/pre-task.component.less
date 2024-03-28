@@ -1,8 +1,10 @@
+.before-task-box {
+  margin-top: 5px;
+}
 .item-multi-task-box {
   height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  width: 99%;
+  margin-left: 10px;
   .delete-icon {
     height: 34px;
     display: block;
@@ -18,10 +20,16 @@
       }
     }
   }
+
   .deleteRelateIcon {
     cursor: pointer;
     font-size: 16px;
   }
+}
+
+.delete-icon-box {
+  text-align: center;
+  line-height: 38px;
 }
 
 .fold-more {
@@ -33,6 +41,7 @@
   cursor: pointer;
   position: relative;
   z-index: 10;
+  pointer-events: auto;
   .icon {
     display: flex;
     width: 14px;

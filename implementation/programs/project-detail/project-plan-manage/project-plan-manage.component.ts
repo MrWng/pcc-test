@@ -15,13 +15,13 @@ import {
   DynamicFormLayout,
   DynamicFormLayoutService,
   DynamicFormValidationService,
-} from '@ng-dynamic-forms/core';
+} from '@athena/dynamic-core';
 import { DynamicProjectPlanManageModel } from '../../../model/project-plan-manage/project-plan-manage.model';
 import { ProjectPlanManageService } from './project-plan-manage.service';
 import { CommonService } from '../../../service/common.service';
-import { DynamicWbsService } from 'app/customization/task-project-center-console/component/wbs/wbs.service';
-import { AddSubProjectCardService } from 'app/customization/task-project-center-console/component/add-subproject-card/add-subproject-card.service';
-import { WbsTabsService } from 'app/customization/task-project-center-console/component/wbs-tabs/wbs-tabs.service';
+import { DynamicWbsService } from 'app/implementation/component/wbs/wbs.service';
+import { AddSubProjectCardService } from 'app/implementation/component/add-subproject-card/add-subproject-card.service';
+import { WbsTabsService } from 'app/implementation/component/wbs-tabs/wbs-tabs.service';
 
 @Component({
   selector: 'app-project-plan-manage',
@@ -53,4 +53,11 @@ export class ProjectPlanManageComponent extends DynamicFormControlComponent impl
   }
 
   ngOnInit() { }
+
+  changeFn() {
+    this.change.emit({
+      type: 'close-project',
+    });
+    this.changeRef.markForCheck();
+  }
 }

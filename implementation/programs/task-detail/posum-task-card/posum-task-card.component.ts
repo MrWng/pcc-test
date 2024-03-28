@@ -1,15 +1,34 @@
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 // eslint-disable-next-line max-len
-import { cloneDeep, DynamicFormControlComponent, DynamicFormControlLayout, DynamicFormLayout, DynamicFormLayoutService, DynamicFormService, DynamicFormValidationService, DynamicTableModel, multiple, } from '@ng-dynamic-forms/core';
+import {
+  cloneDeep,
+  DynamicFormControlComponent,
+  DynamicFormControlLayout,
+  DynamicFormLayout,
+  DynamicFormLayoutService,
+  DynamicFormService,
+  DynamicFormValidationService,
+  DynamicTableModel,
+  multiple,
+} from '@athena/dynamic-core';
 import { DynamicPosumTaskCardModel } from '../../../model/posum-task-card/posum-task-card.model';
+import { QuestionQuickModel } from '../../../model/question-quick/question-quick.model';
 import { PosumTaskCardService } from './posum-task-card.service';
 import { CommonService } from '../../../service/common.service';
 import { TranslateService } from '@ngx-translate/core';
-import { DwUserService } from '@webdpt/framework';
-import { APIService } from 'app/customization/task-project-center-console/service/api.service';
-import { PosumService } from 'app/customization/task-project-center-console/component/add-subproject-card/services/posum.service';
-import { WbsTabsService } from 'app/customization/task-project-center-console/component/wbs-tabs/wbs-tabs.service';
+import { DwUserService } from '@webdpt/framework/user';
+import { APIService } from 'app/implementation/service/api.service';
+import { PosumService } from 'app/implementation/component/add-subproject-card/services/posum.service';
+import { WbsTabsService } from 'app/implementation/component/wbs-tabs/wbs-tabs.service';
 
 @Component({
   selector: 'app-posum-task-card',
@@ -56,7 +75,7 @@ export class PosumTaskCardComponent extends DynamicFormControlComponent implemen
   public isMaxTable: boolean = false;
   waittingData = { isCalculated: false, data: [] };
   completedData = { isCalculated: false, data: [] };
-  isNeedMerge: boolean = true
+  isNeedMerge: boolean = true;
 
   constructor(
     protected changeRef: ChangeDetectorRef,
@@ -77,7 +96,8 @@ export class PosumTaskCardComponent extends DynamicFormControlComponent implemen
 
   ngOnInit(): void {
     this.commonService.content = this.model.content;
-    this.project_no = this.model?.content?.executeContext?.taskWithBacklogData.bpmData.project_info[0].project_no;
+    this.project_no =
+      this.model?.content?.executeContext?.taskWithBacklogData.bpmData.project_info[0].project_no;
     this.getTaskInfo();
   }
 
@@ -104,7 +124,8 @@ export class PosumTaskCardComponent extends DynamicFormControlComponent implemen
     // 是否需要合并单云格
     this.isNeedMerge = true;
     this.resetData();
-    const task_no = this.model?.content?.executeContext?.taskWithBacklogData?.bpmData?.project_info[0].task_no;
+    const task_no =
+      this.model?.content?.executeContext?.taskWithBacklogData?.bpmData?.project_info[0].task_no;
     this.taskInfo = await this.posumTaskCardService.getTaskInfo(this.project_no, task_no);
     if (this.taskInfo?.task_category === 'MOOP') {
       this.MoopTaskType(this.taskInfo);
@@ -116,7 +137,10 @@ export class PosumTaskCardComponent extends DynamicFormControlComponent implemen
   }
 
   posumPopurTaskType() {
-    if (!this.taskInfo.is_need_doc_no || (this.taskInfo.is_need_doc_no && this.taskInfo.doc_type_no && this.taskInfo.doc_no)) {
+    if (
+      !this.taskInfo.is_need_doc_no ||
+      (this.taskInfo.is_need_doc_no && this.taskInfo.doc_type_no && this.taskInfo.doc_no)
+    ) {
       this.getDocData(this.taskInfo, false);
     } else {
       this.isNeedMerge = false;
@@ -136,11 +160,13 @@ export class PosumTaskCardComponent extends DynamicFormControlComponent implemen
     }
   }
 
-
   MoopTaskType(taskInfo) {
     // 任务类型为MOOP(工单工艺)
     this.model.is_need_doc_no = taskInfo.is_need_doc_no;
-    if (!taskInfo.is_need_doc_no || (taskInfo.is_need_doc_no && taskInfo.doc_type_no && taskInfo.doc_no && taskInfo.seq)) {
+    if (
+      !taskInfo.is_need_doc_no ||
+      (taskInfo.is_need_doc_no && taskInfo.doc_type_no && taskInfo.seq)
+    ) {
       this.getDocData(taskInfo, true);
     } else {
       const arr = {
@@ -159,8 +185,6 @@ export class PosumTaskCardComponent extends DynamicFormControlComponent implemen
       this.changeRef.markForCheck();
     }
   }
-
-
 
   async getDocData(info, isMaxTable: boolean): Promise<any> {
     this.showBtn = false;
@@ -206,7 +230,8 @@ export class PosumTaskCardComponent extends DynamicFormControlComponent implemen
         this.tabList[1].sum++;
       }
       if (['PRSUM', 'POSUM'].includes(this.taskInfo.task_category)) {
-        o.complete_rate = o.complete_rate <= 1 ? o.complete_rate * 100 : o.complete_rate;
+        // o.complete_rate = o.complete_rate <= 1 ? o.complete_rate * 100 : o.complete_rate;
+        o.complete_rate = o.complete_rate <= 1 ? this.commonService.accMul(o.complete_rate, 100) : o.complete_rate;
       }
     });
   }
@@ -252,7 +277,7 @@ export class PosumTaskCardComponent extends DynamicFormControlComponent implemen
       });
     }
 
-    if (this.taskInfo.task_category === 'PRSUM') {
+    if (this.taskInfo.task_category === 'PRSUM' && this.isNeedMerge) {
       const handelData = this.state === '1' ? this.waittingData : this.completedData;
       if (!handelData.isCalculated) {
         handelData.isCalculated = true;
@@ -273,8 +298,8 @@ export class PosumTaskCardComponent extends DynamicFormControlComponent implemen
   }
 
   /**
- * Posum任务类型
- */
+   * Posum任务类型
+   */
   handelPosumData(): void {
     const handelData = this.state === '1' ? this.waittingData : this.completedData;
     if (handelData.isCalculated) {
@@ -298,7 +323,7 @@ export class PosumTaskCardComponent extends DynamicFormControlComponent implemen
   /**
    * 按照单别单号品名规格分成大组,合并单元格
    * @returns
-  */
+   */
   getMergeGroup(rawData: any, callBack: any): any {
     return rawData.reduce((acc, obj) => {
       const key = callBack(obj);
@@ -311,9 +336,9 @@ export class PosumTaskCardComponent extends DynamicFormControlComponent implemen
   }
 
   /**
-* 获取类似合并单元格的数据
-* @param grouped
-*/
+   * 获取类似合并单元格的数据
+   * @param grouped
+   */
   getMergeTableList(grouped): void {
     const handelData = this.state === '1' ? this.waittingData : this.completedData;
     for (const k in grouped) {
@@ -329,78 +354,102 @@ export class PosumTaskCardComponent extends DynamicFormControlComponent implemen
     this.list = handelData.data;
   }
 
+  /**
+   * 除法，四舍五入
+   * @param denominator 分母
+   * @param numerator 分子
+   * @param accuracy 精度
+   * @returns 值
+   */
+  halfAdjust(denominator, numerator, accuracy?): number {
+    // const value = Number(denominator) / Number(numerator);
+    const value = this.posumService.accDiv(Number(denominator), Number(numerator));
+    return this.retainDecimals(value, accuracy);
+  }
 
   /**
-  * 统计总明细
-  * @param groupTotalData
-  */
+   * 取精度
+   * @param value 要取精度的值
+   * @param accuracy 精度，默认2
+   * @returns 保留两位小数
+   */
+  retainDecimals(value, accuracy: number = 4): number {
+    const arr = String(value).split('.');
+    return arr.length > 1 && arr[1].length > 5 ? value.toFixed(accuracy) : value;
+  }
+
+  /**
+   * 统计总明细
+   * @param groupTotalData
+   */
   setPosumTotalData(groupTotalData): void {
     const handelData = this.state === '1' ? this.waittingData : this.completedData;
-    let completeRateAverage = 0;
-    if (groupTotalData.count) {
-      completeRateAverage = groupTotalData.total_complete_rate_number / groupTotalData.count;
-    }
-    const complete_rate_number =
-      String(completeRateAverage).length > 5
-        ? completeRateAverage.toFixed(4) : completeRateAverage;
     handelData.data.push({
       reference_type_no: '',
       reference_doc_no: '',
       item_name_spec: '',
       item_spec: '',
       item_classification: '总明细',
-      complete_rate: complete_rate_number + '%',
+      complete_rate:
+        this.halfAdjust(groupTotalData.total_complete_rate, groupTotalData.classification_num) +
+        '%',
       purchase_qty: groupTotalData.total_purchase_qty,
       stock_in_qty: groupTotalData.total_stock_in_qty,
     });
   }
 
   /**
-* 根据品号分类/群组分组: 遍历大组，将其按照群组进行分组，结果是{key: {group:[values]}}
-* @param rawData
-* @returns
-*/
+   * 根据品号分类/群组分组: 遍历大组，将其按照群组进行分组，结果是{key: {group:[values]}}
+   * @param rawData
+   * @returns
+   */
   getPosumClassificationGroup(rawData: any): any {
-    return rawData.reduce((acc, obj) => {
-      const key = obj.item_classification;
-      if (!acc[key]) {
-        acc[key] = [{
-          reference_type_no: obj.reference_type_no,
-          reference_doc_no: obj.reference_doc_no,
-          item_name_spec: obj.item_name_spec,
-          item_spec: obj.item_spec,
-          item_classification: obj.item_classification,
-          complete_rate: 0,
-          purchase_qty: 0,
-          stock_in_qty: 0
-        }];
-      }
-      acc[key].push({
-        ...obj,
-        ...{
-          reference_type_no: '',
-          reference_doc_no: '',
-          item_name_spec: '',
-          item_spec: '',
-          item_classification: '',
-          out_plan_time: obj.out_plan_time === 'Y' ? '*' : '',
-          complete_rate: String(obj.complete_rate).length > 5 ? Number(obj.complete_rate).toFixed(4) : Number(obj.complete_rate)
+    return (
+      rawData.reduce((acc, obj) => {
+        const key = obj.item_classification;
+        if (!acc[key]) {
+          acc[key] = [
+            {
+              reference_type_no: obj.reference_type_no,
+              reference_doc_no: obj.reference_doc_no,
+              item_name_spec: obj.item_name_spec,
+              item_spec: obj.item_spec,
+              item_classification: obj.item_classification,
+              complete_rate: 0,
+              purchase_qty: 0,
+              stock_in_qty: 0,
+            },
+          ];
         }
-      });
-      return acc;
-    }, {}) ?? {};
+        acc[key].push({
+          ...obj,
+          ...{
+            reference_type_no: '',
+            reference_doc_no: '',
+            item_name_spec: '',
+            item_spec: '',
+            item_classification: '',
+            out_plan_time: obj.out_plan_time === 'Y' ? '*' : '',
+            complete_rate:
+              String(obj.complete_rate).length > 5
+                ? Number(obj.complete_rate).toFixed(4)
+                : Number(obj.complete_rate),
+          },
+        });
+        return acc;
+      }, {}) ?? {}
+    );
   }
 
-
   /**
-* 获取总明细信息
-* @param classification
-* @returns
-*/
+   * 获取总明细信息
+   * @param classification
+   * @returns
+   */
   getPosumGroupTotalData(classification: any): any {
     const groupTotalData = {
-      total_complete_rate_number: 0,
-      count: 0,
+      classification_num: 0,
+      total_complete_rate: 0,
       total_purchase_qty: 0,
       total_stock_in_qty: 0,
     };
@@ -408,15 +457,17 @@ export class PosumTaskCardComponent extends DynamicFormControlComponent implemen
     return groupTotalData;
   }
 
-
   /**
-  * 获取群组分组总明细
-  * @param classification
-  * @param groupTotalData
-  */
+   * 获取群组分组总明细
+   * @param classification
+   * @param groupTotalData
+   */
   getPosumClassificationTotalData(classification: any, groupTotalData): void {
+    groupTotalData.classification_num = Object.keys(classification).length
+      ? Object.keys(classification).length
+      : 1;
     const handelData = this.state === '1' ? this.waittingData : this.completedData;
-    Object.keys(classification).forEach(((i, classificationIndex) => {
+    Object.keys(classification).forEach((i, classificationIndex) => {
       const classificationTotalData = {
         complete_rate_number: 0,
         complete_rate: '0',
@@ -425,7 +476,7 @@ export class PosumTaskCardComponent extends DynamicFormControlComponent implemen
         reference_type_no: '',
         reference_doc_no: '',
         item_name_spec: '',
-        item_spec: ''
+        item_spec: '',
       };
       // 遍历每个小分组名字对应的数组，统计小组组的总完成率、总进货量和总出货量
       classification[i].forEach((item, index) => {
@@ -436,18 +487,21 @@ export class PosumTaskCardComponent extends DynamicFormControlComponent implemen
           item.item_spec = '';
         }
         if (index > 0) {
-          groupTotalData.count++;
-          groupTotalData.total_complete_rate_number += Number(item.complete_rate);
           classificationTotalData.complete_rate_number += Number(item.complete_rate);
           classificationTotalData.purchase_qty += Number(item.purchase_qty);
           classificationTotalData.stock_in_qty += Number(item.stock_in_qty);
         }
       });
       // 给每个小分组名字对应的数组的第一个数组（总计组）赋值总完成率、总进货量和总出货量
-      const caculeData = classificationTotalData.complete_rate_number / (classification[i].length - 1);
+      // const caculeData =
+      //   classificationTotalData.complete_rate_number / (classification[i].length - 1);
+      const caculeData =
+        this.posumService.accDiv(classificationTotalData.complete_rate_number, (classification[i].length - 1));
       if (String(caculeData).length > 5) {
+        groupTotalData.total_complete_rate += Number(caculeData).toFixed(4);
         classification[i][0].complete_rate = Number(caculeData).toFixed(4) + '%';
       } else {
+        groupTotalData.total_complete_rate += Number(caculeData);
         classification[i][0].complete_rate = caculeData + '%';
       }
       classification[i][0].purchase_qty = classificationTotalData.purchase_qty;
@@ -465,16 +519,14 @@ export class PosumTaskCardComponent extends DynamicFormControlComponent implemen
       groupTotalData.isCalculated = true;
       // 保存处理数据的结果
       handelData.data = [...handelData.data, ...classification[i]];
-    }));
+    });
   }
 
   initTemplateJson(category: string, data: Array<any>): void {
-    const result = this.posumTaskCardService.setTemplateJson(
-      category,
-      data,
-      this.showBtn,
-      this.model?.content
-    );
+    const result = this.posumTaskCardService.setTemplateJson(category, data, this.showBtn, [
+      this.model?.content,
+      this.model?.content,
+    ]);
     result.layout = result.layout && Array.isArray(result.layout) ? result.layout : [];
     result.content = result.content || {};
     const initializedData = this.formService.initData(
@@ -497,7 +549,7 @@ export class PosumTaskCardComponent extends DynamicFormControlComponent implemen
     }
     const taskInfo = this.taskInfo;
     taskInfo.doc_type_no = this.pageData.doc_type_no;
-    taskInfo.doc_no = this.pageData.doc_no;
+    taskInfo.doc_no = this.pageData.doc_no ?? '';
     taskInfo.seq = this.pageData.seq;
     const params = {
       project_info: [
@@ -532,7 +584,7 @@ export class PosumTaskCardComponent extends DynamicFormControlComponent implemen
       this.pageData = pageData;
       if (['MOOP'].includes(this.taskInfo.task_category)) {
         this.activeBtn = false;
-        if (pageData.doc_type_no && pageData.doc_no && pageData.seq) {
+        if (pageData.doc_type_no && pageData.seq) {
           this.activeBtn = true;
         }
         this.showBtn = true;

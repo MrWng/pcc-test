@@ -1,6 +1,6 @@
 import {
   DynamicFormValueControlModelConfig,
-} from '@ng-dynamic-forms/core';
+} from '@athena/dynamic-core';
 
 // eslint-disable-next-line no-shadow
 export enum StateCode {
@@ -14,6 +14,7 @@ export interface DefaultModelConfig extends DynamicFormValueControlModelConfig<s
   actions?: any[];
   operations?: any[];
   finished?: boolean;
+  contents?: any;
   extendedFields: any;
   attach: any;
 }

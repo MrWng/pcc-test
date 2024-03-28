@@ -1,9 +1,9 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { CommonService, Entry } from 'app/customization/task-project-center-console/service/common.service';
+import { CommonService, Entry } from 'app/implementation/service/common.service';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { AthMessageService } from 'ngx-ui-athena/src/components/message';
+import { AthMessageService } from '@athena/design-ui/src/components/message';
 
 import { AddSubProjectCardService } from '../../add-subproject-card.service';
 import { LiablePersonService } from '../../services/liable-person.service';
@@ -79,20 +79,18 @@ export class LiablePersonComponent implements OnInit {
   * 不禁用状态
   */
   get isForbidden() {
-    return this.addSubProjectCardService.currentCardInfo?.isCollaborationCard;
+    if (['PLM_PROJECT', 'ASSC_ISA_ORDER', 'PCM'].includes(this.addSubProjectCardService.currentCardInfo?.task_category)) {
+      return true;
+    } else {
+      return this.addSubProjectCardService.currentCardInfo?.isCollaborationCard;
+    }
   }
-
-
-
-
 
   ngOnInit(): void { }
 
   get isAllowClear(): boolean {
-    const { currentCardInfo, validateForm } = this.addSubProjectCardService;
-    const task_member_info = validateForm.getRawValue().task_member_info;
-    const plmType = currentCardInfo?.task_status === '20' && currentCardInfo?.task_category === 'PLM' || this.isForbidden;
-    return plmType ? false : !task_member_info?.length;
+    const task_member_info = this.addSubProjectCardService.validateForm.getRawValue().task_member_info;
+    return !task_member_info?.length;
   }
 
   // 是否禁用执行人删除
@@ -115,7 +113,7 @@ export class LiablePersonComponent implements OnInit {
     this.personLiable.employee_info = [];
     this.personLiable.error_msg = '';
     this.personInChargeItem = item;
-    if (this.taskTemplateInfo.task_category !== 'PLM_PROJECT') {
+    if (!['PLM_PROJECT','ASSC_ISA_ORDER'].includes(this.taskTemplateInfo.task_category)) {
       const { clear } = await this.personLiableExecutorVerification(item);
       if (this.personLiable.employee_info?.length && !clear) {
         this.clearPersonValue();
@@ -190,6 +188,8 @@ export class LiablePersonComponent implements OnInit {
     this.liable_person_code_data = '';
     this.addSubProjectCardService.validateForm.get('liable_person_code').patchValue('');
     this.addSubProjectCardService.validateForm.get('liable_person_name').patchValue('');
+    this.addSubProjectCardService.validateForm.get('liable_person_department_code').patchValue('');
+    this.addSubProjectCardService.validateForm.get('liable_person_department_name').patchValue('');
     this.addSubProjectCardService.validateForm.get('task_member_info').disable();
     this.addSubProjectCardService.validateForm.get('task_member_info').patchValue([]);
     this.clearCustomError('personLiable', 2000);
@@ -199,7 +199,7 @@ export class LiablePersonComponent implements OnInit {
   async checkLiablePersonCodeData(task_category: string) {
     this.personLiable.employee_info = [];
     this.personLiable.error_msg = '';
-    if (task_category !== 'PLM_PROJECT' && this.liable_person_code_data?.id) {
+    if (!['PLM_PROJECT','ASSC_ISA_ORDER'].includes(task_category) && this.liable_person_code_data?.id) {
       const { clear } = await this.personLiableExecutorVerification(this.liable_person_code_data);
       if (this.personLiable.employee_info?.length && !clear) {
         this.clearPersonValue();
@@ -224,7 +224,7 @@ export class LiablePersonComponent implements OnInit {
    */
   checkeExecutor(task_category: string) {
     this.taskCategoryType = task_category;
-    if (['PLM', 'PLM_PROJECT'].includes(task_category) || !this.employee_info?.length) {
+    if (['PLM', 'PLM_PROJECT','ASSC_ISA_ORDER'].includes(task_category) || !this.employee_info?.length) {
       this.executor.employee_info = [];
       this.executor.error_msg = '';
       setTimeout(() => this.disableExecutorInput(this.taskCategoryType), 50);
@@ -242,8 +242,9 @@ export class LiablePersonComponent implements OnInit {
       if (!!!data) {
         return res({ clear: true });
       }
+      // sprint4.5 auth.employee.info.check==>bm.pisc.auth.employee.info.check
       this.commonService
-        .getInvData('auth.employee.info.check', {
+        .getInvData('bm.pisc.auth.employee.info.check', {
           employee_info: [{ employee_no: data.id, employee_name: data.name }],
         })
         .subscribe(
@@ -324,16 +325,16 @@ export class LiablePersonComponent implements OnInit {
           error_msg: ''
         }
       });
-      if (['PLM', 'PLM_PROJECT'].includes(this.taskCategoryType)) {
+      if (['PLM', 'PLM_PROJECT','ASSC_ISA_ORDER'].includes(this.taskCategoryType)) {
         this.callChangeMaskData.emit({
           task_member_infoList: this.task_member_infoList,
           personList: this.personList
         });
         return;
       }
-
+      // sprint4.5 auth.employee.info.check==>bm.pisc.auth.employee.info.check
       this.commonService
-        .getInvData('auth.employee.info.check', { employee_info: this.employee_info })
+        .getInvData('bm.pisc.auth.employee.info.check', { employee_info: this.employee_info })
         .subscribe(({ data }: any) => {
           this.executor.employee_info = data?.employee_info;
           this.callParentSetData.emit({
@@ -345,6 +346,42 @@ export class LiablePersonComponent implements OnInit {
           this.deleteMember();
           this.changeRef.markForCheck();
         });
+    }
+  }
+
+  /**
+   * 执行人：初始化人员同值
+   * @param item
+   * @param personList
+   * @returns
+   */
+  async initPerson(item: string[], personList: any[]) {
+    this.task_member_info = [];
+    if (Array.isArray(item) && item.length) {
+      personList.forEach(({ list = [] }) => {
+        list.forEach((o) => {
+          const condition =
+            o.id !== this.addSubProjectCardService.validateForm.get('liable_person_code').value &&
+            item.includes(o.bigId);
+          o.check = condition ? true : false;
+          if (
+            o.check &&
+            o.id !== this.addSubProjectCardService.validateForm.get('liable_person_code').value
+          ) {
+            const memberInfo = {
+              executor_department_name: o.deptName,
+              executor_department_no: o.deptId,
+              executor_name: o.name,
+              executor_no: o.id,
+              project_no: this.project_no,
+              task_no: (this.addSubProjectCardService.currentCardInfo as any).task_no,
+            };
+            this.task_member_info.push(memberInfo);
+          }
+        });
+      });
+      this.task_member_info = [...new Set(this.task_member_info)];
+      this.task_member_infoList = this.task_member_info;
     }
   }
 
@@ -402,15 +439,15 @@ export class LiablePersonComponent implements OnInit {
    */
   disableExecutorInput(taskCategoryType: string) {
     // 任务模板为PLM_PROJECT 禁用执行人
-    if (['PLM_PROJECT'].includes(taskCategoryType)) {
+    if (['PLM_PROJECT','ASSC_ISA_ORDER', 'PCM'].includes(taskCategoryType)) {
       this.addSubProjectCardService.validateForm.get('task_member_info').disable();
       this.addSubProjectCardService.validateForm.get('task_member_info').patchValue([]);
     } else {
       if (this.addSubProjectCardService.validateForm.value.liable_person_code) {
         // 负责人有值则可用执行人
-        if (!this.isForbidden) {
-          this.addSubProjectCardService.validateForm.get('task_member_info').enable();
-        }
+        // if (!this.isForbidden) {
+        this.addSubProjectCardService.validateForm.get('task_member_info').enable();
+        // }
       }
     }
     this.changeRef.markForCheck();

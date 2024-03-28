@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@angular/core';
 import { DwSystemConfigService } from '@webdpt/framework/config';
 import { DW_AUTH_TOKEN } from '@webdpt/framework/auth';
 import { TranslateService } from '@ngx-translate/core';
-import { CommonService } from 'app/customization/task-project-center-console/service/common.service';
+import { CommonService } from 'app/implementation/service/common.service';
 
 @Injectable()
 export class FrontTaskService {

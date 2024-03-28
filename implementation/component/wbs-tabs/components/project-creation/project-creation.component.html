@@ -1,651 +1,1103 @@
-<div class="project-creation-container">
-  <form class="project-creation-form" nz-form [formGroup]="validateForm">
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title"><span class="in-need">*</span>{{ 'dj-pcc-项目类型' | translate }}</div>
-          <div
-            class="box-choose"
-            [ngClass]="{
-              disbaledChoose:
-                wbsService.projectInfo?.project_status !== '10' ||
-                hasT100 ||
-                validateForm.value.to_be_formal_option === '3'
-            }"
-            (click)="chooseProjecttype()"
-          >
-            {{ show_project_type_no ? show_project_type_no : projectType }}
-          </div>
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item *ngIf="potentialStatus === 1">
-      <nz-form-control>
-        <div class="item-box numberInput">
-          <div class="title">
-            <span>*</span>
-            {{ 'dj-pcc-归属公司别' | translate }}
-          </div>
-          <div
-            class="box-choose-potential"
-            [ngClass]="{ disbaled: validateForm.value.to_be_formal_option === '3' }"
-          >
-            {{ validateForm.value.eoc_company_name }} {{ validateForm.value.eoc_company_id }}
-            <em nz-icon nzType="interaction" (click)="chooseCompney()"></em>
-          </div>
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item *ngIf="potentialStatus === 1">
-      <div class="item-box numberInput">
-        <div class="title">
-          <span class="in-need">*</span>
-          {{ 'dj-pcc-专案编号编码方式' | translate }}
-        </div>
-        <nz-select
-          formControlName="actionCode"
-          class="project-select"
-          [nzDisabled]="validateForm.value.to_be_formal_option === '3'"
-          (ngModelChange)="actionChange()"
-        >
-          <nz-option
-            *ngFor="let item of actionList"
-            [nzValue]="item.value"
-            [nzLabel]="item.name"
-          ></nz-option>
-        </nz-select>
-      </div>
-    </nz-form-item>
-    <nz-form-item *ngIf="potentialStatus === 1">
-      <nz-form-control>
-        <div class="item-box numberInput">
-          <div class="title">
-            <span class="in-need">*</span>
-            {{ 'dj-pcc-编码规则' | translate }}
-          </div>
-          <div
-            class="box-choose-potential"
-            [ngClass]="{
-              disbaled:
-                validateForm.value.actionCode === '2' ||
-                validateForm.value.to_be_formal_option === '3'
-            }"
-          >
-            {{ validateForm.value.coding_rule_name }}
-            <em nz-icon nzType="interaction" (click)="chooseCodingRule()"></em>
-          </div>
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <!-- 大陆：项目编号 -->
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box numberInput" [ngClass]="{ 'align-items': projectNoFind }">
-          <div class="title">
-            <span class="in-need">*</span>
-            {{ 'dj-pcc-专案编号' | translate }}
-          </div>
-          <div>
-            <div
-              class="box-choose-potential box-chosse-two"
-              [ngClass]="{ disbaled: validateForm.controls['project_no'].disabled }"
-            >
+<div class="project-creation-container" #pccContainer>
+  <ac-collapse
+    [accordion]="false"
+    [style]="{
+      height:
+        pccContainer.offsetHeight -
+        (enumEntry.projectChange === source || enumEntry.projectChangeSignOff === source ? 0 : 56) +
+        'px',
+      overflowY: 'auto',
+      background: 'none',
+      padding: '0 12px'
+    }"
+  >
+    <ac-collapse-panel
+      *ngFor="let panel of collapsePanels; let i = index"
+      [header]="header"
+      [active]="panel.active"
+      [disabled]="false"
+    >
+      <ng-template #header>
+        <span class="panel-title">{{ panel.name | translate }}</span>
+      </ng-template>
+      <form class="project-creation-form" nz-form [formGroup]="validateForm">
+        <nz-form-item *appFilterFormItem="['project_leader_name', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box incharge-box">
+              <div class="title">
+                <span>*</span>
+                {{ 'dj-pcc-项目负责人' | translate }}
+              </div>
+              <div
+                [title]="
+                  validateForm.value.project_leader_name +
+                    '  ' +
+                    validateForm.value.project_leader_dept_name | domTitle
+                "
+              >
+                {{ validateForm.value.project_leader_name }}
+                <span class="selectSubTitle">{{
+                  validateForm.value.project_leader_dept_name
+                }}</span>
+              </div>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item *appFilterFormItem="['belong_company_no', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box numberInput">
+              <div class="title">
+                <span *ngIf="potentialStatus === 1">*</span>
+                {{ 'dj-pcc-归属公司别' | translate }}
+              </div>
+              <div
+                class="box-choose-potential belong-company-no-content"
+                [title]="
+                  validateForm.value.eoc_company_name + '  ' + validateForm.value.eoc_company_id
+                    | domTitle
+                "
+                [ngClass]="{
+                  disbaled:
+                    validateForm.value.to_be_formal_option === '3' ||
+                    !wbsService.projectChangeStatus['check_type_creation']
+                }"
+              >
+                {{ validateForm.value.eoc_company_name }} {{ validateForm.value.eoc_company_id }}
+                <em
+                  *ngIf="potentialStatus === 1"
+                  nz-icon
+                  nzType="interaction"
+                  (click)="chooseCompney()"
+                ></em>
+              </div>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item *appFilterFormItem="['project_name', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box">
+              <div class="title">
+                <span class="in-need">*</span>
+                {{ 'dj-pcc-专案名称' | translate }}
+              </div>
               <input
                 type="text"
                 class="project-input"
                 nz-input
-                formControlName="project_no"
-                (blur)="handleProjectNo()"
-                [placeholder]="translatePccWord('请输入专案编号')"
+                formControlName="project_name"
+                [title]="validateForm.value.project_name | domTitle"
+                [placeholder]="translatePccWord('请输入专案名称')"
               />
-              <em
-                nz-icon
-                nzType="interaction"
-                (click)="chooseDisplayProjectNo()"
-                *ngIf="potentialStatus === 1"
-              ></em>
             </div>
-            <div
-              *ngIf="
-                (validateForm.value.project_no || validateForm.controls['project_no'].value) &&
-                projectNoFind
-              "
-              class="waring-msg"
-            >
-              {{ 'dj-pcc-项目编号已存在' | translate }}
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item *appFilterFormItem="['project_property', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box incharge-box">
+              <div class="title">
+                <span>*</span>
+                {{ 'dj-pcc-专案性质' | translate }}
+              </div>
+              <nz-form-text
+                [title]="
+                  (validateForm.value.project_property === '20'
+                    ? translateWord('正式')
+                    : translateWord('潜在')
+                  ) | domTitle
+                "
+                >{{
+                  validateForm.value.project_property === '20'
+                    ? translateWord('正式')
+                    : translateWord('潜在')
+                }}</nz-form-text
+              >
             </div>
-            <div
-              *ngIf="validateForm.controls['project_no'].value && projectNoHasGroundEnd !== ''"
-              [title]="projectNoHasGroundEnd"
-              class="waring-msg"
-            >
-              {{ projectNoHasGroundEnd }}
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item *appFilterFormItem="['project_type_name', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box">
+              <div class="title">
+                <span class="in-need">* </span>{{ 'dj-pcc-项目类型' | translate }}
+              </div>
+              <div
+                [title]="(show_project_type_no ? show_project_type_no : projectType) | domTitle"
+                class="box-choose"
+                [ngClass]="{
+                  disbaledChoose:
+                    wbsService.projectInfo?.project_status !== '10' ||
+                    hasT100 ||
+                    !wbsService.projectChangeStatus['check_type_creation'] ||
+                    validateForm.value.to_be_formal_option === '3'
+                }"
+                (click)="chooseProjecttype()"
+              >
+                {{ show_project_type_no ? show_project_type_no : projectType }}
+              </div>
             </div>
-          </div>
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title">
-            <span class="in-need">*</span>
-            {{ 'dj-pcc-专案名称' | translate }}
-          </div>
-          <input
-            type="text"
-            class="project-input"
-            nz-input
-            formControlName="project_name"
-            [placeholder]="translatePccWord('请输入专案名称')"
-          />
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-control>
-        <div
-          class="item-box"
-          [ngClass]="{ disbaled: validateForm.value.to_be_formal_option === '3' }"
-        >
-          <div class="title"><span class="in-need">*</span>{{ 'dj-pcc-项目天数' | translate }}</div>
-          <input
-            type="text"
-            class="project-input"
-            nz-input
-            formControlName="project_days"
-            [placeholder]="translatePccWord('请输入项目天数')"
-            (ngModelChange)="projectDaysOnChange($event)"
-            (focus)="rerverseClick()"
-          />
-          <!-- [(ngModel)]="validateForm.value.project_days" -->
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item *ngIf="potentialStatus === 1">
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title">{{ 'dj-default-转正式选项' | translate }}</div>
-          <nz-select
-            formControlName="to_be_formal_option"
-            class="project-select"
-            (ngModelChange)="potentialStatusChange($event)"
-          >
-            <nz-option
-              *ngFor="let item of potentialStatusList"
-              [nzValue]="item.value"
-              [nzLabel]="item.name"
-            >
-            </nz-option>
-          </nz-select>
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item *ngIf="tabIndex === 1">
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title">
-            <span>*</span>
-            {{ 'dj-default-计划起讫时间' | translate }}
-          </div>
-          <app-input-new
-            style="width: 133px; height: 34px"
-            name="cardStart"
-            [value]="validateForm.value.plan_start_date"
-            [placeholder]="translateWord('开始时间')"
-            (appClick)="rerverseClick()"
-            (appChange)="rerverseClick()"
-            (ngModelChange)="startTimeChange($event)"
-            [nzDisabled]="validateForm.value.to_be_formal_option === '3'"
-            [nzAllowClear]="true"
-          >
-          </app-input-new>
-          一
-          <app-input-new
-            style="width: 133px; height: 34px"
-            name="cardEnd"
-            [value]="validateForm.value.plan_finish_date"
-            [placeholder]="translateWord('结束时间')"
-            (appClick)="endTimeClick()"
-            (appChange)="endTimeClick()"
-            (ngModelChange)="endTimeChange($event)"
-            [nzDisabledDate]="disabledEndDate"
-            [nzDisabled]="validateForm.value.to_be_formal_option === '3'"
-            [nzAllowClear]="true"
-          ></app-input-new>
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box incharge-box">
-          <div class="title">
-            <span>*</span>
-            {{ 'dj-pcc-项目负责人' | translate }}
-          </div>
-          <div>
-            {{ validateForm.value.project_leader_name }}
-            <span class="selectSubTitle">{{ validateForm.value.project_leader_dept_name }}</span>
-          </div>
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box incharge-box">
-          <div class="title">
-            <span>*</span>
-            {{ 'dj-pcc-专案性质' | translate }}
-          </div>
-          <nz-form-text>{{
-            validateForm.value.project_property === '20'
-              ? translateWord('正式')
-              : translateWord('潜在')
-          }}</nz-form-text>
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title">{{ 'dj-pcc-专案简介' | translate }}</div>
-          <input
-            type="text"
-            class="project-input"
-            nz-input
-            formControlName="project_introduction"
-            [placeholder]="translatePccWord('请输入专案简介')"
-          />
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item *ngIf="tabIndex === 1">
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title">{{ 'dj-default-进场日期' | translate }}</div>
-          <app-input-new
-            style="width: 282px; height: 34px"
-            name="enterDate"
-            [value]="validateForm.value.enter_scene_date"
-            (ngModelChange)="enterDateChange($event)"
-            [nzDisabled]="validateForm.value.to_be_formal_option === '3'"
-            [nzAllowClear]="true"
-          ></app-input-new>
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title">{{ 'dj-default-合同编号' | translate }}</div>
-          <input
-            type="text"
-            class="project-input"
-            nz-input
-            formControlName="contract_no"
-            [placeholder]="translateWord('请输入合同编号')"
-          />
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box incharge-box">
-          <div class="title">
-            {{ 'dj-default-业务员' | translate }}
-          </div>
-          <ath-select
-            nzShowSearch
-            formControlName="sales_no"
-            [nzPlaceHolder]="translateWord('请选择业务员')"
-            [nzAllowClear]="false"
-          >
-            <ath-option-group [nzLabel]="data.deptName" *ngFor="let data of saleList">
-              <ath-option
-                *ngFor="let item of data.list"
-                [nzValue]="item['id']"
-                [nzLabel]="item.name"
-              ></ath-option>
-            </ath-option-group>
-          </ath-select>
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title">{{ 'dj-pcc-项目集编号' | translate }}</div>
-          <div
-            [ngClass]="{ disbaledFront: validateForm.value.to_be_formal_option === '3' }"
-            class="box-choose"
-            (click)="chooseProjectNo()"
-          >
-            {{ show_project_set_no ? show_project_set_no : projectSetNo }}
-          </div>
-          <div class="fileBtn" *ngIf="validateForm.value.to_be_formal_option !== '3'">
-            <a
-              nz-popconfirm
-              [nzPopconfirmTitle]="translatePccWord('是否确认删除?')"
-              [nzOkText]="translateWord('确定')"
-              [nzCancelText]="translateWord('取消')"
-              (nzOnConfirm)="deleteFileForProject()"
-              nzPopconfirmOverlayClassName="fileButton"
-              *ngIf="show_project_set_no"
-            >
-              <em nz-icon nzType="delete" nzTheme="outline"></em>
-            </a>
-          </div>
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item *ngIf="show_project_set_no">
-      <nz-form-control>
-        <div class="item-box incharge-box">
-          <div class="title">
-            {{ 'dj-pcc-项目集负责人' | translate }}
-          </div>
-          <div>
-            {{ projectInfo.project_set_leader_name }}
-            <span class="selectSubTitle">{{ projectInfo.project_set_leader_dept_name }}</span>
-          </div>
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item *ngIf="show_project_set_no">
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title">
-            {{ 'dj-pcc-项目集计划起讫时间' | translate }}
-          </div>
-          <app-input-new
-            style="width: 133px; height: 34px"
-            name="cardStart"
-            [value]="projectInfo.project_set_plan_start_date"
-            [placeholder]="translateWord('开始时间')"
-            [nzDisabled]="true"
-            [nzAllowClear]="true"
-          >
-          </app-input-new>
-          一
-          <app-input-new
-            style="width: 133px; height: 34px"
-            name="cardEnd"
-            [value]="projectInfo.project_set_plan_finish_date"
-            [placeholder]="translateWord('结束时间')"
-            [nzDisabled]="true"
-            [nzAllowClear]="true"
-          ></app-input-new>
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title">{{ 'dj-pcc-专案模板' | translate }}</div>
-          <input
-            type="text"
-            class="project-input"
-            nz-input
-            formControlName="project_template_no"
-            [placeholder]=""
-          />
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title">{{ 'dj-default-客户编号' | translate }}</div>
-          <input
-            type="text"
-            class="project-input"
-            nz-input
-            formControlName="customer_no"
-            [placeholder]="translateWord('请输入客户编号')"
-          />
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title">{{ 'dj-default-客户简称' | translate }}</div>
-          <input
-            type="text"
-            class="project-input"
-            nz-input
-            formControlName="customer_shortname"
-            [placeholder]="translateWord('请输入客户简称')"
-          />
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title">{{ 'dj-pcc-项目联系人' | translate }}</div>
-          <input
-            type="text"
-            class="project-input"
-            nz-input
-            formControlName="project_contact_name"
-            [placeholder]="translatePccWord('请输入项目联系人')"
-          />
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title">{{ 'dj-default-联系人电话' | translate }}</div>
-          <input
-            type="text"
-            class="project-input"
-            nz-input
-            formControlName="contact_tel_no"
-            pattern="^((0\d{2,3}(-)?\d{7,8})|(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8})$"
-            [placeholder]="translateWord('请输入联系人电话')"
-          />
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title">{{ 'dj-default-联系人地址' | translate }}</div>
-          <input
-            type="text"
-            class="project-input"
-            nz-input
-            formControlName="address"
-            [placeholder]="translateWord('请输入联系人地址')"
-          />
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title">{{ 'dj-default-备注' | translate }}</div>
-          <input
-            type="text"
-            class="project-input"
-            nz-input
-            formControlName="remarks"
-            [placeholder]="translateWord('备注')"
-          />
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title">{{ 'dj-pcc-潜在项目编号' | translate }}</div>
-          <input
-            type="text"
-            class="project-input"
-            nz-input
-            formControlName="potential_project_no"
-            [placeholder]="translatePccWord('潜在项目编号')"
-          />
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title">{{ 'dj-default-实际开始日' | translate }}</div>
-          <input
-            type="text"
-            class="project-input"
-            nz-input
-            formControlName="actual_start_date"
-            *ngIf="wbsService.projectInfo?.project_status !== '10'"
-          />
-          <input
-            type="text"
-            class="project-input"
-            nz-input
-            formControlName="actual_start_date_copy"
-            *ngIf="wbsService.projectInfo?.project_status === '10'"
-          />
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title">{{ 'dj-default-实际完成日' | translate }}</div>
-          <input type="text" class="project-input" nz-input formControlName="actual_finish_date" />
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title">{{ 'dj-default-预计出货日' | translate }}</div>
-          <app-input-new
-            style="width: 282px; height: 34px"
-            name="key_date"
-            [value]="validateForm.value.key_date"
-            (ngModelChange)="keyDateChange($event)"
-            [nzDisabled]="
-              validateForm.value.to_be_formal_option === '3' || shippingInfoListLength > 1
-            "
-            [nzAllowClear]="true"
-          ></app-input-new>
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title">{{ 'dj-default-预计总数量' | translate }}</div>
-          <input
-            type="text"
-            class="project-input"
-            nz-input
-            formControlName="plan_summary_qty"
-            [(ngModel)]="validateForm.value.plan_summary_qty"
-            readonly
-          />
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title">
-            <label
-              nz-checkbox
-              formControlName="budget_planning"
-              (ngModelChange)="checkBoxChange()"
-            ></label>
-            {{ 'dj-default-预算编制' | translate }}
-          </div>
-          <nz-select
-            formControlName="control_type"
-            class="project-select"
-            [nzPlaceHolder]="translateWord('控管方式')"
-          >
-            <nz-option nzValue="10" nzLabel="ERROR"></nz-option>
-            <nz-option nzValue="20" nzLabel="WARNING"></nz-option>
-          </nz-select>
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box">
-          <div class="title">{{ 'dj-pcc-特别资讯' | translate }}</div>
-          <input
-            type="text"
-            class="project-input"
-            nz-input
-            formControlName="remark"
-            [placeholder]="translatePccWord('录入信息将用于项目卡信息的补充呈现')"
-          />
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-control>
-        <div class="item-box uploadItem">
-          <div class="title">{{ 'dj-pcc-专案附件' | translate }}</div>
-          <div class="upload">
-            <div class="fileList">
-              <div class="fileLi" *ngFor="let item of fileList; let i = index">
-                <a
-                  nz-tooltip
-                  [nzTooltipTitle]="item.name"
-                  (click)="downLoad(item)"
-                  class="Filetitle"
+          </nz-form-control>
+        </nz-form-item>
+        <ng-container *appFilterFormItem="['to_be_formal_option', panel.filterFormItem]">
+          <nz-form-item *ngIf="potentialStatus === 1">
+            <nz-form-control>
+              <div class="item-box">
+                <div class="title">{{ 'dj-default-转正式选项' | translate }}</div>
+                <nz-select
+                  [title]="validateForm.value.to_be_formal_option | domTitle"
+                  formControlName="to_be_formal_option"
+                  class="project-select formal-option-content"
+                  (ngModelChange)="potentialStatusChange($event)"
                 >
-                  <div class="name">{{ item.name }}</div>
-                  <div>{{ addSubProjectCardService.renderSize(item.size) }}</div>
-                </a>
-                <div class="fileBtn" *ngIf="validateForm.value.to_be_formal_option !== '3'">
-                  <em nz-icon nzType="eye" nzTheme="outline" (click)="previewFile(item)"></em>
-                  <a
-                    nz-popconfirm
-                    [nzPopconfirmTitle]="translatePccWord('是否确认删除?')"
-                    [nzOkText]="translateWord('确定')"
-                    [nzCancelText]="translateWord('取消')"
-                    (nzOnConfirm)="deleteFile(i)"
-                    nzPopconfirmOverlayClassName="fileButton"
+                  <!-- [nzDisabled]="!this.wbsService.projectChangeStatus['check_type_creation']" -->
+                  <nz-option
+                    *ngFor="let item of potentialStatusList"
+                    [nzValue]="item.value"
+                    [nzLabel]="item.name"
                   >
-                    <em nz-icon nzType="delete" nzTheme="outline"></em>
-                  </a>
+                  </nz-option>
+                </nz-select>
+              </div>
+            </nz-form-control>
+          </nz-form-item>
+        </ng-container>
+        <ng-container *appFilterFormItem="['actionCode', panel.filterFormItem]">
+          <nz-form-item *ngIf="potentialStatus === 1">
+            <div class="item-box numberInput">
+              <div class="title">
+                <span class="in-need">*</span>
+                {{ 'dj-pcc-专案编号编码方式' | translate }}
+              </div>
+              <nz-select
+                [title]="validateForm.value.actionCode | domTitle"
+                formControlName="actionCode"
+                class="project-select actionCode-content"
+                [nzDisabled]="
+                  validateForm.value.to_be_formal_option === '3' ||
+                  !wbsService.projectChangeStatus['check_type_creation']
+                "
+                (ngModelChange)="actionChange()"
+              >
+                <nz-option
+                  *ngFor="let item of actionList"
+                  [nzValue]="item.value"
+                  [nzLabel]="item.name"
+                ></nz-option>
+              </nz-select>
+            </div>
+          </nz-form-item>
+        </ng-container>
+
+        <ng-container *appFilterFormItem="['coding_rule_no', panel.filterFormItem]">
+          <nz-form-item *ngIf="potentialStatus === 1">
+            <nz-form-control>
+              <div class="item-box numberInput">
+                <div class="title">
+                  <span class="in-need">*</span>
+                  {{ 'dj-pcc-编码规则' | translate }}
+                </div>
+                <div
+                  [title]="validateForm.value.coding_rule_name | domTitle"
+                  class="box-choose-potential coding-rule-no-content"
+                  [ngClass]="{
+                    disbaled:
+                      validateForm.value.actionCode === '2' ||
+                      validateForm.value.to_be_formal_option === '3' ||
+                      !wbsService.projectChangeStatus['check_type_creation']
+                  }"
+                >
+                  {{ validateForm.value.coding_rule_name }}
+                  <em nz-icon nzType="interaction" (click)="chooseCodingRule()"></em>
+                </div>
+              </div>
+            </nz-form-control>
+          </nz-form-item>
+        </ng-container>
+
+        <nz-form-item *appFilterFormItem="['project_days', panel.filterFormItem]">
+          <nz-form-control>
+            <div
+              class="item-box"
+              [ngClass]="{
+                disbaled:
+                  validateForm.value.to_be_formal_option === '3' ||
+                  !wbsService.projectChangeStatus['check_type_creation']
+              }"
+            >
+              <div class="title">
+                <span class="in-need">* </span>{{ 'dj-pcc-项目天数' | translate }}
+              </div>
+              <ath-input-number
+                [title]="validateForm.value.project_days | domTitle"
+                class="project-input-number"
+                formControlName="project_days"
+                [placeholder]="translatePccWord('请输入项目天数')"
+                (focus)="rerverseClick()"
+                (ngModelChange)="projectDaysOnChange($event)"
+                [min]="1"
+                [step]="1"
+              ></ath-input-number>
+              <!--          <input-->
+              <!--            type="text"-->
+              <!--            class="project-input"-->
+              <!--            nz-input-->
+              <!--            formControlName="project_days"-->
+              <!--            [placeholder]="translatePccWord('请输入项目天数')"-->
+              <!--            (ngModelChange)="projectDaysOnChange($event)"-->
+              <!--            (focus)="rerverseClick()"-->
+              <!--          />-->
+              <!-- [(ngModel)]="validateForm.value.project_days" -->
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+        <!-- 大陆：项目编号 -->
+        <nz-form-item *appFilterFormItem="['project_no', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box numberInput" [ngClass]="{ 'align-items': projectNoFind }">
+              <div class="title">
+                <span class="in-need">*</span>
+                {{ 'dj-pcc-专案编号' | translate }}
+              </div>
+              <div
+                class="project-no-content"
+                [title]="validateForm.get('project_no').value | domTitle"
+              >
+                <div
+                  class="box-choose-potential box-chosse-two"
+                  [ngClass]="{ disbaled: validateForm.controls['project_no'].disabled }"
+                >
+                  <input
+                    type="text"
+                    class="project-input"
+                    nz-input
+                    formControlName="project_no"
+                    (blur)="handleProjectNo()"
+                    [placeholder]="translatePccWord('请输入专案编号')"
+                    pattern="^[^\s]+(\s+[^\s]+)*$"
+                  />
+                  <em
+                    nz-icon
+                    nzType="interaction"
+                    class="project-no-icon"
+                    (click)="chooseDisplayProjectNo()"
+                    *ngIf="potentialStatus === 1"
+                  ></em>
+                </div>
+                <div
+                  *ngIf="
+                    (validateForm.value.project_no || validateForm.controls['project_no'].value) &&
+                    projectNoFind
+                  "
+                  class="waring-msg"
+                >
+                  {{ 'dj-pcc-项目编号已存在' | translate }}
+                </div>
+                <div
+                  *ngIf="validateForm.controls['project_no'].value && projectNoHasGroundEnd !== ''"
+                  [title]="projectNoHasGroundEnd | domTitle"
+                  class="waring-msg"
+                >
+                  {{ projectNoHasGroundEnd }}
                 </div>
               </div>
             </div>
-            <div
-              class="uploadBtn"
-              *ngIf="validateForm.value.to_be_formal_option !== '3'; else otherBlock"
-            >
-              {{ 'dj-default-请上传50MB以内的附件' | translate }}<br />
-              <em nz-icon nzType="cloud-upload" nzTheme="outline"></em>
+          </nz-form-control>
+        </nz-form-item>
+        <ng-container *appFilterFormItem="['project_set_plan_start_date', panel.filterFormItem]">
+          <nz-form-item
+            *ngIf="
+              this.source === enumEntry.projectChange ||
+              this.source === enumEntry.projectChangeSignOff ||
+              tabIndex === 1
+            "
+          >
+            <nz-form-control>
+              <div class="item-box">
+                <div class="title">
+                  <span>*</span>
+                  {{ 'dj-default-计划起讫时间' | translate }}
+                </div>
+                <app-input-new
+                  [title]="validateForm.value.plan_start_date | domTitle"
+                  style="width: 133px; height: 34px"
+                  name="cardStart"
+                  [value]="validateForm.value.plan_start_date"
+                  [placeholder]="translateWord('开始时间')"
+                  (appClick)="rerverseClick()"
+                  (appChange)="rerverseClick()"
+                  (ngModelChange)="startTimeChange($event)"
+                  [nzDisabled]="
+                    !hasAuth ||
+                    source === this.enumEntry.projectChangeSignOff ||
+                    validateForm.value.to_be_formal_option === '3' ||
+                    !wbsService.projectChangeStatus['check_type_creation']
+                  "
+                  [nzAllowClear]="true"
+                  [title]="validateForm.value.plan_start_date | domTitle"
+                >
+                </app-input-new>
+                一
+                <app-input-new
+                  style="width: 133px; height: 34px"
+                  [title]="validateForm.value.plan_finish_date | domTitle"
+                  name="cardEnd"
+                  [value]="validateForm.value.plan_finish_date"
+                  [placeholder]="translateWord('结束时间')"
+                  (appClick)="endTimeClick()"
+                  (appChange)="endTimeClick()"
+                  (ngModelChange)="endTimeChange($event)"
+                  [nzDisabledDate]="disabledEndDate"
+                  [nzDisabled]="
+                    !hasAuth ||
+                    source === this.enumEntry.projectChangeSignOff ||
+                    validateForm.value.to_be_formal_option === '3' ||
+                    !wbsService.projectChangeStatus['check_type_creation']
+                  "
+                  [nzAllowClear]="true"
+                ></app-input-new>
+              </div>
+              <div
+                class="warning-info"
+                *ngIf="validateForm.get('plan_start_date')['_tempWarningMessage']"
+              >
+                {{ validateForm.get('plan_start_date')['_tempWarningMessage'] }}
+              </div>
+              <div
+                class="warning-info"
+                *ngIf="validateForm.get('plan_finish_date')['_tempWarningMessage']"
+              >
+                {{ validateForm.get('plan_finish_date')['_tempWarningMessage'] }}
+              </div>
+            </nz-form-control>
+          </nz-form-item>
+        </ng-container>
+        <nz-form-item *appFilterFormItem="['project_level_no', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box numberInput">
+              <div class="title">
+                {{ 'dj-default-项目等级' | translate }}
+              </div>
+              <div
+                class="box-choose-potential project-level-no-content"
+                [title]="validateForm.value.project_level_name | domTitle"
+                [ngClass]="{
+                  disbaled:
+                    !hasAuth ||
+                    source === this.enumEntry.projectChangeSignOff ||
+                    validateForm.value.to_be_formal_option === '3' ||
+                    !wbsService.projectChangeStatus['check_type_creation']
+                }"
+              >
+                <span
+                  class="overlength-info"
+                  athTooltip
+                  [athTooltipTitle]="validateForm.value.project_level_name"
+                  >{{ validateForm.value.project_level_name }}</span
+                >
+                <em nz-icon nzType="interaction" (click)="callChooseProjectLevel()"></em>
+              </div>
+              <div
+                class="fileBtn"
+                *ngIf="
+                  hasAuth &&
+                  source !== this.enumEntry.projectChangeSignOff &&
+                  validateForm.value?.project_level_name &&
+                  validateForm.value.to_be_formal_option !== '3' &&
+                  wbsService.projectChangeStatus['check_type_creation']
+                "
+              >
+                <a
+                  nz-popconfirm
+                  [nzPopconfirmTitle]="translatePccWord('是否确认删除?')"
+                  [nzOkText]="translateWord('确定')"
+                  [nzCancelText]="translateWord('取消')"
+                  (nzOnConfirm)="deleteProjectLevel()"
+                  nzPopconfirmOverlayClassName="fileButton"
+                >
+                  <em nz-icon nzType="delete" nzTheme="outline"></em>
+                </a>
+              </div>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item *appFilterFormItem="['potential_project_no', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box numberInput">
+              <div class="title">{{ 'dj-pcc-潜在项目编号' | translate }}</div>
+              <div
+                class="box-choose-potential box-chosse-two"
+              >
+                <input
+                  nz-input
+                  readonly
+                  type="text"
+                  class="project-input"
+                  formControlName="potential_project_no"
+                  [placeholder]="translatePccWord('潜在项目编号')"
+                  [title]="validateForm.get('potential_project_no').value | domTitle"
+                />
+                <em
+                  *ngIf="(source === 'card')&&(validateForm.value.project_property === '20')"
+                  nz-icon
+                  nzType="interaction"
+                  class="customer-no-icon"
+                  [ngClass]="{disbaled: copyProjectInfo.potential_project_no || !wbsService.projectChangeStatus['check_type_creation']}"
+                  (click)="choosePotentialProjectNo()"
+                ></em>
+              </div>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item *appFilterFormItem="['project_set_no', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box">
+              <div class="title">{{ 'dj-pcc-项目集编号' | translate }}</div>
+              <div
+                [ngClass]="{
+                  disbaledFront:
+                    !hasAuth ||
+                    source === this.enumEntry.projectChangeSignOff ||
+                    validateForm.value.to_be_formal_option === '3' ||
+                    !wbsService.projectChangeStatus['check_type_creation']
+                }"
+                class="box-choose"
+                (click)="chooseProjectNo()"
+                [title]="show_project_set_no | domTitle"
+              >
+                {{ show_project_set_no ? show_project_set_no : projectSetNo }}
+              </div>
+              <div
+                class="fileBtn"
+                *ngIf="
+                  hasAuth &&
+                  source !== this.enumEntry.projectChangeSignOff &&
+                  validateForm.value.to_be_formal_option !== '3' &&
+                  wbsService.projectChangeStatus['check_type_creation']
+                "
+              >
+                <a
+                  nz-popconfirm
+                  [nzPopconfirmTitle]="translatePccWord('是否确认删除?')"
+                  [nzOkText]="translateWord('确定')"
+                  [nzCancelText]="translateWord('取消')"
+                  (nzOnConfirm)="deleteFileForProject()"
+                  nzPopconfirmOverlayClassName="fileButton"
+                  *ngIf="show_project_set_no"
+                >
+                  <em nz-icon nzType="delete" nzTheme="outline"></em>
+                </a>
+              </div>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+        <ng-container *appFilterFormItem="['project_set_leader_name', panel.filterFormItem]">
+          <nz-form-item *ngIf="show_project_set_no">
+            <nz-form-control>
+              <div class="item-box incharge-box">
+                <div class="title">
+                  {{ 'dj-pcc-项目集负责人' | translate }}
+                </div>
+                <div
+                  [title]="
+                    projectInfo.project_set_leader_name +
+                      '  ' +
+                      projectInfo.project_set_leader_dept_name | domTitle
+                  "
+                >
+                  {{ projectInfo.project_set_leader_name }}
+                  <span class="selectSubTitle">{{ projectInfo.project_set_leader_dept_name }}</span>
+                </div>
+              </div>
+            </nz-form-control>
+          </nz-form-item>
+        </ng-container>
+        <ng-container *appFilterFormItem="['project_set_plan_date', panel.filterFormItem]">
+          <nz-form-item *ngIf="show_project_set_no">
+            <nz-form-control>
+              <div class="item-box">
+                <div class="title">
+                  {{ 'dj-pcc-项目集计划起讫时间' | translate }}
+                </div>
+                <app-input-new
+                  [title]="projectInfo.project_set_plan_start_date | domTitle"
+                  style="width: 133px; height: 34px"
+                  name="cardStart"
+                  [value]="projectInfo.project_set_plan_start_date"
+                  [placeholder]="translateWord('开始时间')"
+                  [nzDisabled]="true"
+                  [nzAllowClear]="true"
+                >
+                </app-input-new>
+                一
+                <app-input-new
+                  style="width: 133px; height: 34px"
+                  name="cardEnd"
+                  [title]="projectInfo.project_set_plan_finish_date | domTitle"
+                  [value]="projectInfo.project_set_plan_finish_date"
+                  [placeholder]="translateWord('结束时间')"
+                  [nzDisabled]="true"
+                  [nzAllowClear]="true"
+                ></app-input-new>
+              </div>
+            </nz-form-control>
+          </nz-form-item>
+        </ng-container>
+        <nz-form-item *appFilterFormItem="['actual_start_date', panel.filterFormItem]">
+          <nz-form-control class="column-reverse">
+            <div class="item-box">
+              <div class="title">{{ 'dj-default-实际开始日' | translate }}</div>
               <input
-                type="file"
-                name="multipartFile"
-                class="upload-file-reset"
-                (change)="importData($event)"
-                *ngIf="fileList.length < 3"
+                type="text"
+                class="project-input"
+                nz-input
+                [title]="validateForm.get('actual_start_date').value | domTitle"
+                formControlName="actual_start_date"
+                *ngIf="wbsService.projectInfo?.project_status !== '10'"
+              />
+              <input
+                [title]="validateForm.get('actual_start_date_copy').value | domTitle"
+                type="text"
+                class="project-input"
+                nz-input
+                formControlName="actual_start_date_copy"
+                *ngIf="wbsService.projectInfo?.project_status === '10'"
               />
             </div>
-            <ng-template #otherBlock>
-              <span class="disbaledFront" *ngIf="!fileList.length">
-                {{ 'dj-default-请上传50MB以内的附件' | translate }}
-              </span>
-            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item *appFilterFormItem="['actual_finish_date', panel.filterFormItem]">
+          <nz-form-control class="column-reverse">
+            <div class="item-box">
+              <div class="title">{{ 'dj-default-实际完成日' | translate }}</div>
+              <input
+                [title]="validateForm.get('actual_finish_date').value | domTitle"
+                type="text"
+                class="project-input"
+                nz-input
+                formControlName="actual_finish_date"
+              />
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item *appFilterFormItem="['project_introduction', panel.filterFormItem]">
+          <nz-form-control class="column-reverse">
+            <div class="item-box">
+              <div class="title">{{ 'dj-pcc-专案简介' | translate }}</div>
+              <input
+                [title]="validateForm.value.project_introduction | domTitle"
+                type="text"
+                class="project-input"
+                nz-input
+                formControlName="project_introduction"
+                [placeholder]="translatePccWord('请输入专案简介')"
+              />
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item *appFilterFormItem="['contract_no', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box">
+              <div class="title">{{ 'dj-default-合同编号' | translate }}</div>
+              <input
+                [title]="validateForm.value.contract_no | domTitle"
+                type="text"
+                class="project-input"
+                nz-input
+                formControlName="contract_no"
+                [placeholder]="translateWord('请输入合同编号')"
+              />
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item *appFilterFormItem="['customer_no', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box numberInput">
+              <div class="title">{{ 'dj-default-客户编号' | translate }}</div>
+              <div
+                class="box-choose-potential box-chosse-two"
+                [ngClass]="{ disbaled: validateForm.controls['customer_no'].disabled }"
+              >
+                <input
+                  type="text"
+                  class="project-input"
+                  [title]="validateForm.value.customer_no | domTitle"
+                  nz-input
+                  formControlName="customer_no"
+                  [placeholder]="translateWord('请输入客户编号')"
+                />
+                <em
+                  class="customer-no-icon"
+                  nz-icon
+                  nzType="interaction"
+                  (click)="chooseDisplayCustomerNo()"
+                ></em>
+              </div>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item *appFilterFormItem="['customer_shortname', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box">
+              <div class="title">{{ 'dj-default-客户简称' | translate }}</div>
+              <input
+                type="text"
+                class="project-input"
+                nz-input
+                [title]="validateForm.value.customer_shortname | domTitle"
+                formControlName="customer_shortname"
+                [placeholder]="translateWord('请输入客户简称')"
+              />
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item *appFilterFormItem="['sales_no', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box incharge-box">
+              <div class="title">
+                {{ 'dj-default-业务员' | translate }}
+              </div>
+              <ath-select
+                nzShowSearch
+                formControlName="sales_no"
+                [nzPlaceHolder]="translateWord('请选择业务员')"
+                [nzAllowClear]="false"
+                [title]="validateForm.value.sales_no | domTitle"
+              >
+                <ath-option-group [nzLabel]="data.deptName" *ngFor="let data of saleList">
+                  <ath-option
+                    *ngFor="let item of data.list"
+                    [nzValue]="item['id']"
+                    [nzLabel]="item.name"
+                  ></ath-option>
+                </ath-option-group>
+              </ath-select>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+        <ng-container *appFilterFormItem="['enter_scene_date', panel.filterFormItem]">
+          <nz-form-item
+            *ngIf="
+              this.source === enumEntry.projectChange ||
+              this.source === enumEntry.projectChangeSignOff ||
+              tabIndex === 1
+            "
+          >
+            <nz-form-control>
+              <div class="item-box">
+                <div class="title">{{ 'dj-default-进场日期' | translate }}</div>
+                <app-input-new
+                  [title]="validateForm.value.enter_scene_date | domTitle"
+                  style="width: 282px; height: 34px"
+                  name="enterDate"
+                  [value]="validateForm.value.enter_scene_date"
+                  (ngModelChange)="enterDateChange($event)"
+                  [nzDisabled]="
+                    !hasAuth ||
+                    source === this.enumEntry.projectChangeSignOff ||
+                    validateForm.value.to_be_formal_option === '3' ||
+                    !wbsService.projectChangeStatus['check_type_creation']
+                  "
+                  [nzAllowClear]="true"
+                ></app-input-new>
+              </div>
+            </nz-form-control>
+          </nz-form-item>
+        </ng-container>
+        <nz-form-item *appFilterFormItem="['key_date', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box">
+              <div class="title">{{ 'dj-default-预计出货日' | translate }}</div>
+              <app-input-new
+                [title]="validateForm.value.key_date | domTitle"
+                style="width: 282px; height: 34px"
+                name="key_date"
+                [value]="validateForm.value.key_date"
+                (ngModelChange)="keyDateChange($event)"
+                [nzDisabled]="
+                  !hasAuth ||
+                  source === this.enumEntry.projectChangeSignOff ||
+                  validateForm.value.to_be_formal_option === '3' ||
+                  shippingInfoListLength > 1 ||
+                  !wbsService.projectChangeStatus['check_type_creation']
+                "
+                [nzAllowClear]="true"
+              ></app-input-new>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item *appFilterFormItem="['plan_summary_qty', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box">
+              <div class="title">{{ 'dj-default-预计总数量' | translate }}</div>
+              <input
+                type="text"
+                class="project-input"
+                nz-input
+                [title]="validateForm.get('plan_summary_qty').value | domTitle"
+                formControlName="plan_summary_qty"
+                [(ngModel)]="validateForm.value.plan_summary_qty"
+                readonly
+              />
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+        <!-- <nz-form-item>
+        <nz-form-control>
+          <div class="item-box">
+            <div class="title">{{ 'dj-pcc-专案模板' | translate }}</div>
+            <input
+              type="text"
+              class="project-input"
+              nz-input
+              formControlName="project_template_no"
+              [placeholder]=""
+            />
           </div>
-        </div>
-      </nz-form-control>
-    </nz-form-item>
-  </form>
+        </nz-form-control>
+      </nz-form-item> -->
+
+        <nz-form-item *appFilterFormItem="['project_contact_name', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box">
+              <div class="title">{{ 'dj-pcc-项目联系人' | translate }}</div>
+              <input
+                type="text"
+                class="project-input"
+                nz-input
+                [title]="validateForm.value.project_contact_name | domTitle"
+                formControlName="project_contact_name"
+                [placeholder]="translatePccWord('请输入项目联系人')"
+              />
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item *appFilterFormItem="['contact_tel_no', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box">
+              <div class="title">{{ 'dj-default-联系人电话' | translate }}</div>
+              <input
+                type="text"
+                class="project-input"
+                nz-input
+                [title]="validateForm.value.contact_tel_no | domTitle"
+                formControlName="contact_tel_no"
+                pattern="^((0\d{2,3}(-)?\d{7,8})|(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8})$"
+                [placeholder]="translateWord('请输入联系人电话')"
+              />
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item *appFilterFormItem="['address', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box">
+              <div class="title">{{ 'dj-default-联系人地址' | translate }}</div>
+              <input
+                type="text"
+                class="project-input"
+                [title]="validateForm.value.address | domTitle"
+                nz-input
+                formControlName="address"
+                [placeholder]="translateWord('请输入联系人地址')"
+              />
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item *appFilterFormItem="['budget_planning', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box">
+              <label ath-checkbox formControlName="wbs_first_budget" nzDisabled>
+                {{ 'dj-pcc-发起预算任务' | translate }}
+              </label>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item *appFilterFormItem="['budget_planning', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box">
+              <div class="title">
+                <label
+                  nz-checkbox
+                  formControlName="budget_planning"
+                  (ngModelChange)="checkBoxChange()"
+                ></label>
+                {{ 'dj-default-预算编制' | translate }}
+              </div>
+              <nz-select
+                formControlName="control_type"
+                class="project-select"
+                [nzPlaceHolder]="translateWord('控管方式')"
+                [title]="validateForm.value.control_type | domTitle"
+              >
+                <nz-option nzValue="10" nzLabel="ERROR"></nz-option>
+                <nz-option nzValue="20" nzLabel="WARNING"></nz-option>
+              </nz-select>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item *appFilterFormItem="['attachment', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box uploadItem">
+              <div class="title">{{ 'dj-pcc-专案附件' | translate }}</div>
+              <div class="upload">
+                <div class="fileList">
+                  <div class="fileLi" *ngFor="let item of fileList; let i = index">
+                    <a
+                      nz-tooltip
+                      [nzTooltipTitle]="item.name"
+                      (click)="downLoad(item)"
+                      class="Filetitle"
+                    >
+                      <div class="name">{{ item.name }}</div>
+                      <div>{{ addSubProjectCardService.renderSize(item.size) }}</div>
+                    </a>
+                    <div class="fileBtn">
+                      <!-- 附件预览 -->
+                      <em nz-icon nzType="eye" nzTheme="outline" (click)="previewFile(item)"></em>
+                      <a
+                        *ngIf="
+                          hasAuth &&
+                          source !== this.enumEntry.projectChangeSignOff &&
+                          validateForm.value.to_be_formal_option !== '3' &&
+                          wbsService.projectChangeStatus['check_type_creation']
+                        "
+                        nz-popconfirm
+                        [nzPopconfirmTitle]="translatePccWord('是否确认删除?')"
+                        [nzOkText]="translateWord('确定')"
+                        [nzCancelText]="translateWord('取消')"
+                        (nzOnConfirm)="deleteFile(i, 'fileList')"
+                        nzPopconfirmOverlayClassName="fileButton"
+                      >
+                        <em nz-icon nzType="delete" nzTheme="outline"></em>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="uploadBtn"
+                  *ngIf="
+                    hasAuth &&
+                      source !== this.enumEntry.projectChangeSignOff &&
+                      validateForm.value.to_be_formal_option !== '3' &&
+                      wbsService.projectChangeStatus['check_type_creation'];
+                    else otherBlock
+                  "
+                >
+                  {{ 'dj-default-请上传50MB以内的附件' | translate }}<br />
+                  <em nz-icon nzType="cloud-upload" nzTheme="outline"></em>
+                  <input
+                    type="file"
+                    name="multipartFile"
+                    class="upload-file-reset"
+                    (change)="importData($event)"
+                    *ngIf="fileList.length < 3"
+                  />
+                </div>
+                <ng-template #otherBlock>
+                  <span class="disbaledFront" *ngIf="!fileList.length">
+                    {{ 'dj-default-请上传50MB以内的附件' | translate }}
+                  </span>
+                </ng-template>
+              </div>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+        <ng-container
+          *ngIf="
+            source === enumEntry.projectChange || source === this.enumEntry.projectChangeSignOff
+          "
+        >
+          <nz-form-item *appFilterFormItem="['change_attachment', panel.filterFormItem]">
+            <nz-form-control>
+              <div class="item-box uploadItem">
+                <div class="title">{{ 'dj-pcc-项目变更附件' | translate }}</div>
+                <div class="upload">
+                  <div class="fileList">
+                    <div class="fileLi" *ngFor="let item of projectChangeFileList; let i = index">
+                      <a
+                        nz-tooltip
+                        [nzTooltipTitle]="item.name"
+                        (click)="downLoad(item)"
+                        class="Filetitle"
+                      >
+                        <div class="name">{{ item.name }}</div>
+                        <div>{{ addSubProjectCardService.renderSize(item.size) }}</div>
+                      </a>
+                      <div class="fileBtn">
+                        <!-- 附件预览 -->
+                        <em nz-icon nzType="eye" nzTheme="outline" (click)="previewFile(item)"></em>
+                        <a
+                          *ngIf="
+                            hasAuth &&
+                            source !== this.enumEntry.projectChangeSignOff &&
+                            validateForm.value.to_be_formal_option !== '3'
+                          "
+                          nz-popconfirm
+                          [nzPopconfirmTitle]="translatePccWord('是否确认删除?')"
+                          [nzOkText]="translateWord('确定')"
+                          [nzCancelText]="translateWord('取消')"
+                          (nzOnConfirm)="deleteFile(i, 'projectChangeFileList')"
+                          nzPopconfirmOverlayClassName="fileButton"
+                        >
+                          <em nz-icon nzType="delete" nzTheme="outline"></em>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="uploadBtn"
+                    *ngIf="
+                      hasAuth &&
+                        source !== this.enumEntry.projectChangeSignOff &&
+                        validateForm.value.to_be_formal_option !== '3';
+                      else otherBlock
+                    "
+                  >
+                    {{ 'dj-default-请上传50MB以内的附件' | translate }}<br />
+                    <em nz-icon nzType="cloud-upload" nzTheme="outline"></em>
+                    <input
+                      type="file"
+                      name="multipartFile"
+                      class="upload-file-reset"
+                      (change)="importData($event, 0)"
+                      *ngIf="projectChangeFileList.length < 3"
+                    />
+                  </div>
+                  <ng-template #otherBlock>
+                    <span class="disbaledFront" *ngIf="!projectChangeFileList.length">
+                      {{ 'dj-default-请上传50MB以内的附件' | translate }}
+                    </span>
+                  </ng-template>
+                </div>
+              </div>
+            </nz-form-control>
+          </nz-form-item>
+        </ng-container>
+        <nz-form-item *appFilterFormItem="['change_version', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box">
+              <div class="title">{{ 'dj-pcc-版本' | translate }}</div>
+              <input
+                type="text"
+                class="project-input"
+                nz-input
+                [title]="validateForm.get('change_version').value | domTitle"
+                formControlName="change_version"
+                [placeholder]="translatePccWord('请输入项目版本')"
+              />
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+
+        <ng-container
+          *ngIf="
+            source === enumEntry.projectChange || source === this.enumEntry.projectChangeSignOff
+          "
+        >
+          <nz-form-item
+            class="grid-party"
+            *appFilterFormItem="['change_reason', panel.filterFormItem]"
+          >
+            <nz-form-control>
+              <div class="item-box">
+                <div class="title">
+                  <span class="in-need">*</span>{{ 'dj-pcc-变更原因' | translate }}
+                </div>
+                <ath-input-group [suffix]="inputClearTpl" style="flex: 1">
+                  <textarea
+                    athInput
+                    [title]="validateForm.value.change_reason | domTitle"
+                    [autosize]="{ minRows: 1, maxRows: 3 }"
+                    formControlName="change_reason"
+                    placeholder="{{ 'dj-pcc-变更原因' | translate }}"
+                  ></textarea>
+                </ath-input-group>
+                <ng-template #inputClearTpl>
+                  <i
+                    *ngIf="validateForm.get('change_reason').value"
+                    class="ant-input-clear-icon"
+                    athIcon
+                    iconfont="icon-guanbi1"
+                    (click)="
+                      validateForm.get('change_reason').patchValue('');
+                      validateForm.get('change_reason').markAsDirty();
+                      validateForm.get('change_reason').updateValueAndValidity()
+                    "
+                  ></i>
+                </ng-template>
+              </div>
+            </nz-form-control>
+          </nz-form-item>
+        </ng-container>
+        <nz-form-item class="grid-party" *appFilterFormItem="['remark', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box">
+              <div class="title">{{ 'dj-pcc-特别资讯' | translate }}</div>
+              <ath-input-group [suffix]="inputClearTpl" style="flex: 1">
+                <textarea
+                  athInput
+                  [title]="validateForm.value.remark | domTitle"
+                  [autosize]="{ maxRows: 3 }"
+                  formControlName="remark"
+                  [maxlength]="255"
+                  [placeholder]="translatePccWord('录入信息将用于项目卡信息的补充呈现')"
+                ></textarea>
+              </ath-input-group>
+              <ng-template #inputClearTpl>
+                <i
+                  *ngIf="validateForm.get('remark').value"
+                  class="ant-input-clear-icon"
+                  athIcon
+                  iconfont="icon-guanbi1"
+                  (click)="
+                    validateForm.get('remark').patchValue('');
+                    validateForm.get('remark').markAsDirty();
+                    validateForm.get('remark').updateValueAndValidity()
+                  "
+                ></i>
+              </ng-template>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item class="grid-party" *appFilterFormItem="['remarks', panel.filterFormItem]">
+          <nz-form-control>
+            <div class="item-box">
+              <div class="title">{{ 'dj-default-备注' | translate }}</div>
+              <ath-input-group [suffix]="inputClearTpl" style="flex: 1">
+                <textarea
+                  athInput
+                  [title]="validateForm.value.remarks | domTitle"
+                  [autosize]="{ maxRows: 3 }"
+                  [maxlength]="255"
+                  formControlName="remarks"
+                  [placeholder]="translateWord('备注')"
+                ></textarea>
+              </ath-input-group>
+              <ng-template #inputClearTpl>
+                <i
+                  *ngIf="validateForm.get('remarks').value"
+                  class="ant-input-clear-icon"
+                  athIcon
+                  iconfont="icon-guanbi1"
+                  (click)="
+                    validateForm.get('remarks').patchValue('');
+                    validateForm.get('remarks').markAsDirty();
+                    validateForm.get('remarks').updateValueAndValidity()
+                  "
+                ></i>
+              </ng-template>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </ac-collapse-panel>
+  </ac-collapse>
+
   <nz-modal
     [nzVisible]="previewVisible"
     [nzContent]="modalContent"
@@ -657,7 +1109,7 @@
       <img [src]="previewImage" alt="previewImage" [ngStyle]="{ width: '100%' }" />
     </ng-template>
   </nz-modal>
-  <div class="btn-box" *ngIf="wbsService.editable">
+  <div class="btn-box" *ngIf="wbsService.editable && source !== enumEntry.projectChange">
     <button
       class="submit"
       [ngClass]="{

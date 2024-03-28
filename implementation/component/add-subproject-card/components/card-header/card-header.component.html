@@ -1,7 +1,7 @@
 <div class="title">
   {{ addSubProjectCardService.taskCardTitle }}
 </div>
-<div class="content">
+<div class="content" *ngIf='!addSubProjectCardService.isPreview' >
   <div class="resource-load" [ngClass]="{ forbidden: isForbidden }" (click)="showHRLoad()">
     {{ 'dj-pcc-人力资源负荷' | translate }}
   </div>
@@ -9,7 +9,7 @@
   <div
     *ngIf="isShowAutoSchedule"
     class="auto-schedue"
-    [ngClass]="{ forbidden: isForbidden }"
+    [ngClass]="{ forbidden: isForbidden || ((source === 'collaborate') && (addSubProjectCardService.currentCardInfo.task_status !== '10')) }"
     (click)="autoScheduleFrontJudge()"
     [userBehavior]="{ name: 'dj-default-自动排期', code: autoScheduleCode }"
   >
@@ -43,7 +43,7 @@
           [nzAllowClear]="true"
         ></app-input-new>
       </div>
-      <div class="button-box">
+      <div class="button-box" style="width: 390px;">
         <button class="btn cancel" (click)="templateDateCancel()">
           {{ 'dj-default-取消' | translate }}
         </button>
@@ -53,7 +53,7 @@
       </div>
     </ng-template>
   </nz-modal>
-
+  <!-- 子项开窗 - 使用模板 -->
   <nz-modal
     [(nzVisible)]="isUseTemplateVisible"
     nzWrapClassName="delay-modal-box"

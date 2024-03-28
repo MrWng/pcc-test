@@ -1,12 +1,12 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DwUserService } from '@webdpt/framework/user';
-import { UploadAndDownloadService } from 'app/customization/task-project-center-console/service/upload.service';
+import { UploadAndDownloadService } from 'app/implementation/service/upload.service';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzUploadFile } from 'ng-zorro-antd/upload';
-import { AthModalService } from 'ngx-ui-athena/src/components/modal';
-import { DmcService, UploadFile } from 'ngx-ui-athena/src/components/upload';
+import { AthModalService } from '@athena/design-ui/src/components/modal';
+import { DmcService, UploadFile } from '@athena/design-ui/src/components/upload';
 import { DynamicWbsService } from '../../../wbs/wbs.service';
 import { AddSubProjectCardService } from '../../add-subproject-card.service';
 import { MyUploadService } from './upload.service';
@@ -209,10 +209,10 @@ export class UploadFileComponent implements OnInit {
 
   deleteFile = (file: UploadFile): void => {
     this.modal.confirm({
-      nzContent: '是否删除该文件？',
-      nzOkText: '确定',
+      nzContent: this.translateService.instant('dj-default-是否删除该文件？'),
+      nzOkText: this.translateService.instant('dj-default-确定'),
       nzOkType: 'primary',
-      nzCancelText: '取消',
+      nzCancelText: this.translateService.instant('dj-default-取消'),
       // nzClassName: 'upload-modal',
       nzOnOk: (): void => {
         let index = null;

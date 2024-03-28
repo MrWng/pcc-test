@@ -22,8 +22,6 @@ export class TaskDetailService {
   taskDetail: any;
   qianyeTenantId = []; // 乾冶租户id
   atmcUrl: any;
-
-
   Unit = {
     '0': this.translateService.instant('dj-default-无'),
     '1': this.translateService.instant('dj-default-工时'),
@@ -31,7 +29,7 @@ export class TaskDetailService {
     '3': this.translateService.instant('dj-default-张数'),
     '4': this.translateService.instant('dj-default-数量'),
     '5': this.translateService.instant('dj-default-项数'),
-  }
+  };
 
   statusList = {
     N: this.translateService.instant('dj-default-未结案'),
@@ -74,6 +72,13 @@ export class TaskDetailService {
     '2': this.translateService.instant('dj-default-托外制程'),
     '3': this.translateService.instant('dj-default-二者皆有'),
   };
+
+  statusList5 = {
+    'Y': this.translateService.instant('dj-default-已审核'),
+    'N': this.translateService.instant('dj-default-未审核'),
+    'V': this.translateService.instant('dj-default-作废'),
+  };
+
   resourceTypeList = {
     A: this.translatePccWord('库存冗余'),
     B: this.translatePccWord('购料未结'),
@@ -109,6 +114,12 @@ export class TaskDetailService {
     40: '已结案',
     50: '暂停',
     60: '指定结案',
+  };
+  assc_isa_order_task_status = {
+    0: this.translatePccWord('未开始'),
+    1: this.translatePccWord('进行中'),
+    2: this.translatePccWord('已完成'),
+    3: this.translateWord('已暂停'),
   };
   timeStatus = {
     potentialRisk: '潜在进度风险',
@@ -171,7 +182,7 @@ export class TaskDetailService {
           headerName: this.translateService.instant('dj-default-报工说明'),
           schema: 'remarks',
           type: 'LABEL',
-          editable: 'true'
+          editable: 'true',
         },
         {
           headerName: this.translateService.instant('dj-default-实际完成日'),
@@ -240,7 +251,9 @@ export class TaskDetailService {
             },
           ];
         } else {
-          list = [{ headerName: this.translateService.instant('dj-default-工时'), schema: 'work_hours' }];
+          list = [
+            { headerName: this.translateService.instant('dj-default-工时'), schema: 'work_hours' },
+          ];
         }
         if (this.taskDetail.task_status !== 60) {
           list.push({
@@ -274,27 +287,40 @@ export class TaskDetailService {
       }
       columns.splice(5, 0, ...list);
       // 个案
-      if (['ORD'].includes(category) && this.qianyeTenantId.indexOf(this.userService.getUser('tenantId')) >= 0) {
-        columns.push(...[{
-          headerName: this.translateService.instant('dj-default-已完成A1图数'),
-          schema: 'complete_drawing_qty1',
-        }, {
-          headerName: this.translateService.instant('dj-default-已完成A2图数'),
-          schema: 'complete_drawing_qty2',
-        }, {
-          headerName: this.translateService.instant('dj-default-已完成A3图数'),
-          schema: 'complete_drawing_qty3',
-        }, {
-          headerName: this.translateService.instant('dj-default-已完成A4图数'),
-          schema: 'complete_drawing_qty4',
-        }]);
+      if (
+        ['ORD'].includes(category) &&
+        this.qianyeTenantId.indexOf(this.userService.getUser('tenantId')) >= 0
+      ) {
+        columns.push(
+          ...[
+            {
+              headerName: this.translateService.instant('dj-default-已完成A1图数'),
+              schema: 'complete_drawing_qty1',
+            },
+            {
+              headerName: this.translateService.instant('dj-default-已完成A2图数'),
+              schema: 'complete_drawing_qty2',
+            },
+            {
+              headerName: this.translateService.instant('dj-default-已完成A3图数'),
+              schema: 'complete_drawing_qty3',
+            },
+            {
+              headerName: this.translateService.instant('dj-default-已完成A4图数'),
+              schema: 'complete_drawing_qty4',
+            },
+          ]
+        );
       }
     } else if (['MOOP', 'MES', 'SFT', 'APC', 'APC_O'].includes(category)) {
       if (['MOOP'].includes(category)) {
         // 工单工艺
         columns = [
           { headerName: this.translateService.instant('dj-default-状态码'), schema: 'status' },
-          { headerName: this.translateService.instant('dj-default-生管人员'), schema: 'production_control_name' },
+          {
+            headerName: this.translateService.instant('dj-default-生管人员'),
+            schema: 'production_control_name',
+          },
           { headerName: this.translateService.instant('dj-pcc-工单号码'), schema: 'wo_no' },
           { headerName: this.translateService.instant('dj-default-料号'), schema: 'item_no' },
           {
@@ -302,7 +328,7 @@ export class TaskDetailService {
             columns: [
               {
                 schema: 'item_name_spec',
-                headerName: '品名',
+                headerName: this.translateService.instant('dj-default-品名'),
                 level: 0,
                 path: 'item_name_spec',
                 editor: {
@@ -312,11 +338,11 @@ export class TaskDetailService {
                   type: 'INPUT',
                   editable: false,
                   disabled: true,
-                }
+                },
               },
               {
                 schema: 'item_spec',
-                headerName: '规格',
+                headerName: this.translateService.instant('dj-default-规格'),
                 level: 0,
                 path: 'item_spec',
                 editor: {
@@ -326,23 +352,51 @@ export class TaskDetailService {
                   type: 'INPUT',
                   editable: false,
                   disabled: true,
-                }
-              }
+                },
+              },
             ],
           },
-          { headerName: this.translateService.instant('dj-default-生产数量'), schema: 'production_qty' },
-          { headerName: this.translateService.instant('dj-default-加工顺序'), schema: 'process_seq' },
-          { headerName: this.translateService.instant('dj-default-制程代号'), schema: 'process_no' },
+          {
+            headerName: this.translateService.instant('dj-default-生产数量'),
+            schema: 'production_qty',
+          },
+          // {
+          //   headerName: this.translateService.instant('dj-default-已发料套数'),
+          //   schema: 'issue_set_qty',
+          // },
+          {
+            headerName: this.translateService.instant('dj-default-加工顺序'),
+            schema: 'process_seq',
+          },
+          {
+            headerName: this.translateService.instant('dj-default-制程代号'),
+            schema: 'process_no',
+          },
           { headerName: this.translateService.instant('dj-default-制程名称'), schema: 'op_name' },
           { headerName: this.translateService.instant('dj-default-性质'), schema: 'op_type' },
-          { headerName: this.translateService.instant('dj-default-线别/厂商名称'), schema: 'supplier_name' },
+          {
+            headerName: this.translateService.instant('dj-default-线别/厂商名称'),
+            schema: 'supplier_name',
+          },
           { headerName: this.translateService.instant('dj-default-投入数量'), schema: 'feed_qty' },
-          { headerName: this.translateService.instant('dj-default-完成数量'), schema: 'complete_qty' },
+          {
+            headerName: this.translateService.instant('dj-default-完成数量'),
+            schema: 'complete_qty',
+          },
           { headerName: this.translateService.instant('dj-pcc-预计开工日'), schema: 'plan_date_s' },
           { headerName: this.translateService.instant('dj-pcc-预计完工日'), schema: 'plan_date_e' },
-          { headerName: this.translateService.instant('dj-pcc-实际开工日'), schema: 'actual_date_s' },
-          { headerName: this.translateService.instant('dj-pcc-实际完工日'), schema: 'actual_date_e' },
-          { headerName: this.translateService.instant('dj-default-完成率'), schema: 'complete_rate' }
+          {
+            headerName: this.translateService.instant('dj-pcc-实际开工日'),
+            schema: 'actual_date_s',
+          },
+          {
+            headerName: this.translateService.instant('dj-pcc-实际完工日'),
+            schema: 'actual_date_e',
+          },
+          {
+            headerName: this.translateService.instant('dj-default-完成率'),
+            schema: 'complete_rate',
+          },
         ];
       }
       if (['MES'].includes(category)) {
@@ -413,7 +467,10 @@ export class TaskDetailService {
             schema: 'op_no',
           },
           { headerName: this.translateService.instant('dj-default-制程名称'), schema: 'op_name' },
-          { headerName: this.translateService.instant('dj-default-性质'), schema: 'outsourcing_type' },
+          {
+            headerName: this.translateService.instant('dj-default-性质'),
+            schema: 'outsourcing_type',
+          },
           {
             headerName: this.translateService.instant('dj-default-线别/厂商名称'),
             schema: 'supplier_name',
@@ -423,12 +480,18 @@ export class TaskDetailService {
             headerName: this.translateService.instant('dj-default-完成数量'),
             schema: 'complete_qty',
           },
-          { headerName: this.translateService.instant('dj-pcc-预计开工日'), schema: 'plan_start_date' },
+          {
+            headerName: this.translateService.instant('dj-pcc-预计开工日'),
+            schema: 'plan_start_date',
+          },
           {
             headerName: this.translateService.instant('dj-default-非计划时程内'),
             schema: 'out_plan_time',
           },
-          { headerName: this.translateService.instant('dj-pcc-预计完工日'), schema: 'plan_complete_date' },
+          {
+            headerName: this.translateService.instant('dj-pcc-预计完工日'),
+            schema: 'plan_complete_date',
+          },
           {
             headerName: this.translateService.instant('dj-pcc-实际开工日'),
             schema: 'actual_start_date',
@@ -453,7 +516,7 @@ export class TaskDetailService {
             columns: [
               {
                 schema: 'item_name_spec',
-                headerName: '品名',
+                headerName: this.translateService.instant('dj-default-品名'),
                 level: 0,
                 path: 'item_name_spec',
                 editor: {
@@ -463,11 +526,11 @@ export class TaskDetailService {
                   type: 'INPUT',
                   editable: false,
                   disabled: true,
-                }
+                },
               },
               {
                 schema: 'item_spec',
-                headerName: '规格',
+                headerName: this.translateService.instant('dj-default-规格'),
                 level: 0,
                 path: 'item_spec',
                 editor: {
@@ -477,20 +540,35 @@ export class TaskDetailService {
                   type: 'INPUT',
                   editable: false,
                   disabled: true,
-                }
-              }
+                },
+              },
             ],
           },
 
-          { headerName: this.translateService.instant('dj-default-制程代号'), schema: 'process_no' },
+          {
+            headerName: this.translateService.instant('dj-default-制程代号'),
+            schema: 'process_no',
+          },
           { headerName: this.translateService.instant('dj-default-制程名称'), schema: 'op_name' },
           { headerName: this.translateService.instant('dj-default-性质'), schema: 'op_type' },
-          { headerName: this.translateService.instant('dj-default-线别/厂商名称'), schema: 'supplier_name' },
+          {
+            headerName: this.translateService.instant('dj-default-线别/厂商名称'),
+            schema: 'supplier_name',
+          },
           { headerName: this.translateService.instant('dj-pcc-预计开工日'), schema: 'plan_date_s' },
           { headerName: this.translateService.instant('dj-pcc-预计完工日'), schema: 'plan_date_e' },
-          { headerName: this.translateService.instant('dj-pcc-实际开工日'), schema: 'actual_date_s' },
-          { headerName: this.translateService.instant('dj-pcc-实际完工日'), schema: 'actual_date_e' },
-          { headerName: this.translateService.instant('dj-default-完成率'), schema: 'complete_rate' }
+          {
+            headerName: this.translateService.instant('dj-pcc-实际开工日'),
+            schema: 'actual_date_s',
+          },
+          {
+            headerName: this.translateService.instant('dj-pcc-实际完工日'),
+            schema: 'actual_date_e',
+          },
+          {
+            headerName: this.translateService.instant('dj-default-完成率'),
+            schema: 'complete_rate',
+          },
         ];
       }
     } else if (['REVIEW'].includes(category)) {
@@ -615,7 +693,10 @@ export class TaskDetailService {
       columns = [
         { headerName: this.translateService.instant('dj-default-编号'), schema: 'design_no' },
         { headerName: this.translateService.instant('dj-default-名称'), schema: 'design_name' },
-        { headerName: this.translateService.instant('dj-default-执行人名称'), schema: 'executor_name' },
+        {
+          headerName: this.translateService.instant('dj-default-执行人名称'),
+          schema: 'executor_name',
+        },
         { headerName: this.translateService.instant('dj-default-详细描述'), schema: 'remark' },
         {
           headerName: this.translateService.instant('dj-default-实际开始日'),
@@ -635,12 +716,12 @@ export class TaskDetailService {
           headerName: this.translateService.instant('dj-default-报工说明'),
           schema: 'report_work_description',
           type: 'LABEL',
-          editable: 'true'
+          editable: 'true',
         },
         {
           headerName: this.translateService.instant('dj-default-交付物'),
           schema: 'deliverable',
-          type: 'pcc_deliverable'
+          type: 'pcc_deliverable',
         },
       ];
     } else if (['ODAR'].includes(category)) {
@@ -650,15 +731,18 @@ export class TaskDetailService {
           headerName: this.translateService.instant('dj-default-合同签订日期'),
           schema: 'contract_date',
         },
-        { headerName: this.translateService.instant('dj-default-客户单号'), schema: 'customer_doc_no' },
+        {
+          headerName: this.translateService.instant('dj-default-客户单号'),
+          schema: 'customer_doc_no',
+        },
         { headerName: this.translateService.instant('dj-default-客户'), schema: 'customer_name' },
         {
           headerName: this.translateService.instant('dj-default-收款方式'),
           schema: 'payment_method',
         },
         {
-          headerName: this.translateService.instant('dj-default-币别'),
-          schema: 'trans_currency_name',
+          headerName: this.translateService.instant('dj-default-交易货币'),
+          schema: 'trans_currency',
         },
         {
           headerName: this.translateService.instant('dj-default-分期金额'),
@@ -672,7 +756,6 @@ export class TaskDetailService {
           headerName: this.translateService.instant('dj-default-收款'),
           schema: 'trans_curr_received_amount',
         },
-
       ];
     } else if (['PR'].includes(category)) {
       columns = [
@@ -688,6 +771,11 @@ export class TaskDetailService {
           headerName: this.translateService.instant('dj-default-请购单号'),
           schema: 'requisitions_no',
         },
+        // s10: 新增请购日期栏位
+        {
+          headerName: this.translateService.instant('dj-pcc-请购日期'),
+          schema: 'pr_date',
+        },
         { headerName: this.translateService.instant('dj-default-项次'), schema: 'purchase_seq' },
         {
           headerName: this.translateService.instant('dj-default-子项次'),
@@ -699,7 +787,7 @@ export class TaskDetailService {
           columns: [
             {
               schema: 'item_name_spec',
-              headerName: '品名',
+              headerName: this.translateService.instant('dj-default-品名'),
               level: 0,
               path: 'item_name_spec',
               editor: {
@@ -709,11 +797,11 @@ export class TaskDetailService {
                 type: 'INPUT',
                 editable: false,
                 disabled: true,
-              }
+              },
             },
             {
               schema: 'item_spec',
-              headerName: '规格',
+              headerName: this.translateService.instant('dj-default-规格'),
               level: 0,
               path: 'item_spec',
               editor: {
@@ -723,13 +811,17 @@ export class TaskDetailService {
                 type: 'INPUT',
                 editable: false,
                 disabled: true,
-              }
-            }
+              },
+            },
           ],
         },
         {
           headerName: this.translateService.instant('dj-default-请购数量'),
           schema: 'requisitions_qty',
+        },
+        {
+          headerName: this.translateService.instant('dj-default-采购人员'),
+          schema: 'purchaser_name',
         },
         {
           headerName: this.translateService.instant('dj-default-采购数量'),
@@ -740,7 +832,10 @@ export class TaskDetailService {
       ];
     } else if (['POPUR'].includes(category)) {
       columns = [
-        { headerName: this.translateService.instant('dj-default-结案状态'), schema: 'close_status' },
+        {
+          headerName: this.translateService.instant('dj-default-结案状态'),
+          schema: 'close_status',
+        },
         {
           headerName: this.translateService.instant('dj-default-采购人员'),
           schema: 'purchaser_name',
@@ -757,7 +852,7 @@ export class TaskDetailService {
           columns: [
             {
               schema: 'item_name_spec',
-              headerName: '品名',
+              headerName: this.translateService.instant('dj-default-品名'),
               level: 0,
               path: 'item_name_spec',
               editor: {
@@ -767,11 +862,11 @@ export class TaskDetailService {
                 type: 'INPUT',
                 editable: false,
                 disabled: true,
-              }
+              },
             },
             {
               schema: 'item_spec',
-              headerName: '规格',
+              headerName: this.translateService.instant('dj-default-规格'),
               level: 0,
               path: 'item_spec',
               editor: {
@@ -781,9 +876,9 @@ export class TaskDetailService {
                 type: 'INPUT',
                 editable: false,
                 disabled: true,
-              }
-            }
-          ]
+              },
+            },
+          ],
         },
         { headerName: this.translateService.instant('dj-default-完成率'), schema: 'complete_rate' },
         {
@@ -806,18 +901,26 @@ export class TaskDetailService {
           headerName: this.translateService.instant('dj-default-预计交货日'),
           schema: 'plan_delivery_date',
         },
+        {
+          headerName: this.translateService.instant('dj-pcc-到货日期'),
+          schema: 'arrival_date',
+        },
       ];
     } else if (['MO'].includes(category)) {
       columns = [
         { headerName: this.translateService.instant('dj-default-状态码'), schema: 'status' },
-        { headerName: this.translateService.instant('dj-default-生管人员'), schema: 'production_control_name' },
+        {
+          headerName: this.translateService.instant('dj-default-生管人员'),
+          schema: 'production_control_name',
+        },
         { headerName: this.translateService.instant('dj-pcc-工单号码'), schema: 'wo_no' },
         { headerName: this.translateService.instant('dj-default-料号'), schema: 'item_no' },
-        { headerName: this.translateService.instant('dj-default-品名规格'),
+        {
+          headerName: this.translateService.instant('dj-default-品名规格'),
           columns: [
             {
               schema: 'item_name_spec',
-              headerName: '品名',
+              headerName: this.translateService.instant('dj-default-品名'),
               level: 0,
               path: 'item_name_spec',
               editor: {
@@ -827,11 +930,11 @@ export class TaskDetailService {
                 type: 'INPUT',
                 editable: false,
                 disabled: true,
-              }
+              },
             },
             {
               schema: 'item_spec',
-              headerName: '规格',
+              headerName: this.translateService.instant('dj-default-规格'),
               level: 0,
               path: 'item_spec',
               editor: {
@@ -841,31 +944,56 @@ export class TaskDetailService {
                 type: 'INPUT',
                 editable: false,
                 disabled: true,
-              }
-            }
-          ]
+              },
+            },
+          ],
         },
-        { headerName: this.translateService.instant('dj-default-生产数量'), schema: 'production_qty' },
-        { headerName: this.translateService.instant('dj-default-入库数量'), schema: 'stock_in_qty' },
-        { headerName: this.translateService.instant('dj-default-已发料套数'), schema: 'issue_set_qty' },
+        {
+          headerName: this.translateService.instant('dj-default-生产数量'),
+          schema: 'production_qty',
+        },
+        {
+          headerName: this.translateService.instant('dj-default-入库数量'),
+          schema: 'stock_in_qty',
+        },
+        {
+          headerName: this.translateService.instant('dj-default-已发料套数'),
+          schema: 'issue_set_qty',
+        },
         { headerName: this.translateService.instant('dj-pcc-预计完工日'), schema: 'plan_date_e' },
         { headerName: this.translateService.instant('dj-default-完成率'), schema: 'complete_rate' },
       ];
     } else if (['MOMA'].includes(category)) {
       columns = [
         { headerName: this.translateService.instant('dj-default-状态码'), schema: 'status' },
-        { headerName: this.translateService.instant('dj-default-生管人员'), schema: 'production_control_name' },
+        {
+          headerName: this.translateService.instant('dj-default-生管人员'),
+          schema: 'production_control_name',
+        },
         { headerName: this.translateService.instant('dj-pcc-工单号码'), schema: 'wo_no' },
-        { headerName: this.translateService.instant('dj-default-生产料号'), schema: 'production_item_no' },
-        { headerName: this.translateService.instant('dj-default-生产料号规格'), schema: 'production_item_spec' },
-        { headerName: this.translateService.instant('dj-default-制令生产数量'), schema: 'wo_production_qty' },
+        {
+          headerName: this.translateService.instant('dj-default-生产料号'),
+          schema: 'production_item_no',
+        },
+        {
+          headerName: this.translateService.instant('dj-default-生产料号规格'),
+          schema: 'production_item_spec',
+        },
+        {
+          headerName: this.translateService.instant('dj-default-制令生产数量'),
+          schema: 'wo_production_qty',
+        },
         { headerName: this.translateService.instant('dj-pcc-预计完工日'), schema: 'plan_date_e' },
         { headerName: this.translateService.instant('dj-default-料号'), schema: 'item_no' },
-        { headerName: this.translateService.instant('dj-default-品名规格'),
+        { headerName: this.translateService.instant('dj-pcc-领料日期'), schema: 'plan_picking_date' },
+        { headerName: this.translateService.instant('dj-pcc-仓库编号'), schema: 'warehouse_no' },
+        { headerName: this.translateService.instant('dj-pcc-仓库名称'), schema: 'warehouse_name' },
+        {
+          headerName: this.translateService.instant('dj-default-品名规格'),
           columns: [
             {
               schema: 'item_name_spec',
-              headerName: '品名',
+              headerName: this.translateService.instant('dj-default-品名'),
               level: 0,
               path: 'item_name_spec',
               editor: {
@@ -875,11 +1003,11 @@ export class TaskDetailService {
                 type: 'INPUT',
                 editable: false,
                 disabled: true,
-              }
+              },
             },
             {
               schema: 'item_spec',
-              headerName: '规格',
+              headerName: this.translateService.instant('dj-default-规格'),
               level: 0,
               path: 'item_spec',
               editor: {
@@ -889,15 +1017,18 @@ export class TaskDetailService {
                 type: 'INPUT',
                 editable: false,
                 disabled: true,
-              }
-            }
-          ]
+              },
+            },
+          ],
         },
-        { headerName: this.translateService.instant('dj-default-需领用量'), schema: 'required_qty' },
+        {
+          headerName: this.translateService.instant('dj-default-需领用量'),
+          schema: 'required_qty',
+        },
         { headerName: this.translateService.instant('dj-default-已发料数量'), schema: 'issue_qty' },
         { headerName: this.translateService.instant('dj-default-完成率'), schema: 'complete_rate' },
       ];
-    } else if (['PO', 'PO_KEY', 'OD', 'EXPORT', 'SHIPMENT'].includes(category)) {
+    } else if (['PO', 'PO_KEY', 'PO_NOT_KEY', 'OD', 'EXPORT', 'SHIPMENT'].includes(category)) {
       let oddNo, count, counted, date, title, secondTitle, title_name;
       oddNo = 'so_no';
       count = 'so_qty';
@@ -924,17 +1055,24 @@ export class TaskDetailService {
         title = this.translateService.instant('dj-default-出货数量');
       }
       columns = [
-        { headerName: this.translateService.instant('dj-default-结案状态'), schema: 'close_status' },
+        {
+          headerName: this.translateService.instant('dj-default-结案状态'),
+          schema: 'close_status',
+        },
         { headerName: secondTitle, schema: title_name },
         { headerName: this.translateService.instant('dj-pcc-订单单号'), schema: oddNo },
         { headerName: this.translateService.instant('dj-default-项次'), schema: 'purchase_seq' },
-        { headerName: this.translateService.instant('dj-default-子项次'), schema: 'purchase_sub_seq' },
+        {
+          headerName: this.translateService.instant('dj-default-子项次'),
+          schema: 'purchase_sub_seq',
+        },
         { headerName: this.translateService.instant('dj-default-料号'), schema: 'item_no' },
-        { headerName: this.translateService.instant('dj-default-品名规格'),
+        {
+          headerName: this.translateService.instant('dj-default-品名规格'),
           columns: [
             {
               schema: 'item_name_spec',
-              headerName: '品名',
+              headerName: this.translateService.instant('dj-default-品名'),
               level: 0,
               path: 'item_name_spec',
               editor: {
@@ -944,11 +1082,11 @@ export class TaskDetailService {
                 type: 'INPUT',
                 editable: false,
                 disabled: true,
-              }
+              },
             },
             {
               schema: 'item_spec',
-              headerName: '规格',
+              headerName: this.translateService.instant('dj-default-规格'),
               level: 0,
               path: 'item_spec',
               editor: {
@@ -958,40 +1096,61 @@ export class TaskDetailService {
                 type: 'INPUT',
                 editable: false,
                 disabled: true,
-              }
-            }
-          ]
+              },
+            },
+          ],
         },
         { headerName: this.translateService.instant('dj-pcc-订单数量'), schema: count },
         { headerName: title, schema: counted },
         // { headerName: this.translateService.instant('dj-default-已发料套数'), schema: 'issue_set_qty' },
         { headerName: this.translateService.instant('dj-default-预计交货日'), schema: date },
-        { headerName: this.translateService.instant('dj-default-完成率'), schema: 'complete_rate' }
+        { headerName: this.translateService.instant('dj-default-完成率'), schema: 'complete_rate' },
       ];
 
       if (category === 'SHIPMENT') {
         this.removeArrayItem(columns, 'close_status');
-        this.editColumnLabel(columns, 'shipping_date', this.translateService.instant('dj-pcc-出货日期'));
+        this.editColumnLabel(
+          columns,
+          'shipping_date',
+          this.translateService.instant('dj-pcc-出货日期')
+        );
       }
       if (category === 'EXPORT') {
         this.removeArrayItem(columns, 'close_status');
-        this.editColumnLabel(columns, 'shipping_date', this.translateService.instant('dj-pcc-出货日期'));
+        this.editColumnLabel(
+          columns,
+          'shipping_date',
+          this.translateService.instant('dj-pcc-出货日期')
+        );
       }
-      if ((category === 'PO') || (category === 'PO_KEY')) {
+      if (category === 'PO') {
         columns = [];
         columns = [
-          { headerName: this.translateService.instant('dj-default-结案状态'), schema: 'close_status' },
-          { headerName: this.translateService.instant('dj-default-采购人员'), schema: 'purchaser_name' },
-          { headerName: this.translateService.instant('dj-default-预计交货日'), schema: 'plan_delivery_date' },
+          {
+            headerName: this.translateService.instant('dj-default-结案状态'),
+            schema: 'close_status',
+          },
+          {
+            headerName: this.translateService.instant('dj-default-采购人员'),
+            schema: 'purchaser_name',
+          },
+          {
+            headerName: this.translateService.instant('dj-default-预计交货日'),
+            schema: 'plan_delivery_date',
+          },
           { headerName: this.translateService.instant('dj-pcc-采购单号'), schema: 'purchase_no' },
           { headerName: this.translateService.instant('dj-default-项次'), schema: 'purchase_seq' },
-          { headerName: this.translateService.instant('dj-default-子项次'), schema: 'purchase_sub_seq' },
+          {
+            headerName: this.translateService.instant('dj-default-子项次'),
+            schema: 'purchase_sub_seq',
+          },
           { headerName: this.translateService.instant('dj-default-料号'), schema: 'item_no' },
-          { headerName: this.translateService.instant('dj-default-品名规格'),
+          {
+            headerName: this.translateService.instant('dj-default-品名规格'),
             columns: [
               {
                 schema: 'item_name_spec',
-                headerName: '品名',
+                headerName: this.translateService.instant('dj-default-品名'),
                 level: 0,
                 path: 'item_name_spec',
                 editor: {
@@ -1001,11 +1160,11 @@ export class TaskDetailService {
                   type: 'INPUT',
                   editable: false,
                   disabled: true,
-                }
+                },
               },
               {
                 schema: 'item_spec',
-                headerName: '规格',
+                headerName: this.translateService.instant('dj-default-规格'),
                 level: 0,
                 path: 'item_spec',
                 editor: {
@@ -1015,14 +1174,103 @@ export class TaskDetailService {
                   type: 'INPUT',
                   editable: false,
                   disabled: true,
-                }
-              }
-            ]
+                },
+              },
+            ],
           },
-          { headerName: this.translateService.instant('dj-default-采购数量'), schema: 'purchase_qty' },
-          { headerName: this.translateService.instant('dj-default-入库数量'), schema: 'stock_in_qty' },
-          { headerName: this.translateService.instant('dj-default-入库日期'), schema: 'stock_in_date' },
-          { headerName: this.translateService.instant('dj-default-完成率'), schema: 'complete_rate' }
+          {
+            headerName: this.translateService.instant('dj-default-采购数量'),
+            schema: 'purchase_qty',
+          },
+          {
+            headerName: this.translateService.instant('dj-default-入库数量'),
+            schema: 'stock_in_qty',
+          },
+          {
+            headerName: this.translateService.instant('dj-default-入库日期'),
+            schema: 'stock_in_date',
+          },
+          {
+            headerName: this.translateService.instant('dj-default-完成率'),
+            schema: 'complete_rate',
+          },
+        ];
+      }
+      if (['PO_KEY', 'PO_NOT_KEY'].includes(category)) {
+        columns = [];
+        columns = [
+          {
+            headerName: this.translateService.instant('dj-default-结案状态'),
+            schema: 'close_status',
+          },
+          {
+            headerName: this.translateService.instant('dj-default-采购人员'),
+            schema: 'purchaser_name',
+          },
+          {
+            headerName: this.translateService.instant('dj-default-预计交货日'),
+            schema: 'plan_delivery_date',
+          },
+          { headerName: this.translateService.instant('dj-pcc-采购单号'), schema: 'purchase_no' },
+          { headerName: this.translateService.instant('dj-default-项次'), schema: 'purchase_seq' },
+          {
+            headerName: this.translateService.instant('dj-default-子项次'),
+            schema: 'purchase_sub_seq',
+          },
+          { headerName: this.translateService.instant('dj-default-料号'), schema: 'item_no' },
+          {
+            headerName: this.translateService.instant('dj-default-品名规格'),
+            columns: [
+              {
+                schema: 'item_name_spec',
+                headerName: this.translateService.instant('dj-default-品名'),
+                level: 0,
+                path: 'item_name_spec',
+                editor: {
+                  id: '4c37a838-9a3d-48b9-938a-bd19cc2b6ad5',
+                  schema: 'item_name_spec',
+                  showIcon: false,
+                  type: 'INPUT',
+                  editable: false,
+                  disabled: true,
+                },
+              },
+              {
+                schema: 'item_spec',
+                headerName: this.translateService.instant('dj-default-规格'),
+                level: 0,
+                path: 'item_spec',
+                editor: {
+                  id: '4c37a838-9a3d-48b9-938a-bd19cc2b6ad5',
+                  schema: 'item_spec',
+                  showIcon: false,
+                  type: 'INPUT',
+                  editable: false,
+                  disabled: true,
+                },
+              },
+            ],
+          },
+          {
+            headerName: this.translateService.instant('dj-default-采购数量'),
+            schema: 'purchase_qty',
+          },
+          {
+            headerName: this.translateService.instant('dj-default-入库数量'),
+            schema: 'stock_in_qty',
+          },
+          {
+            headerName: this.translateService.instant('dj-default-入库日期'),
+            schema: 'stock_in_date',
+          },
+          {
+            headerName: this.translateService.instant('dj-default-完成率'),
+            schema: 'complete_rate',
+          },
+          {
+            headerName: this.translateService.instant('dj-pcc-到货日期'),
+            schema: 'arrival_date',
+          },
         ];
       }
     } else if (['PRSUM', 'POSUM'].includes(category)) {
@@ -1040,7 +1288,7 @@ export class TaskDetailService {
           columns: [
             {
               schema: 'item_name_spec',
-              headerName: '品名',
+              headerName: this.translateService.instant('dj-default-品名'),
               level: 0,
               path: 'item_name_spec',
               editor: {
@@ -1050,11 +1298,11 @@ export class TaskDetailService {
                 type: 'INPUT',
                 editable: false,
                 disabled: true,
-              }
+              },
             },
             {
               schema: 'item_spec',
-              headerName: '规格',
+              headerName: this.translateService.instant('dj-default-规格'),
               level: 0,
               path: 'item_spec',
               editor: {
@@ -1064,8 +1312,8 @@ export class TaskDetailService {
                 type: 'INPUT',
                 editable: false,
                 disabled: true,
-              }
-            }
+              },
+            },
           ],
         },
         {
@@ -1105,6 +1353,11 @@ export class TaskDetailService {
             headerName: this.translateService.instant('dj-default-请购数量'),
             schema: 'requisitions_qty',
           },
+          // s10: 新增请购日期栏位
+          {
+            headerName: this.translateService.instant('dj-pcc-请购日期'),
+            schema: 'pr_date',
+          },
           {
             headerName: this.translateService.instant('dj-default-采购数量'),
             schema: 'purchase_qty',
@@ -1112,14 +1365,29 @@ export class TaskDetailService {
         ];
       }
       columns = columns.concat(columsType);
+    } else if (['PCM'].includes(category)) {
+      columns = [
+        { headerName: this.translateService.instant('dj-default-项目编号'), schema: 'project_no' },
+        { headerName: this.translateService.instant('dj-default-项目负责人'), schema: 'project_leader_name' },
+        { headerName: this.translateService.instant('dj-default-预算负责人'), schema: 'budget_editor_name' },
+        { headerName: this.translateService.instant('dj-default-材料负责人'), schema: 'material_leader_name' },
+        { headerName: this.translateService.instant('dj-default-费用负责人'), schema: 'expense_leader_name' },
+        { headerName: this.translateService.instant('dj-default-版本号'), schema: 'version_no' },
+        { headerName: this.translateService.instant('dj-default-状态'), schema: 'manage_status' },
+        { headerName: this.translateService.instant('dj-default-审核时间'), schema: 'approve_time' },
+      ];
+    }
+    if(['PO', 'PO_KEY', 'PO_NOT_KEY', 'MO', 'MOOP', 'POPUR'].includes(category)) {
+      columns.push({ headerName: this.translateService.instant('dj-default-差异天数'), schema: 'diff_days' });
     }
     const orderFields = [];
-    columns?.forEach(element => {
+    columns?.forEach((element) => {
       orderFields.push({
         name: element.schema,
-        description: element.headerName
+        description: element.headerName,
       });
     });
+
     const taskCategoryLayout = [
       {
         id: 'inquiry',
@@ -1144,10 +1412,11 @@ export class TaskDetailService {
               },
             ],
           },
-          orderFields: orderFields
+          orderFields: orderFields,
         },
       },
     ];
+
     const data = {
       layout: taskCategoryLayout,
       pageData: {
@@ -1177,7 +1446,6 @@ export class TaskDetailService {
     });
   }
 
-
   getTaskApproval(params: any): Observable<any> {
     params = [params];
     const url = `${this.atmcUrl}/api/atmc/v1/approval/getTaskApprovalByTaskIds`;
@@ -1186,53 +1454,80 @@ export class TaskDetailService {
     });
   }
 
-
   project_Doc_Data_Get(params) {
     const { taskDetail, process_status } = params;
-    const doc_info = [{
-      ...taskDetail,
-      process_status: process_status,
-    }];
+    const doc_info = [
+      {
+        ...taskDetail,
+        process_status: process_status,
+      },
+    ];
     return this.commonService
-      .getInvData(
-        'project.doc.info.process',
-        { doc_info: doc_info },
-        taskDetail.eoc_company_id
-      ).pipe(
+      .getInvData('project.doc.info.process', { doc_info: doc_info }, taskDetail.eoc_company_id)
+      .pipe(
         pluck('data', 'doc_info'),
-        map(doc_info => {
-          return doc_info.map(item => ({
+        map((doc_info) => {
+          return doc_info.map((item) => ({
             ...item,
             process_status,
             close_status: this.statusList[item.close_status] || item.close_status,
             status: this.statusList1[item.status] || item.status,
-            op_type: this.statusList4[item.op_type] || item.op_type
+            op_type: this.statusList4[item.op_type] || item.op_type,
           }));
         })
       );
   }
 
+  budget_view_get(params) {
+    const search_info = {
+      use_has_next: false,
+      project_budget_view_search_info: [{
+        project_info: [{project_no: params.project_no}],
+        range: 0,
+        manage_status: 'ALL',
+        contain_cancel: true,
+        contain_history: true,
+        no_show_detail: true
+      }]
+    };
+    return this.commonService.getInvData('bm.pcsc.budget.view.get', search_info).pipe(
+      pluck('data', 'project_budget_view_info'),
+      map((project_budget_view_info) => {
+        return project_budget_view_info.map((item) => ({
+          ...item,
+          manage_status: this.statusList5[item.manage_status],
+          approve_time: item.approve_time ? moment(item.approve_time).format('YYYY-MM-DD') : ''
+        }));
+      })
+    );
+  }
+
   project_Task_complete_rate_data_Get(params) {
     const { taskDetail, process_status } = params;
-    const doc_info = [{
-      ...taskDetail,
-      process_status: process_status,
-    }];
+    const doc_info = [
+      {
+        ...taskDetail,
+        process_status: process_status,
+      },
+    ];
     return this.commonService
       .getInvData(
         'project.task.complete.rate.data.get',
         { doc_info: doc_info },
         taskDetail.eoc_company_id
-      ).pipe(
+      )
+      .pipe(
         pluck('data', 'doc_info'),
-        map(doc_info => {
-          return doc_info.map(item => ({
+        map((doc_info) => {
+          return doc_info.map((item) => ({
             ...item,
             process_status,
             is_on_schedule: this.timeStatus[item.is_on_schedule],
             task_status: this.taskStatus[item.task_status],
             important: this.level[item.important],
-            plan_start_date: item.plan_start_date ? moment(item.plan_start_date).format('YYYY-MM-DD') : '',
+            plan_start_date: item.plan_start_date
+              ? moment(item.plan_start_date).format('YYYY-MM-DD')
+              : '',
             plan_finish_date: item.plan_finish_date
               ? moment(item.plan_finish_date).format('YYYY-MM-DD')
               : '',
@@ -1243,8 +1538,83 @@ export class TaskDetailService {
               ? moment(item.actual_finish_date).format('YYYY-MM-DD')
               : '',
             complete_rate: item.task_complete_rate,
-            milestone_type: item.milestone_type === 'true' ? '是' : '否'
+            milestone_type: item.milestone_type === 'true' ? '是' : '否',
           }));
+        })
+      );
+  }
+
+  isa_order_plan_Get(params) {
+    const { taskDetail, process_status } = params;
+    const param = [
+      {
+        project_no: taskDetail?.project_no,
+        task_no: taskDetail?.task_no,
+        // process_status: process_status,
+      },
+    ];
+    return this.commonService
+      .getInvData('isa.order.plan.get', { isa_order: param }, taskDetail.eoc_company_id)
+      .pipe(
+        pluck('data', 'isa_order'),
+        map((isa_order) => {
+          const isaOrder = [];
+          isa_order.forEach((isaOrderObj) => {
+            if (process_status === '1' && !['3', '5'].includes(isaOrderObj.project_status)) {
+              isaOrderObj?.isa_order_plan.forEach((item) => {
+                const obj = {
+                  ...item,
+                  plan_start_time: item.plan_start_time
+                    ? moment(item.plan_start_time).format('YYYY-MM-DD')
+                    : '',
+                  plan_end_time: item.plan_end_time
+                    ? moment(item.plan_end_time).format('YYYY-MM-DD')
+                    : '',
+                  actual_start_time: item.actual_start_time
+                    ? moment(item.actual_start_time).format('YYYY-MM-DD')
+                    : '',
+                  actual_end_time: item.actual_end_time
+                    ? moment(item.actual_end_time).format('YYYY-MM-DD')
+                    : '',
+                  task_progress: item.task_progress
+                    ? this.commonService.accMul(item.task_progress, 100) + '%'
+                    : '0%',
+                  task_status: this.assc_isa_order_task_status[item.task_status],
+                  project_status: isa_order.project_status,
+                  process_status,
+                };
+                isaOrder.push(obj);
+              });
+            }
+            // 完成
+            if (process_status === '2' && ['3', '5'].includes(isaOrderObj.project_status)) {
+              isaOrderObj?.isa_order_plan.forEach((item) => {
+                const obj = {
+                  ...item,
+                  plan_start_time: item.plan_start_time
+                    ? moment(item.plan_start_time).format('YYYY-MM-DD')
+                    : '',
+                  plan_end_time: item.plan_end_time
+                    ? moment(item.plan_end_time).format('YYYY-MM-DD')
+                    : '',
+                  actual_start_time: item.actual_start_time
+                    ? moment(item.actual_start_time).format('YYYY-MM-DD')
+                    : '',
+                  actual_end_time: item.actual_end_time
+                    ? moment(item.actual_end_time).format('YYYY-MM-DD')
+                    : '',
+                  task_progress: item.task_progress
+                    ? this.commonService.accMul(item.task_progress, 100) + '%'
+                    : '0%',
+                  task_status: this.assc_isa_order_task_status[item.task_status],
+                  project_status: isa_order.project_status,
+                  process_status,
+                };
+                isaOrder.push(obj);
+              });
+            }
+          });
+          return isaOrder;
         })
       );
   }
@@ -1253,7 +1623,7 @@ export class TaskDetailService {
   project_Review_Data_Get(params: any, eocMap: any, urlType: any) {
     const param = { doc_info: params };
     return this.commonService.getInvData(urlType, param, eocMap).pipe(
-      map(res => {
+      map((res) => {
         return res.data.doc_info || res.data.project_instant_cost_info;
       })
     );
@@ -1266,7 +1636,7 @@ export class TaskDetailService {
     const { doc_info, eocMap } = params;
     const param = { doc_info };
     return this.commonService.getInvData('project.remaining.resource.data.get', param, eocMap).pipe(
-      map(res => {
+      map((res) => {
         const remaining = res.data.doc_info || res.data.project_instant_cost_info;
         let money = 0,
           num = 0;
@@ -1278,8 +1648,10 @@ export class TaskDetailService {
           } else {
             o.resourcePositionName = o.resource_position;
           }
-          money = money + o.local_curr_amount;
-          num = num + o.qty;
+          // money = money + o.local_curr_amount;
+          // num = num + o.qty;
+          money = this.commonService.accAdd(money, o.local_curr_amount);
+          num = this.commonService.accAdd(num, o.qty);
         });
         if (remaining?.length) {
           remaining.push({
@@ -1301,12 +1673,12 @@ export class TaskDetailService {
     const { doc_info, eocMap } = params;
     const param = { doc_info };
     return this.commonService.getInvData('project.abnormal.review.info.get', param, eocMap).pipe(
-      map(res => {
+      map((res) => {
         const data = res.data.doc_info || res.data.project_instant_cost_info;
-        return data.map(item => ({
+        return data.map((item) => ({
           ...item,
           process_status: '2',
-          app_category: this.translatePccWord('专案中控台')
+          app_category: this.translatePccWord('专案中控台'),
         }));
       })
     );
@@ -1319,13 +1691,14 @@ export class TaskDetailService {
     const { doc_info, eocMap } = params;
     const param = { doc_info };
     return this.commonService.getInvData('project.schedule.review.info.get', param, eocMap).pipe(
-      map(res => {
+      map((res) => {
         const data = res.data.doc_info || res.data.project_instant_cost_info;
-        return data.map(item => ({
+        return data.map((item) => ({
           ...item,
           process_status: '3',
           get_type: this.translatePccWord('进度'),
-          difference_days: `${this.translatePccWord('专案延迟')}${item.difference_days
+          difference_days: `${this.translatePccWord('专案延迟')}${
+            item.difference_days
           }${this.translateWord('天')}`,
         }));
       })
@@ -1339,17 +1712,20 @@ export class TaskDetailService {
         project_no: taskDetail.project_no,
         task_no: taskDetail.task_no,
         control_mode: '1',
-        process_status
+        process_status,
       },
     ];
     return this.commonService
       .getInvData(apiName, {
         project_info,
-      }).pipe(
-        map(res => {
+      })
+      .pipe(
+        map((res) => {
           const data = res.data.project_info;
           data.forEach((o) => {
-            o.is_approve = o.is_approve ? this.translateService.instant('dj-default-需签核') : this.translateService.instant('dj-default-无需签核');
+            o.is_approve = o.is_approve
+              ? this.translateService.instant('dj-default-需签核')
+              : this.translateService.instant('dj-default-无需签核');
             o.process_status = process_status;
             o.main_unit = o.main_unit ? this.Unit[o.main_unit] : '';
             o.second_unit = o.second_unit ? this.Unit[o.second_unit] : '';
@@ -1368,16 +1744,16 @@ export class TaskDetailService {
       );
   }
 
-
   task_Info_Get(params: any) {
     return this.commonService.getInvData('task_Info_Get', params).pipe(
-      map(res => {
+      map((res) => {
         const data = res.data.doc_info || res.data.project_instant_cost_info;
-        return data.map(item => ({
+        return data.map((item) => ({
           ...item,
           process_status: '3',
           get_type: this.translatePccWord('进度'),
-          difference_days: `${this.translatePccWord('专案延迟')}${item.difference_days
+          difference_days: `${this.translatePccWord('专案延迟')}${
+            item.difference_days
           }${this.translateWord('天')}`,
         }));
       })
@@ -1398,14 +1774,15 @@ export class TaskDetailService {
     return this.commonService
       .getInvData('project.wo.production.info.process', {
         doc_info: doc_info,
-      }).pipe(
+      })
+      .pipe(
         pluck('data', 'doc_info'),
-        map(doc_info => {
-          return doc_info.map(item => ({
+        map((doc_info) => {
+          return doc_info.map((item) => ({
             ...item,
             process_status,
             status: this.statusList3[item.status] || item.status,
-            op_type: this.statusList4[item.op_type] || item.op_type
+            op_type: this.statusList4[item.op_type] || item.op_type,
           }));
         })
       );
@@ -1427,23 +1804,21 @@ export class TaskDetailService {
         {
           wo_op_data,
           site_no: site_no,
-
         },
         eocMap
-      ).pipe(
+      )
+      .pipe(
         pluck('data', 'wo_op_data'),
-        map(wo_op_data => {
-          return wo_op_data.map(item => ({
+        map((wo_op_data) => {
+          return wo_op_data.map((item) => ({
             ...item,
             status_code: this.statusList1[item.status_code] || item.status_code,
             outsourcing_type: this.statusList4[item.outsourcing_type] || item.outsourcing_type,
-            process_status
+            process_status,
           }));
         })
       );
-
   }
-
 
   work_Item_Data_Get(params) {
     const { taskDetail, process_status } = params;
@@ -1457,13 +1832,14 @@ export class TaskDetailService {
     return this.commonService
       .getInvData('work.item.data.get', {
         doc_info: doc_info,
-      }).pipe(
+      })
+      .pipe(
         pluck('data', 'doc_info'),
-        map(doc_info => {
-          return doc_info.map(item => ({
+        map((doc_info) => {
+          return doc_info.map((item) => ({
             ...item,
             process_status,
-            design_status: this.statusList2[item.design_status] || item.outsourcing_type
+            design_status: this.statusList2[item.design_status] || item.outsourcing_type,
           }));
         })
       );
@@ -1499,5 +1875,4 @@ export class TaskDetailService {
       }
     }
   }
-
 }

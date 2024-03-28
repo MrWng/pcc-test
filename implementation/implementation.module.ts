@@ -3,10 +3,9 @@ import { CommonModule } from '@angular/common';
 import { Provider } from '@angular/compiler/src/core';
 import { ImplementationRoutingModule } from './implementation-routing.module';
 import { SharedModule } from './shared/shared.module';
-import { DefaultLayoutComponent } from './layout/default-layout/default-layout.component';
-import { PageIndexComponent } from './programs/page-index/page-index.component';
+
 import { DwSsoLoginModule } from '@webdpt/components/sso-login';
-import { TaskProjectCenterConsoleModule } from '../customization';
+import { TaskProjectCenterConsoleModule } from './athena-app.module';
 
 @NgModule({
   imports: [
@@ -17,7 +16,7 @@ import { TaskProjectCenterConsoleModule } from '../customization';
     SharedModule,
     TaskProjectCenterConsoleModule,
   ],
-  declarations: [DefaultLayoutComponent, PageIndexComponent],
+  declarations: [],
   providers: [],
 })
 export class ImplementationModule {

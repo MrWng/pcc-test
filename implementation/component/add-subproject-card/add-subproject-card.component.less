@@ -6,7 +6,7 @@
   width: 198px;
   height: 34px;
 }
-::ng-deep .ant-select-selector {
+:host ::ng-deep .ant-select-selector {
   min-height: 34px;
 }
 :host ::ng-deep .ant-picker {
@@ -51,6 +51,9 @@
   .ath-input-group-wrapper .ath-input-group-cocoon.ath-input-inner-label {
     padding-top: 0;
   }
+  .ant-form-item-explain.ant-form-item-explain-error {
+    font-size: 12px;
+  }
 }
 ::ng-deep .ath-input-number-wrapper {
   border: none;
@@ -82,7 +85,7 @@
   padding: 4px 11px;
 }
 .s-select {
-  ::ng-deep .athena-select.ant-select:not(.ant-select-customize-input) .ant-select-selector {
+  :host ::ng-deep .athena-select.ant-select:not(.ant-select-customize-input) .ant-select-selector {
     border-bottom-right-radius: 0;
     border-top-right-radius: 0;
     border-right: 0;
@@ -109,6 +112,18 @@
 .gutter-row {
   padding-left: 6px !important;
   padding-right: 6px !important;
+  .task-name-wrapper {
+    display: flex;
+    align-items: center;
+    .icon-info {
+      display: inline-block;
+      font-size: 16px;
+      color: #555;
+      font-weight: bold;
+      margin-left: 10px;
+      transform: translateY(2px);
+    }
+  }
 }
 .spin-center {
   padding: 10px;
@@ -157,6 +172,7 @@
       font-size: 14px;
       line-height: 1.5715;
       word-wrap: break-word;
+      text-align: left;
       // padding: 0 0 0 8px;
     }
   }
@@ -835,12 +851,12 @@
 // }
 
 // remark
-::ng-deep .remark {
-  .ath-input-inner-label section {
-    height: auto !important;
-    overflow: auto;
-  }
-}
+// ::ng-deep .remark {
+//   .ath-input-inner-label section {
+//     height: auto !important;
+//     overflow: auto;
+//   }
+// }
 
 ::ng-deep.form-item-error-person-in-popover,
 ::ng-deep.form-item-error-executor-in-popover {
@@ -849,6 +865,15 @@
   .ant-popover-inner-content {
     color: #ff4d4f;
     padding: 2px 4px;
+  }
+}
+
+::ng-deep.ant-input-group-wrapper {
+  &.special_custom_height {
+    textarea {
+      min-height: 25px !important;
+      height: 25px !important;
+    }
   }
 }
 
@@ -904,6 +929,17 @@
   .eoc-box {
     .item-box {
       width: 100%;
+    }
+  }
+}
+::ng-deep .pcc-add-sub-card-tip-container {
+  max-width: fit-content;
+  .ant-tooltip-inner {
+    max-width: fit-content !important;
+  }
+  .pcc-task-name-tip {
+    .last-line {
+      white-space: nowrap;
     }
   }
 }

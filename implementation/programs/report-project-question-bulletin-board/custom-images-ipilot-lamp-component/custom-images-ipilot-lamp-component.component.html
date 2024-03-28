@@ -1,0 +1,9 @@
+<div *ngIf="rowData?.is_postpone; else elseBlock" nzLeft class="status-td no">R</div>
+<ng-template #elseBlock>
+  <ng-container [ngSwitch]="rowData?.status">
+    <div nzLeft *ngSwitchCase="'2'" class="status-td then">Y</div>
+    <div nzLeft *ngSwitchCase="'3'" class="status-td now">G</div>
+    <div nzLeft *ngSwitchCase="'4'" class="status-td then">Y</div>
+    <div nzLeft *ngSwitchCase="'99'" class="status-td ok">C</div>
+  </ng-container>
+</ng-template>

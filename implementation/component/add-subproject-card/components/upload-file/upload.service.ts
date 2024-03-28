@@ -1,11 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { ComponentRef, Injectable } from '@angular/core';
-import { DwSystemConfigService } from '@webdpt/framework';
+import { DwSystemConfigService } from '@webdpt/framework/config';
 import { Observable } from 'rxjs';
 import { Overlay, OverlayConfig } from '@angular/cdk/overlay';
 // import { UploadImageViewerComponent } from './upload-image-viewer/upload-image-viewer.component';
 import { ComponentPortal } from '@angular/cdk/portal';
-import { UploadImageViewerComponent } from '@ng-dynamic-forms/ui-ant-web';
+import { UploadImageViewerComponent } from '@athena/dynamic-ui';
 
 @Injectable()
 export class MyUploadService {

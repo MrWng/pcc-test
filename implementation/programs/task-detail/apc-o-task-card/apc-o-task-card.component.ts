@@ -18,14 +18,15 @@ import {
   DynamicFormService,
   DynamicFormValidationService,
   multiple,
-} from '@ng-dynamic-forms/core';
+} from '@athena/dynamic-core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { DynamicApcOTaskCardModel } from '../../../model/apc-o-task-card/apc-o-task-card.model';
 import { TranslateService } from '@ngx-translate/core';
 import { CommonService } from '../../../service/common.service';
-import { cloneDeep } from '@ng-dynamic-forms/core';
+import { cloneDeep } from '@athena/dynamic-core';
 import { DwUserService } from '@webdpt/framework/user';
 import { ApcOTaskCardService } from './apc-o-task-card.service';
+import { QuestionQuickModel } from '../../../model/question-quick/question-quick.model';
 
 @Component({
   selector: 'app-apc-o-task-card',
@@ -272,6 +273,7 @@ export class ApcOTaskCardComponent extends DynamicFormControlComponent implement
     const result = this.apcoTaskCardService.setTemplateJson(
       this.editable,
       data,
+      [this.model?.content]
     );
     result.layout = result.layout && Array.isArray(result.layout) ? result.layout : [];
     result.content = result.content || {};

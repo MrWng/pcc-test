@@ -3,7 +3,7 @@
  * @createDate 2022/10/9
  */
 import { Injectable } from '@angular/core';
-import { CommonService, Entry } from 'app/customization/task-project-center-console/service/common.service';
+import { CommonService, Entry } from 'app/implementation/service/common.service';
 import { observable, Observable } from 'rxjs';
 import { debounceTime, pluck } from 'rxjs/operators';
 import { WbsTabsService } from '../../wbs-tabs/wbs-tabs.service';
@@ -31,12 +31,14 @@ export class LiablePersonService {
       //   const peopleList = this.setPeopleList(personList);
       //   observable.next({ ...peopleList });
       // } else {
-      const params = { project_member_info: [{ project_no }] };
+      const params = { project_member_info: [{ project_no: '' }] };
       this.commonService.getInvData('employee.info.process', params).subscribe((res: any): void => {
         if (res.code === 0 && res.data.project_member_info && res.data.project_member_info.length) {
           const list = res.data.project_member_info;
           const peopleList = this.setPeopleList(list);
           observable.next({ ...peopleList });
+        } else {
+          observable.next();
         }
       });
       // }
@@ -153,7 +155,9 @@ export class LiablePersonService {
    * @param data 选中的数据 [array|object]
    */
   personLiableExecutorVerification(data: any): Promise<ICheckPersonLiable> {
-    return this.commonService.getInvData('auth.employee.info.check', {
+    // sprint4.5 auth.employee.info.check==>bm.pisc.auth.employee.info.check
+
+    return this.commonService.getInvData('bm.pisc.auth.employee.info.check', {
       employee_info: [{ employee_no: data.id, employee_name: data.name }],
     }).pipe(pluck('data')).toPromise();
   }

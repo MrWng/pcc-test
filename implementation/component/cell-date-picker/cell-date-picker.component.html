@@ -1,0 +1,41 @@
+<ac-table-cell [showMsg]="showMsg" [errorMessage]="errorMessage">
+  <div
+    class='pcc-date-picker'
+  >
+    <ac-date-picker
+      style="height: 32px;"
+      [(ngModel)]="inputValue"
+      [nzAllowClear]="nzAllowClear"
+      [nzBackdrop]="nzBackdrop"
+      [nzDisabled]="_disable"
+      [nzDisabledDate]="nzDisabledDate"
+      [nzFormat]="nzFormat"
+      [nzPlaceHolder]="nzPlaceHolder"
+      [nzShowTime]="nzShowTime"
+      [nzDisabledTime]="nzDisabledTime"
+      [nzShowToday]='false'
+      (ngModelChange)="changeEvent($event)">
+    </ac-date-picker>
+  </div>
+  <div
+    nzPopconfirmOverlayClassName='pcc-popConfirm'
+    nz-popconfirm
+    [nzPopconfirmVisible]='true'
+    [nzPopconfirmTitle]="titleTemplate"
+    [nzOkText]='translateWord("忽略")'
+    (nzOnConfirm)="confirm()"
+    (nzOnCancel)="cancel()"
+    nzPopconfirmTrigger='hover'
+    style='position: absolute;right: 24px;top: 50%;transform: translateY(-58%);'
+    *ngIf='infoCheck[0] || infoCheck[1]'
+  >
+    <em class="icon">
+      <i athIcon [iconfont]="'iconchenggong'"></i>
+    </em>
+  </div>
+  <ng-template #titleTemplate let-thing>
+    <span *ngFor='let info of infoCheck;'>
+      {{info}}
+    </span>
+  </ng-template>
+</ac-table-cell>

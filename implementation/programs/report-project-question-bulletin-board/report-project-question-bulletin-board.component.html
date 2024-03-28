@@ -1,0 +1,174 @@
+  <div id='report-project-question-bulletin-board' class="report-project-question-bulletin-board">
+    <div class="search-input-bar">
+      <div class="ath-grid-container ath-margin-x-16">
+        <form ath-form [formGroup]="validateForm">
+          <div class="ath-row row-base-style">
+            <div class="ath-col col-base-style" style="height: 33px;">
+              <ath-form-item>
+                <ath-form-control nzSpan="4">
+                  <app-input-group-open-window
+                    #inputGroupOpenWindow
+                    [validateForm]="validateForm"
+                    [inputGroupInfo]="inputGroupObj"
+                    [openWindowInfo]="openWindowObj"
+                    [reportProjectQuestionModel]="model"
+                  ></app-input-group-open-window>
+                </ath-form-control>
+              </ath-form-item>
+            </div>
+            <div class="ath-col col-base-style">
+              <ath-form-item>
+                <ath-form-control nzSpan="4">
+                  <ath-select
+                    [isInsideLabel]="true"
+                    formControlName="questionType"
+                    [label]="translateWordPcc('问题类型')"
+                    [nzPlaceHolder]="translateWordPcc('问题类型')"
+                    class="component-base-style">
+                    <ath-option
+                      *ngFor="let item of questionTypeList"
+                      [nzValue]="item"
+                      [nzLabel]="item?.question_type_name"
+                    >
+                    </ath-option>
+                  </ath-select>
+                </ath-form-control>
+              </ath-form-item>
+            </div>
+            <div class="ath-col col-base-style">
+              <ath-form-item>
+                <ath-form-control nzSpan="4">
+                  <ath-select
+                    [isInsideLabel]="true"
+                    formControlName="questionLeader"
+                    [label]="translateWordPcc('问题负责人')"
+                    [nzPlaceHolder]="translateWordPcc('问题负责人')"
+                    class="component-base-style">
+                    <ath-option
+                      *ngFor="let item of questionLeaderList"
+                      [nzValue]="item"
+                      [nzLabel]="item?.employee_name"
+                    >
+                    </ath-option>
+                  </ath-select>
+                </ath-form-control>
+              </ath-form-item>
+            </div>
+            <div class="ath-col col-base-style">
+              <ath-form-item>
+                <ath-form-control nzSpan="4">
+                  <ath-select
+                    [isInsideLabel]="true"
+                    formControlName="questionProposer"
+                    [label]="translateWordPcc('问题提出人')"
+                    [nzPlaceHolder]="translateWordPcc('问题提出人')"
+                    class="component-base-style">
+                    <ath-option
+                      *ngFor="let item of questionProposerList"
+                      [nzValue]="item"
+                      [nzLabel]="item?.employee_name"
+                    >
+                    </ath-option>
+                  </ath-select>
+                </ath-form-control>
+              </ath-form-item>
+            </div>
+          <!-- </div>
+          <div class="ath-row row-base-style"> -->
+            <div class="ath-col col-base-style">
+              <ath-form-item>
+                <ath-form-control nzSpan="4">
+                  <ath-range-picker
+                    innerLabel
+                    required
+                    nzFormat="yyyy-MM-dd"
+                    formControlName="startToEndDate"
+                    [nzInputReadOnly]="true"
+                    [(ngModel)]="validateForm.value.startToEndDate"
+                    (nzOnCalendarChange)="nzOnCalendarChange($event)"
+                    [label]="translateWordPcc('问题发生时间')"
+                    [nzAllowClear]="validateForm.value.startToEndDate?.length"
+                    class="component-base-style style-date-input"
+                    [ngClass]="{ errorBorder: validateForm.value.startToEndDate?.length < 2 }"
+                    ></ath-range-picker>
+                    <!-- [nzStatus]="(!validateForm.value.startToEndDate || (validateForm.value.startToEndDate?.length<2)) ? 'error' : ''" -->
+                  <!-- <ath-date-picker
+                    [innerLabel]="true"
+                    [nzPlaceHolder]="translateWordPcc('问题发生时间')"
+                    class="component-base-style style-date-input"
+                  ></ath-date-picker> -->
+                </ath-form-control>
+              </ath-form-item>
+              <div class="errorTip" *ngIf="validateForm.value.startToEndDate?.length < 2">
+                {{ 'dj-pcc-问题发生日期不可为空' | translate}}
+              </div>
+            </div>
+            <div class="ath-col col-for-button">
+              <ath-form-item>
+                <ath-form-control nzOffset="7" nzSpan="4" style="display: flex; flex-flow: row nowrap;">
+                  <button ath-button class="reset-btn" (click)="resetForm()">{{ 'dj-default-重置' | translate }}</button>
+                  <!-- [disabled]="!validateForm.valid" -->
+                  <button ath-button class="submit-btn" nzType="primary" (click)="submitFormHandle()">{{ 'dj-default-查询' | translate }}</button>
+                </ath-form-control>
+              </ath-form-item>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="search-image-bar">
+      <div class="image-box" (click)="getPartialDataHandle('all')">
+        <div class="info-box">
+          <div class="title">{{ 'dj-pcc-全部问题' | translate }}</div>
+          <div class="data all">{{ question_list_info.length }}</div>
+        </div>
+        <div class="image"><span class="all"></span></div>
+      </div>
+      <div class="image-box" (click)="getPartialDataHandle('then')">
+        <div class="info-box">
+          <div class="title">{{ 'dj-pcc-待处理' | translate }}</div>
+          <div class="data then">{{ thenList.length }}</div>
+        </div>
+        <div class="image"><span class="then"></span></div>
+      </div>
+      <div class="image-box" (click)="getPartialDataHandle('now')">
+        <div class="info-box">
+          <div class="title">{{ 'dj-pcc-验收中' | translate }}</div>
+          <div class="data now">{{ nowList.length }}</div>
+        </div>
+        <div class="image"><span class="now"></span></div>
+      </div>
+      <div class="image-box" (click)="getPartialDataHandle('no')">
+        <div class="info-box">
+          <div class="title">{{ 'dj-pcc-延期未完成' | translate }}</div>
+          <div class="data no">{{ noList.length }}</div>
+        </div>
+        <div class="image"><span class="no"></span></div>
+      </div>
+      <div class="image-box" (click)="getPartialDataHandle('ok')">
+        <div class="info-box">
+          <div class="title">{{ 'dj-pcc-已完成' | translate }}</div>
+          <div class="data ok">{{ okList.length }}</div>
+        </div>
+        <div class="image"><span class="ok"></span></div>
+      </div>
+    </div>
+
+    <div class="search-retun-data" id='pcc-search-retun-data'>
+      <div class="table-data-box">
+        <div class="spin-box" *ngIf="isShowSpin">
+          <nz-spin nzSimple></nz-spin>
+        </div>
+        <!-- 447px -->
+        <div
+          dynamic-ant-form-control
+          class="question_table"
+          style="height: 100%"
+          *ngFor="let model of dynamicModel"
+          [model]="model"
+          [group]="dynamicGroup"
+          (change)="onChange($event)"
+          ></div>
+      </div>
+    </div>
+  </div>

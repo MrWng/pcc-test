@@ -1,15 +1,17 @@
-import { ChangeDetectorRef, Inject, Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { DwLanguageService } from '@webdpt/framework/language';
 import { DwSystemConfigService } from '@webdpt/framework/config';
 import { DW_AUTH_TOKEN } from '@webdpt/framework/auth';
-import { Observable, Subject } from 'rxjs';
+import { forkJoin, Observable, Subject } from 'rxjs';
 import { HttpClient, HttpRequest } from '@angular/common/http';
 import * as moment from 'moment';
 import { DragDropService } from '../../directive/dragdrop/dragdrop.service';
 import { CommonService, Entry } from '../../service/common.service';
 import { TranslateService } from '@ngx-translate/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { DwUserService } from '@webdpt/framework';
+import { DwUserService } from '@webdpt/framework/user';
+import { cloneDeep, DynamicUserBehaviorCommService, isEmpty } from '@athena/dynamic-core';
+import { DynamicCustomizedService } from 'app/implementation/service/dynamic-customized.service';
 
 @Injectable()
 export class DynamicWbsService {
@@ -22,19 +24,25 @@ export class DynamicWbsService {
   knowledgeMapsUrl: string;
   mdcUrl: string;
   taskDetail: any;
-
+  // 使用者model
+  userModel;
   group: any;
 
   /** 项目编号 */
-  project_no: string = ''
+  project_no: string = '';
   /** 项目信息 需要定义类型 */
-  projectInfo: any = {}
+  projectInfo: any = {};
+  /**
+   * 风险维护用的项目信息
+   * 为了处理projectInfo数据可能会被篡改
+   * */
+  riskMaintenanceProjectInfo: any = {};
   /** 定制页的type，this.model.type */
-  modelType: string = ''
+  modelType: string = '';
   /** 新建一级计划弹窗的开关 true:显示，false：隐藏 */
   // firstPlanSwitch: boolean = false;
   /** 页面转化成树形结构的数据，方便各个组件取用 */
-  pageDatas: Array<any> = []
+  pageDatas: Array<any> = [];
 
   /** 开始时间 & 结束时间 用于人力资源负荷 */
   dateObject = {
@@ -45,6 +53,8 @@ export class DynamicWbsService {
   };
   /** 是否启动地端 */
   hasGroundEnd: any;
+  // 是否同步文档
+  is_sync_document = false;
   useTaskTemplate: boolean = false;
   peopleObject = {
     list: [],
@@ -56,6 +66,16 @@ export class DynamicWbsService {
   $checkProportion = new Subject();
   changeWbs$ = new Subject();
 
+  // 项⽬变更状态，false，存在【项目变更中】
+  projectChangeStatus: Object = {
+    check_type_init: true,
+    check_type_risk: true,
+    check_type_list: true,
+    // 用于基础维护信息，表格栏位管控
+    check_type_creation: true,
+  };
+  $projectChangeStatusSubscribe = new Subject();
+
   // 是否可编辑：项目卡负责人和当前租户是同一人&&不是历史任务
   editable: boolean = true;
   // 是否展示专案模板维护
@@ -65,12 +85,15 @@ export class DynamicWbsService {
   allTaskCardList: Array<any>;
   // 可以被协同的一级任务
   firstTaskCardList: any[] = [];
-
+  // 协同任务卡代理人和当前登陆用户是否同一个人
+  collaborateAgentIdSameUserId: boolean = false;
   // 显示人力资源负荷
   showHRLoad: boolean = false;
   fullScreenStatus: boolean = false;
   showGantt: boolean = false;
   showPert: boolean = false;
+
+  ganttData: any;
 
   showExcel: boolean = false;
   needRefresh = '';
@@ -97,8 +120,10 @@ export class DynamicWbsService {
     APC_O: this.translateService.instant('dj-pcc-APC_O'),
     MOMA: this.translateService.instant('dj-pcc-MOMA'), // 工单发料任务
     PO_KEY: this.translateService.instant('dj-pcc-PO_KEY'), // 采购关键料任务
-  }
-
+    ASSC_ISA_ORDER: this.translateService.instant('dj-pcc-ASSC_ISA_ORDER'), // 售后云安调工单
+    PCM: this.translateService.instant('dj-pcc-PCM'), // 项目预算编制
+    PO_NOT_KEY: this.translateService.instant('dj-pcc-PO_NOT_KEY'), // 采购非关键料任务
+  };
 
   initWbsShow = new Subject();
 
@@ -106,7 +131,20 @@ export class DynamicWbsService {
   taskProportionCheck: any = {};
 
   // 是否存在协同计划排定任务卡
-  hasCollaborationCard: boolean = false
+  hasCollaborationCard: boolean = false;
+  // 登陆员工信息
+  userInfo: any;
+
+  // 项目变更信息
+  projectChangeDoc: any = {};
+
+  // 项目变更版本
+  change_version;
+
+  // 变更签核版本
+  change_approve_version;
+  // wbs展现形式
+  typeChange: string = 'card';
 
   constructor(
     @Inject(DW_AUTH_TOKEN) protected authToken: any,
@@ -117,6 +155,8 @@ export class DynamicWbsService {
     private messageService: NzMessageService,
     private translateService: TranslateService,
     private userService: DwUserService,
+    private dynamicUserBehaviorCommService: DynamicUserBehaviorCommService,
+    private dynamicCustomizedService: DynamicCustomizedService
   ) {
     this.configService.get('audcUrl').subscribe((url) => {
       this.audcUrl = url;
@@ -144,22 +184,88 @@ export class DynamicWbsService {
     });
   }
 
+  /**
+   *  项目扩展信息检查
+   *  依据项目编号，比较操作时间和当前系统时间，返回当前项目是否可操作否
+   * @param project_no 项目编号
+   * @returns
+   */
   getInfoCheck(project_no: any): Observable<any> {
     return this.commonService.getInvData('project.expand.info.check', { project_no });
   }
 
-
-
+  changeType(type) {
+    this.typeChange = type;
+  }
 
   checkReviewTaskPlanned(variableName: any, tenantId: any): Observable<any> {
     const url = `${this.knowledgeMapsUrl}/knowledgegraph/Mechanism/Variable?variableName=${variableName}&tenantId=${tenantId}`;
     return this.http.get(url);
   }
 
+  async setCollaborateAgentIdSameUserId(): Promise<any> {
+    this.collaborateAgentIdSameUserId = false;
+    const performerId =
+      this.dynamicUserBehaviorCommService.commData?.workContent?.performerId ?? 'wfgp001';
+    const apis = [
+      this.commonService.searchUserInfo({ userId: this.userService.getUser('userId') }).toPromise(),
+      this.commonService.getAgentInfo({ userId: performerId }).toPromise(),
+    ];
+    const value = await Promise.all(apis).then((responses) =>
+      responses.map((item): any => item.data)
+    );
+    this.userInfo = value[0];
+    if (value[0].id === value[1].agentId && this.pageDatas.length) {
+      this.collaborateAgentIdSameUserId = true;
+      return;
+    }
+    this.collaborateAgentIdSameUserId = false;
+  }
+
   /**
- * 项目任务卡
- * @param projectNumber 项目编号
- */
+   * 校验变更中是否可用
+   */
+  async checkChangeForbidden(task_no): Promise<any> {
+    const res1 = await this.commonService
+      .getInvData(
+        'bm.pisc.project.change.doc.get',
+        {
+          project_change_doc_info: [
+            {
+              project_no: this.project_no,
+              change_version: this.change_version,
+            },
+          ],
+        },
+        this.projectInfo.eoc_company_id
+      )
+      .toPromise();
+    const res2 = await this.commonService
+      .getInvData(
+        'bm.pisc.project.change.task.detail.get',
+        {
+          excluded_already_deleted_task: true,
+          project_change_task_detail_info: [
+            {
+              project_no: this.project_no,
+              change_version: this.change_version,
+              task_no,
+            },
+          ],
+        },
+        this.projectInfo.eoc_company_id
+      )
+      .toPromise();
+    return {
+      change_status: res1?.data?.project_change_doc_info[0].change_status,
+      old_task_status: res2?.data?.project_change_task_detail_info[0].old_task_status,
+    };
+  }
+
+  /**
+   * 项目任务卡
+   * @param projectNumber 项目编号
+   */
   checkTask(project_template_no: string, source, task_property?: string): Observable<any> {
     const params = {
       project_info: [
@@ -184,27 +290,26 @@ export class DynamicWbsService {
       project_info: [
         {
           project_no: this.project_no,
-          task_property: source === Entry.maintain ? '2' : '1'
+          task_property: source === Entry.maintain ? '2' : '1',
         },
       ],
     };
     return this.commonService.getInvData('project.task.dependency.info.get', params);
   }
 
-
   /**
- * 通知执行人
- * @param params
- */
+   * 通知执行人
+   * @param params
+   */
   searchEmployeeId(params: any): Observable<any> {
     const url = `${this.eocUrl}/api/eoc/v2/emp/user/id`;
     return this.http.post(url, params);
   }
 
   /**
- * 通知执行人
- * @param params
- */
+   * 通知执行人
+   * @param params
+   */
   pushMessage(params: any): Observable<any> {
     const url = `${this.atmcUrl}/api/atmc/v1/backlog/notice/no/backlog`;
     return this.http.post(url, params);
@@ -216,9 +321,9 @@ export class DynamicWbsService {
   }
 
   /**
- *推送流程
- *
- */
+   *推送流程
+   *
+   */
   postProcess(tenantId, params: any, content: any): Observable<any> {
     const executeContext = content.executeContext;
     const _params = {
@@ -310,7 +415,14 @@ export class DynamicWbsService {
     return this.http.post(url, _params);
   }
 
-  suspendOrStopProject(requesterId, variablesType: string, isSign: boolean, project_info: any, dispatchData: any): Observable<any> {
+  suspendOrStopProject(
+    requesterId,
+    variablesType: string,
+    isSign: boolean,
+    project_info: any,
+    dispatchData: any,
+    extraInfo?: any
+  ): Observable<any> {
     const executeContext = this.commonService.content?.executeContext;
     const _params = {
       projectCode: 'projectCenterConsoleStopProject_mainProject',
@@ -318,25 +430,60 @@ export class DynamicWbsService {
       variables: {
         type: variablesType, // 调用流程的动作标识
         isSign, // 是否签核
-        project_info
+        project_info,
+        ...extraInfo,
       },
       dispatchData,
-      requesterId
+      requesterId,
     };
     const url = `${this.taskEngineUrl}/api/project/create`;
     return this.http.post(url, _params);
   }
 
-  // 项目暂停
-  suspendCard(project_no: string): Observable<any> {
+  // 项目暂停 - 清理协同卡
+  suspendCard(project_no: string, asyncComplete: boolean = true): Observable<any> {
+    const params = {
+      serviceComposerId: 'pcc_closeTeamWork',
+      eocMap: {},
+      asyncComplete,
+      tenantId: this.userService.getUser('tenantId'),
+      params: {
+        projectArr: [{ project_no: project_no }],
+      },
+    };
+    const url = `${this.smartDataUrl}/scdispatcher/execution/dispatch`;
+    return this.http.post(url, params, {
+      headers: { invokerId: 'ExecutionEngine' },
+    });
+  }
+
+  changeProjectCloseTeamWork(project_no: string): Observable<any> {
     const params = {
       serviceComposerId: 'pcc_closeTeamWork',
       eocMap: {},
       asyncComplete: true,
       tenantId: this.userService.getUser('tenantId'),
       params: {
-        projectArr: [{ project_no: project_no }]
-      }
+        projectArr: [{ project_no: project_no }],
+        type: 'changeProject',
+      },
+    };
+    const url = `${this.smartDataUrl}/scdispatcher/execution/dispatch`;
+    return this.http.post(url, params, {
+      headers: { invokerId: 'ExecutionEngine' },
+    });
+  }
+
+  // 关闭项目风险
+  closeProjectRisk(project_no: string): Observable<any> {
+    const params = {
+      serviceComposerId: 'pcc_closeProjectRisk',
+      eocMap: {},
+      asyncComplete: true,
+      tenantId: this.userService.getUser('tenantId'),
+      params: {
+        projectArr: [{ project_no: project_no }],
+      },
     };
     const url = `${this.smartDataUrl}/scdispatcher/execution/dispatch`;
     return this.http.post(url, params, {
@@ -346,18 +493,38 @@ export class DynamicWbsService {
 
   // 项目删除
   deleteCard2(project_no: string, teamWorkInfo: any): Observable<any> {
+    // teamWorkInfo = [{
+    //   "assist_schedule_seq":1,
+    //   "project_no":"23422233333444420230725001-",
+    //   "task_no":"1",
+    //   "plan_finish_date":"2023-08-03",
+    //   "dispatch_date":"2023-08-01",
+    //   "plan_days":2,
+    //   "responsible_person_no":"ware001_1",
+    //   "responsible_person_name":"ERP仓管员1",
+    //   "dispatch_status":"2",
+    //   "schedule_status":"2",
+    //   "remark":"",
+    //   "manage_status":"Y",
+    //   "task_name":"AA",
+    //   "project_name":"测试项目层级码01",
+    //   "project_leader_no":"ware001_1",
+    //   "project_leader_name":"ERP仓管员1"
+    // }]
     const params = {
       serviceComposerId: 'pcc_closeTeamWork',
       eocMap: {},
       asyncComplete: false,
       tenantId: this.userService.getUser('tenantId'),
       params: {
-        projectArr: [{
-          project_no: project_no,
-        }],
+        projectArr: [
+          {
+            project_no: project_no,
+          },
+        ],
         teamWorkInfo: teamWorkInfo,
         type: 'deleteProject',
-      }
+      },
     };
     const url = `${this.smartDataUrl}/scdispatcher/execution/dispatch`;
     return this.http.post(url, params, {
@@ -373,8 +540,8 @@ export class DynamicWbsService {
       asyncComplete: false,
       tenantId: this.userService.getUser('tenantId'),
       params: {
-        projectArr: [{ project_no: project_no }]
-      }
+        projectArr: [{ project_no: project_no }],
+      },
     };
     const url = `${this.smartDataUrl}/scdispatcher/execution/dispatch`;
     return this.http.post(url, params, {
@@ -390,8 +557,70 @@ export class DynamicWbsService {
       asyncComplete: false,
       tenantId: this.userService.getUser('tenantId'),
       params: {
-        projectArr: [{ project_no: project_no }]
-      }
+        projectArr: [{ project_no: project_no }],
+      },
+    };
+    const url = `${this.smartDataUrl}/scdispatcher/execution/dispatch`;
+    return this.http.post(url, params, {
+      headers: { invokerId: 'ExecutionEngine' },
+    });
+  }
+
+  // 删除项目变更任务
+  closeProjectChange(project_no: string, change_version): Observable<any> {
+    const params = {
+      serviceComposerId: 'pcc_close_project_change',
+      eocMap: {},
+      asyncComplete: true,
+      tenantId: this.userService.getUser('tenantId'),
+      params: {
+        project_change_doc_info: [{ project_no: project_no, change_version }],
+      },
+    };
+    const url = `${this.smartDataUrl}/scdispatcher/execution/dispatch`;
+    return this.http.post(url, params, {
+      headers: { invokerId: 'ExecutionEngine' },
+    });
+  }
+
+  // 回收计划时程异常任务卡和计划时程异常项目卡
+  closePlanChangeManual(project_no: string, asyncComplete: boolean = true): Observable<any> {
+    const params = {
+      serviceComposerId: 'pcc_closePlanChange_manual',
+      eocMap: {},
+      asyncComplete,
+      tenantId: this.userService.getUser('tenantId'),
+      params: {
+        projectArr: [{ project_no: project_no }],
+      },
+    };
+    const url = `${this.smartDataUrl}/scdispatcher/execution/dispatch`;
+    return this.http.post(url, params, {
+      headers: { invokerId: 'ExecutionEngine' },
+    });
+  }
+
+  /**
+   * 回收怠工处理异常相关任务卡和项目卡
+   * @param project_no
+   * @param type 默认：projectChange（发起项目变更），其它：projectStatusChange（暂停项目）
+   * @param asyncComplete 异步/同步
+   * @returns
+   */
+  finishTaskThenCheckGoSlowTask(
+    project_no: string,
+    type: string = 'projectChange',
+    asyncComplete: boolean = true
+  ): Observable<any> {
+    const params = {
+      serviceComposerId: 'pcc_finishTaskThenCheckGoSlowTask',
+      eocMap: {},
+      asyncComplete,
+      tenantId: this.userService.getUser('tenantId'),
+      params: {
+        type,
+        projectArr: [{ project_no: project_no }],
+      },
     };
     const url = `${this.smartDataUrl}/scdispatcher/execution/dispatch`;
     return this.http.post(url, params, {
@@ -424,11 +653,11 @@ export class DynamicWbsService {
   }
 
   /*
- * 获取项目周期（开始时间-截止时间）
- * @param startT:项目开始时间
- * @param endT:项目截止时间
- * @return 项目周期
- */
+   * 获取项目周期（开始时间-截止时间）
+   * @param startT:项目开始时间
+   * @param endT:项目截止时间
+   * @return 项目周期
+   */
   getPjPeriod(startT: string, endT: string): string {
     try {
       if (startT && endT) {
@@ -451,10 +680,10 @@ export class DynamicWbsService {
   }
 
   /**
- * 工期计算
- * @param item 卡片信息
- * @returns 工期
- */
+   * 工期计算
+   * @param item 卡片信息
+   * @returns 工期
+   */
   durationCalculation(item): number {
     let diff = 0;
     if (item.plan_finish_date && item.plan_start_date) {
@@ -464,14 +693,17 @@ export class DynamicWbsService {
   }
 
   /**
- * 逾期计算
- * @param item 卡片信息
- * @returns 工时
- */
+   * 逾期计算
+   * @param item 卡片信息
+   * @returns 工时
+   */
   overdueDays(item): boolean {
     let finishDiff, finishDiffNum;
     if (
-      (item.task_status === 20 || item.task_status === 10 || item.task_status === 30) &&
+      (item.task_status === 20 ||
+        item.task_status === 10 ||
+        item.task_status === 30 ||
+        item.task_status === 60) &&
       item.plan_finish_date
     ) {
       const planFinishDate = moment(new Date(item.plan_finish_date + ' 23:59:59'));
@@ -487,13 +719,13 @@ export class DynamicWbsService {
       finishDiff =
         actualFinishDate.diff(planFinishDate, 'minutes') < 60
           ? actualFinishDate.diff(planFinishDate, 'minutes') +
-          this.translateService.instant('dj-c-分钟')
+            this.translateService.instant('dj-c-分钟')
           : actualFinishDate.diff(planFinishDate, 'hours') < 24
-            ? actualFinishDate.diff(planFinishDate, 'hours') +
+          ? actualFinishDate.diff(planFinishDate, 'hours') +
             this.translateService.instant('dj-c-时')
-            : actualFinishDate.diff(planFinishDate, 'days') > 0
-              ? actualFinishDate.diff(planFinishDate, 'days') + this.translateService.instant('dj-c-天')
-              : '';
+          : actualFinishDate.diff(planFinishDate, 'days') > 0
+          ? actualFinishDate.diff(planFinishDate, 'days') + this.translateService.instant('dj-c-天')
+          : '';
     }
     if (finishDiffNum > 0) {
       return finishDiff;
@@ -515,9 +747,9 @@ export class DynamicWbsService {
   }
 
   /**
- *
- * @param data 计算子卡的数量，方便计算连线高度
- */
+   *
+   * @param data 计算子卡的数量，方便计算连线高度
+   */
   calculationChildrenLength(data) {
     data.forEach((item) => {
       if (item.children && item.children.length) {
@@ -534,10 +766,10 @@ export class DynamicWbsService {
   }
 
   /**
- *
- * @param data 卡片层级，方便计算卡片宽度
- * @param level
- */
+   *
+   * @param data 卡片层级，方便计算卡片宽度
+   * @param level
+   */
   cardLevelHandle(data: Array<any>, level: number) {
     data.forEach((item) => {
       if (item.children) {
@@ -548,11 +780,11 @@ export class DynamicWbsService {
   }
 
   /**
- *
- * @param cardList 点击新增时寻找当前甬道
- * @param card
- * @returns
- */
+   *
+   * @param cardList 点击新增时寻找当前甬道
+   * @param card
+   * @returns
+   */
   findFirstParentCard(cardList, card): boolean {
     let isFind = false;
     for (let i = 0; i < cardList.length; i++) {
@@ -569,9 +801,9 @@ export class DynamicWbsService {
   }
 
   /**
- * 寻找当前甬道数据
- * @param currentCardInfo
- */
+   * 寻找当前甬道数据
+   * @param currentCardInfo
+   */
   getCurrentCorridor(currentCardInfo) {
     let corridorData = {};
     for (let i = 0; i < this.pageDatas.length; i++) {
@@ -593,13 +825,27 @@ export class DynamicWbsService {
   }
 
   /**
- *
- * @param e 拖拽时
- * @param target
- * @param index
- */
+   * 拉平数据
+   */
+  structureTransform(taskInfo, newTaskInfo, rootTaskNo) {
+    if (taskInfo.children && taskInfo.children.length > 0) {
+      taskInfo.children.forEach((task) => {
+        this.structureTransform(task, newTaskInfo, rootTaskNo);
+      });
+    }
+    taskInfo.root_task_no = rootTaskNo;
+    newTaskInfo.push(taskInfo);
+  }
+
+  /**
+   *
+   * @param e 拖拽时
+   * @param target
+   * @param index
+   */
   onDrop(e: DragDropService, target, fun, source, index?): void {
     const item = e.dragData.item;
+    const saveMoveItemInfo = cloneDeep(item);
     const parent = e.dragData.parentList;
     const indexOfParent = e.dragData.index;
     const positionType = e.positionType; //
@@ -640,6 +886,12 @@ export class DynamicWbsService {
     }
     this.buildList(fromList, toList, indexOfParent, index, task_no);
     const targetChildrenList = e.positionType === 0 ? toList : target.children;
+    if (
+      targetChildrenList &&
+      targetChildrenList[0].upper_level_task_no === targetChildrenList[0].task_no
+    ) {
+      targetChildrenList[0].upper_level_task_no = saveMoveItemInfo.upper_level_task_no;
+    }
     const toSecList = this.getSecList(item, dropIndex, targetChildrenList, toList);
     let task_info;
     if (toSecList.isParent) {
@@ -647,64 +899,101 @@ export class DynamicWbsService {
     } else {
       task_info = [...fromList, ...toSecList.newList, ...firstList];
     }
-    // 源数组移除
-    this.commonService
-      .getInvData('task.base.info.update', {
-        task_info: task_info.map((o) => {
+    let url = 'task.base.info.update';
+    let paramser = {
+      task_info: task_info.map((o) => {
+        o.is_update_upper_date = 'Y';
+        o.task_status = String(o.task_status);
+        o.task_property = source === Entry.maintain ? '2' : '1';
+        o.doc_type_info = o.doc_condition_value.split(',').map((i) => {
+          return { doc_condition_value: i };
+        });
+        return o;
+      }),
+    };
+    if (source === Entry.projectChange) {
+      url = 'bm.pisc.project.change.task.detail.update';
+      const newTaskInfo = [];
+      task_info.forEach((task) => {
+        this.structureTransform(task, newTaskInfo, task.root_task_no);
+      });
+      paramser = {
+        // @ts-ignore
+        sync_steady_state: this.hasGroundEnd !== 'Y' ? null : 'Y',
+        is_update_task_date: true,
+        is_check_task_dependency: false,
+        project_change_task_detail_info: newTaskInfo.map((o) => {
+          o.plan_work_hours = o.plan_work_hours === '' ? 0 : o.plan_work_hours;
           o.is_update_upper_date = 'Y';
           o.task_status = String(o.task_status);
-          o.task_property = source === Entry.maintain ? '2' : '1';
-          o.doc_type_info = o.doc_condition_value.split(',').map(
-            (i) => {
-              return { doc_condition_value: i };
-            }
-          );
+          o.doc_type_info = o.doc_condition_value.split(',').map((i) => {
+            return { doc_condition_value: i };
+          });
           return o;
         }),
-      })
-      .subscribe((res) => {
+      };
+    }
+    // 源数组移除
+    this.commonService.getInvData(url, paramser).subscribe((res) => {
+      if (source !== Entry.projectChange) {
         if (res.data.task_info[0]?.project_no_mistake_message) {
           this.messageService.error(res.data.task_info[0]?.project_no_mistake_message);
           return;
         }
-        // 删除源数据列表数据并对数组进行重新编号
-        parent.splice(indexOfParent, 1).forEach((o, i): void => {
-          o.sequence = i + 1;
-        });
-        // 插入
-        if (e.positionType === 0) {
-          if (index !== undefined) {
+      }
+      this.pageChange.next(true);
+      this.$checkProportion.next(true);
+      // 删除源数据列表数据并对数组进行重新编号
+      parent.splice(indexOfParent, 1).forEach((o, i): void => {
+        o.sequence = i + 1;
+      });
+      // 插入
+      if (e.positionType === 0) {
+        if (index !== undefined) {
+          target.children = target.children || [];
+          target.children.push(Object.assign(item, { upper_level_task_no: target.task_no }));
+        } else {
+          if (target.children && dropIndex < target.children.length) {
+            target.children[dropIndex].children = target.children[dropIndex].children || [];
+            target.children[dropIndex].children.push(
+              Object.assign(item, { upper_level_task_no: target.task_no })
+            );
+          } else {
             target.children = target.children || [];
             target.children.push(Object.assign(item, { upper_level_task_no: target.task_no }));
-          } else {
-            if (target.children && (dropIndex < target.children.length)) {
-              target.children[dropIndex].children = target.children[dropIndex].children || [];
-              target.children[dropIndex].children.push(
-                Object.assign(item, { upper_level_task_no: target.task_no })
-              );
-            } else {
-              target.children = target.children || [];
-              target.children.push(Object.assign(item, { upper_level_task_no: target.task_no }));
-            }
           }
-        } else {
-          target.children
-            .splice(dropIndex, 0, Object.assign(item, { upper_level_task_no: target.task_no }))
-            .forEach((o, i): void => {
-              o.sequence = i + 1;
-            });
         }
-        if (item.level === 0) {
-          this.pageDatas.forEach((currentData: any, index2: number): void => {
-            if (currentData.task_no === item.task_no) {
-              this.pageDatas.splice(index2, 1);
-            }
+      } else {
+        target.children
+          .splice(dropIndex, 0, Object.assign(item, { upper_level_task_no: target.task_no }))
+          .forEach((o, i): void => {
+            o.sequence = i + 1;
           });
-        }
-        this.cardLevelHandle(this.pageDatas, 0);
-        this.calculationChildrenLength(this.pageDatas);
-        fun();
-      });
+      }
+      if (item.level === 0) {
+        this.pageDatas.forEach((currentData: any, index2: number): void => {
+          if (currentData.task_no === item.task_no) {
+            this.pageDatas.splice(index2, 1);
+          }
+        });
+      }
+      this.cardLevelHandle(this.pageDatas, 0);
+      this.calculationChildrenLength(this.pageDatas);
+      fun();
+      // 同步知识中台
+      if (source === Entry.card && this.is_sync_document) {
+        const params = { project_info: [{ project_no: this.project_no }] };
+        this.commonService.getInvData('bm.pisc.project.get', params).subscribe((res: any): void => {
+          const status = res.data.project_info[0].project_status;
+          if (status === '30') {
+            const params = { data_type: '0', project_info: [{ project_no: this.project_no }] };
+            this.commonService
+              .getInvData('document.info.sync.process', params)
+              .subscribe((res: any): void => {});
+          }
+        });
+      }
+    });
   }
   buildList(
     fromList: Array<any>,
@@ -754,7 +1043,11 @@ export class DynamicWbsService {
     const newList2 = new Array(newList[0]);
     newList2.forEach((task, num) => {
       newList.forEach((res, index2) => {
-        if (!((res?.task_no === task?.task_no) && (res?.upper_level_task_no === task?.upper_level_task_no))) {
+        if (
+          !(
+            res?.task_no === task?.task_no && res?.upper_level_task_no === task?.upper_level_task_no
+          )
+        ) {
           newList2.push(res);
         }
       });
@@ -828,7 +1121,7 @@ export class DynamicWbsService {
   getTenantProductOperationList(tenantId) {
     const _params = {
       tenant_id: tenantId,
-      api_name: 'task.data.process'
+      api_name: 'task.data.process',
     };
     const url = `${this.mdcUrl}/restful/standard/mdc/TenantProductOperationList/Get`;
     // 本地开发时使用
@@ -845,7 +1138,7 @@ export class DynamicWbsService {
     if (children) {
       array.push(children.task_no);
       if (children.children && children.children.length) {
-        children.children.forEach(v => {
+        children.children.forEach((v) => {
           this.getOneGroupTaskNo(v, array);
         });
       }
@@ -870,7 +1163,7 @@ export class DynamicWbsService {
 
     if (taskNo && arrNos.length) {
       for (let i = 0; i < arrNos.length; i++) {
-        if (arrNos[i].find(item => item === taskNo)) {
+        if (arrNos[i].find((item) => item === taskNo)) {
           arrNos = arrNos[i];
           break;
         }
@@ -891,7 +1184,7 @@ export class DynamicWbsService {
         finder.push(children.children);
       }
       if (children.children.length) {
-        children.children.forEach(v => {
+        children.children.forEach((v) => {
           this.getTaskChildren(v, task_no, finder);
         });
       }
@@ -941,7 +1234,7 @@ export class DynamicWbsService {
         children.task_dependency_info = task.task_dependency_info;
       }
       if (children.children && children.children.length) {
-        children.children.forEach(v => {
+        children.children.forEach((v) => {
           this.getTaskForEdit(v, task);
         });
       }
@@ -956,25 +1249,31 @@ export class DynamicWbsService {
    * @param finder 查找的父节点的所有子节点
    * @param calculationMethod 计算方式：默认“equal: 等于”，“lt: 小于”，“rt: 大于”
    */
-  getTaskChildrenAnyKey(children, key: string, value: any, finder: Array<any>, calculationMethod?: string) {
+  getTaskChildrenAnyKey(
+    children,
+    key: string,
+    value: any,
+    finder: Array<any>,
+    calculationMethod?: string
+  ) {
     if (children) {
       if (calculationMethod) {
         if (calculationMethod === 'lt') {
-          if (children[key] && (children[key] < value)) {
+          if (children[key] && children[key] < value) {
             finder.push(children);
           }
         } else {
-          if (children[key] && (children[key] > value)) {
+          if (children[key] && children[key] > value) {
             finder.push(children);
           }
         }
       } else {
-        if (children[key] && (children[key] === value)) {
+        if (children[key] && children[key] === value) {
           finder.push(children);
         }
       }
       if (children && children.children && children.children.length) {
-        children.children.forEach(v => {
+        children.children.forEach((v) => {
           this.getTaskChildrenAnyKey(v, key, value, finder, calculationMethod);
         });
       }
@@ -986,7 +1285,10 @@ export class DynamicWbsService {
    * @param taskNo 当前元素
    * @returns 当前元素所在的所在树集合
    */
-  getParentTree(taskNo: string): Array<any> {
+  getParentTree(taskNo: string): any {
+    if (!taskNo) {
+      return null;
+    }
     const finder = [];
     let index = 0;
     for (let i = 0; i < this.pageDatas.length; i++) {
@@ -997,6 +1299,122 @@ export class DynamicWbsService {
       }
     }
     return this.pageDatas[index];
+  }
+
+  // 返回根节点集合
+  findRootTaskList(list: Array<any>): Array<any> {
+    const rootTaskList = [];
+    if (list && list.length) {
+      list.forEach((element) => {
+        let root_task = {};
+        if (
+          element['root_task_no'] === element['task_no'] &&
+          element['root_task_no'] === element['upper_level_task_no']
+        ) {
+          root_task = cloneDeep(element);
+          root_task['children'] = [];
+          rootTaskList.push(root_task);
+        }
+      });
+    }
+    return rootTaskList;
+  }
+
+  /**
+   * 将list结果改为tree
+   * @param list 原始list数据
+   * @returns 将list结果改为tree
+   */
+  changeListForTree(list: Array<any>) {
+    const root_task_list = this.findRootTaskList(list);
+    root_task_list.forEach((root_task) => {
+      this.findChildrenByList(list, root_task);
+    });
+    return root_task_list;
+  }
+
+  /**
+   * 找到当前任务卡的子节点
+   * @param list 原始list数据
+   * @param task 当前任务卡
+   */
+  findChildrenByList(list, task) {
+    task['children'] = [];
+    for (let i = 0; i < list.length; i++) {
+      if (
+        task['task_no'] === list[i]['upper_level_task_no'] &&
+        task['root_task_no'] !== list[i]['task_no']
+      ) {
+        task['children'].push(list[i]);
+      }
+    }
+    if (task['children'] && task['children'].length) {
+      task['children'].forEach((element) => {
+        this.findChildrenByList(list, element);
+      });
+    }
+  }
+
+  // 排序
+  compare(property) {
+    return function (a, b) {
+      return a[property] - b[property];
+    };
+  }
+
+  // 为当前树的层级sequence排序
+  changeTreeChildrenSquence(list: Array<any>) {
+    list.sort(this.compare('sequence'));
+    list.forEach((obj) => {
+      this.changeTreeChildrenSquence(obj.children);
+    });
+  }
+
+  isObject(obj) {
+    return Object.prototype.toString.call(obj) === '[object Object]';
+  }
+  isArray(arr) {
+    return Object.prototype.toString.call(arr) === '[object Array]';
+  }
+  // 深度判断两个数组是否完全相等
+  equalsObj(oldData, newData) {
+    // 类型为基本类型时,如果相同,则返回true
+    if (oldData === newData) {
+      return true;
+    }
+    if (
+      this.isObject(oldData) &&
+      this.isObject(newData) &&
+      Object.keys(oldData).length === Object.keys(newData).length
+    ) {
+      // 类型为对象并且元素个数相同
+      // 遍历所有对象中所有属性,判断元素是否相同
+      for (const key in oldData) {
+        if (oldData.hasOwnProperty(key)) {
+          if (!this.equalsObj(oldData[key], newData[key])) {
+            // 对象中具有不相同属性 返回false
+            return false;
+          }
+        }
+      }
+    } else if (
+      this.isArray(oldData) &&
+      this.isArray(oldData) &&
+      oldData.length === newData.length
+    ) {
+      // 类型为数组并且数组长度相同
+      for (let i = 0, length = oldData.length; i < length; i++) {
+        if (!this.equalsObj(oldData[i], newData[i])) {
+          // 如果数组元素中具有不相同元素,返回false
+          return false;
+        }
+      }
+    } else {
+      // 其它类型,均返回false
+      return false;
+    }
+    // 走到这里,说明数组或者对象中所有元素都相同,返回true
+    return true;
   }
 
   /**
@@ -1010,22 +1428,35 @@ export class DynamicWbsService {
     const parentTree = this.getParentTree(task_no);
     const finder = [];
     this.getTaskChildrenAnyKey(parentTree, 'task_proportion', 1, finder, 'lt');
-    return finder && (finder.length > 0) && (this.projectInfo.project_status === '30');
+    return finder && finder.length > 0 && this.projectInfo.project_status === '30';
   }
 
   /**
-  * 获取任务依赖关系
-  */
+   * 获取任务依赖关系
+   */
   projectTaskDependencyInfoGet(source?: string): Promise<any> {
-    const params = {
-      project_info: [
-        {
-          project_no:
-            this.project_no,
-          task_property: source === Entry.maintain ? '2' : '1'
-        },
-      ],
-    };
+    let params = null;
+    if (source === Entry.projectChange) {
+      // 取得依赖关系并展示，调用API-117.project.task.dependency.info.get ，入参：项目编号、变更版本、任务属性=3.项目变更
+      params = {
+        project_info: [
+          {
+            project_no: this.project_no,
+            task_property: '3',
+            change_version: this.change_version,
+          },
+        ],
+      };
+    } else {
+      params = {
+        project_info: [
+          {
+            project_no: this.project_no,
+            task_property: source === Entry.maintain ? '2' : '1',
+          },
+        ],
+      };
+    }
     return new Promise((resolve): void => {
       this.commonService
         .getInvData('project.task.dependency.info.get', params)
@@ -1044,35 +1475,60 @@ export class DynamicWbsService {
       const tenantId = this.userService.getUser('tenantId');
       // 【项目计划维护】-- 增加传入：计算方式=若 交付设计器参数.逾期天数纳入关键路径计算 =true，则传入1，否则传入2
       // 旧流程，若拿不到交付设计器参数.逾期天数纳入关键路径计算，默认按照2的方式处理
-      this.commonService.getHasGroundEnd(tenantId, 'acceptanceOfOverdueDays').toPromise().then((res) => {
-        // 交付设计器增加逾期天数纳入关键路径计算的参数：acceptanceOfOverdueDays
-        let calculation_method = res?.data?.acceptanceOfOverdueDays ? '1' : '2';
-        if (method === 'card') {
-          calculation_method = res?.data?.acceptanceOfOverdueDays ? '1' : '2';
-        }
-        // 【项目模板】-- 增加传入：计算方式 = 2
-        if (method === 'maintain') {
-          calculation_method = '2';
-        }
-        const params = {
-          // 计算方式：1.逾期天数纳入关键路径计算；2.逾期天数不纳入关键路径计算
-          calculation_method: calculation_method,
-          algorithm_type: '2', // 算法类型	1.最长工期的路径；2.任务工期累计最长的路径
-          task_property: method === Entry.maintain ? '2' : '1',
-          project_info: [
-            {
-              project_no:
-                this.project_no,
-            },
-          ],
-        };
-        // spring 3.2 更换api名称 [入参、出参]：'project.critical.path.info.get' ==> 'bm.pisc.project.critical.path.get'
-        this.commonService
-          .getInvData('bm.pisc.project.critical.path.get', params)
-          .subscribe((res2): void => {
-            resolve(res2.data.task_info);
-          });
-      });
+      this.commonService
+        .getHasGroundEnd(tenantId, 'acceptanceOfOverdueDays')
+        .toPromise()
+        .then((res) => {
+          // 交付设计器增加逾期天数纳入关键路径计算的参数：acceptanceOfOverdueDays
+          let calculation_method = res?.data?.acceptanceOfOverdueDays ? '1' : '2';
+          if (method !== 'projectChange') {
+            if (method === 'card') {
+              calculation_method = res?.data?.acceptanceOfOverdueDays ? '1' : '2';
+            }
+            // 【项目模板】-- 增加传入：计算方式 = 2
+            if (method === 'maintain') {
+              calculation_method = '2';
+            }
+            const params = {
+              // 计算方式：1.逾期天数纳入关键路径计算；2.逾期天数不纳入关键路径计算
+              calculation_method: calculation_method,
+              algorithm_type: '2', // 算法类型	1.最长工期的路径；2.任务工期累计最长的路径
+              task_property: method === Entry.maintain ? '2' : '1',
+              project_info: [
+                {
+                  project_no: this.project_no,
+                },
+              ],
+            };
+
+            // spring 3.2 更换api名称 [入参、出参]：'project.critical.path.info.get' ==> 'bm.pisc.project.critical.path.get'
+            this.commonService
+              .getInvData('bm.pisc.project.critical.path.get', params)
+              .subscribe((res2): void => {
+                resolve(res2.data.task_info);
+              });
+          }
+          if (method === 'projectChange') {
+            const params = {
+              // 计算方式：1.逾期天数纳入关键路径计算；2.逾期天数不纳入关键路径计算
+              calculation_method: calculation_method,
+              algorithm_type: '2', // 算法类型	1.最长工期的路径；2.任务工期累计最长的路径
+              project_info: [
+                {
+                  project_no: this.project_no,
+                  change_version: this.change_version,
+                },
+              ],
+            };
+            // 取得关键路径并展示，调用API-186.bm.pisc.project.change.critical.path.get
+            // 入参：项目编号、变更版本、算法类型=2.任务工期累计最长的路径、计算方式=若交付设计器.逾期天数纳入关键路径计算勾选，则传入1，否则传入2
+            this.commonService
+              .getInvData('bm.pisc.project.change.critical.path.get', params)
+              .subscribe((res2): void => {
+                resolve(res2.data.task_info);
+              });
+          }
+        });
     });
   }
 
@@ -1093,5 +1549,102 @@ export class DynamicWbsService {
           resolve(res.data.project_type_info[0]);
         });
     });
+  }
+
+  /**
+   * 获取查询签核进程的项目卡ID
+   * @returns
+   */
+  async getProjectIdForQueryApprove(project_no, isChangeApprove): Promise<string> {
+    let bkInfo: any = [
+      {
+        entityName: 'project_d',
+        bk: {
+          project_no,
+        },
+      },
+    ];
+    let tmpId = 'projectCenterConsoleStopProject_userProject';
+    let actTmpId = 'pccStopProjectApprove';
+    let actTmpIdT;
+    if (isChangeApprove) {
+      bkInfo = [
+        {
+          entityName: 'projectChange_d',
+          bk: {
+            project_no,
+            change_version: this.change_approve_version,
+          },
+        },
+      ];
+      tmpId = 'PCC_project_0001';
+      actTmpId = 'PCC_task_0010';
+      actTmpIdT = 'PCC_task_0016';
+    }
+    // 个案签核进度
+    const UcActTmpId = 'UC_pccStopProjectApprove';
+    const params = {
+      eocId: {},
+      tenantId: this.userService.getUser('tenantId'),
+      bkInfo,
+      taskStates: [1, 2, 3, 4, 5],
+      activityStates: [1, 2, 3, 4, 5, 6],
+    };
+    const res: any = await this.queryProjectId(params).toPromise();
+    const subTasksItem = res.data[0]?.subTasks?.find((el) => {
+      return el.state === 1 && el.tmpId === tmpId;
+    });
+    subTasksItem?.activities?.forEach((element) => {
+      if (
+        element.actTmpId === actTmpId ||
+        element.actTmpId === UcActTmpId ||
+        element.actTmpId === actTmpIdT
+      ) {
+        this.projectInfo.projectId = element.actId;
+        console.log(this.projectInfo.projectId);
+      }
+    });
+    return this.projectInfo.projectId;
+  }
+
+  // s6: 入参追加是否同步文档
+  async getSyncDoc(): Promise<any> {
+    const syncDoc = await this.commonService
+      .getMechanismVariableList([
+        {
+          variableId: 'syncDoc',
+        },
+      ])
+      .toPromise()
+      .then((_res) => !!_res.data[0].result);
+    return syncDoc;
+  }
+  // 记录管控时间
+  recordTheControlTime(type = 'wbs-recordTheControlTime') {
+    sessionStorage.setItem(type, Date.now().toString());
+  }
+  // 判断管控时间是否到指定时间
+  controlTimeToTheSpecifiedTime(time: number, type = 'wbs-recordTheControlTime'): boolean {
+    const recordTheControlTime = +sessionStorage.getItem(type) || Date.now() - time;
+    if (Date.now() - recordTheControlTime >= time) {
+      return true;
+    }
+    return false;
+  }
+  batchRecordTheControlTime(arr, callback: (...params: any) => string) {
+    arr.forEach((...args) => {
+      const type = callback(...args);
+      this.recordTheControlTime(type);
+    });
+  }
+  batchClearTheControlTime(arr, callback: (...params: any) => string) {
+    arr.forEach((...args) => {
+      const type = callback(...args);
+      this.clearTheControlTime(type);
+    });
+  }
+  // 清除管控时间
+  clearTheControlTime(type = 'wbs-recordTheControlTime') {
+    sessionStorage.removeItem(type);
   }
 }

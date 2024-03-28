@@ -10,8 +10,7 @@ import {
   PluginLanguageStoreService,
   PluginsConfig,
   PluginsConfigProvider,
-} from '@ng-dynamic-forms/core';
-import { PluginLangLoaderService } from './plugin-lang-loader.service';
+} from '@athena/dynamic-core';
 
 export function nzI18nChangeFactory(
   languageService: DwLanguageService,
@@ -44,33 +43,4 @@ function switchLanguage(type: string): NzI18nInterface {
   default:
     return zh_CN;
   }
-}
-
-export function loadAllPluginI18nJsonFactory(
-  pluginLangLoaderService: PluginLangLoaderService,
-  pluginLanguageStoreService: PluginLanguageStoreService,
-  configProvider: PluginsConfigProvider
-): Function {
-  const func = (): Promise<any> => {
-    const promise = new Observable((observer): void => {
-      configProvider.$loaded.subscribe((): void => {
-        const obsList: Observable<any>[] = [];
-        const config: PluginsConfig = configProvider.config;
-        pluginLanguageStoreService.i18nArr.forEach((item): void => {
-          const subject: Subject<any> = new Subject<any>();
-          obsList.push(subject.asObservable());
-          pluginLangLoaderService.getLangJson(config, subject, item);
-        });
-        forkJoin(obsList).subscribe((res): void => {
-          res.forEach((lanJson, index): void => {
-            pluginLanguageStoreService.store(pluginLanguageStoreService.i18nArr[index], lanJson);
-          });
-          observer.next(true);
-          observer.complete();
-        });
-      });
-    }).toPromise();
-    return promise;
-  };
-  return func;
 }

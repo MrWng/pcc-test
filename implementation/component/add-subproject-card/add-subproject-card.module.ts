@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CustSharedModule } from '../../shared.module';
-import { DynamicCustomizedService } from 'app/customization/task-project-center-console/service/dynamic-customized.service';
+import { CustSharedModule } from '../../shared/cust-shared.module';
 import { AddSubprojectCardComponent } from './add-subproject-card.component';
 import { WorkLoadComponent } from './components/work-load/work-load.component';
 import { UploadFileComponent } from './components/upload-file/upload-file.component';
@@ -17,11 +16,6 @@ import { TaskClassificationComponent } from './components/task-classification/ta
 import { DifficultyLevelComponent } from './components/difficulty-level/difficulty-level.component';
 import { InputNewModule } from '../input-new/input-new.module';
 import { StandardWorkingHoursComponent } from '../../individual-case/standard-working-hours-mc-pcc-input/standard-working-hours.component';
-import { LevelService } from './services/level.service';
-import { LiablePersonService } from './services/liable-person.service';
-import { SubmitCardService } from './services/submit-card.service';
-import { TaskTemplateService } from './services/task-template.service';
-import { WorkLoadService } from './services/work-load.service';
 import { LiablePersonModule } from './components/liable-person/liable-person.module';
 import { LiablePersonAddRoleModule } from './components/liable-person-add-role/liable-person-add-role.module';
 

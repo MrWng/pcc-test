@@ -1,0 +1,48 @@
+<!-- 售后云 -->
+<div class="assc-isa-order-table">
+  <nz-table #expandTable [nzData]="listOfMapData" nzTableLayout="fixed" [nzShowPagination]="false" [nzPageSize]="listOfMapData.length">
+    <thead>
+      <tr>
+        <th>{{ 'dj-default-任务编号' | translate }}</th>
+        <th>{{ 'dj-default-任务名称' | translate }}</th>
+        <th>{{ 'dj-default-任务负责人' | translate }}</th>
+        <th>{{ 'dj-default-任务协同人' | translate }}</th>
+        <th>{{ 'dj-default-预计工时' | translate }}</th>
+        <th>{{ 'dj-default-计划开始时间' | translate }}</th>
+        <th>{{ 'dj-default-计划结束时间' | translate }}</th>
+        <th>{{ 'dj-default-实际开始时间' | translate }}</th>
+        <th>{{ 'dj-default-实际完成时间' | translate }}</th>
+        <th>{{ 'dj-default-任务进度' | translate }}</th>
+        <th>{{ 'dj-default-任务状态' | translate }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let data of expandTable.data">
+        <ng-container *ngFor="let item of mapOfExpandedData[data.key]">
+          <tr *ngIf="(item.parent && item.parent.expand) || !item.parent">
+            <td
+              [nzIndentSize]="item.level! * 20"
+              [nzShowExpand]="item.children && item.children.length > 0"
+              [(nzExpand)]="item.expand"
+              [nzLeft]="true"
+              (nzExpandChange)="collapse(mapOfExpandedData[data.key], item, $event)"
+              style="white-space: nowrap; display: flex"
+            >
+              {{ item.task_no }}
+            </td>
+            <td>{{ item.task_name }}</td>
+            <td>{{ item.task_leader_name }}</td>
+            <td>{{ item.collaborator }}</td>
+            <td>{{ item.plan_work_hours }}</td>
+            <td>{{ item.plan_start_time }}</td>
+            <td>{{ item.plan_end_time }}</td>
+            <td>{{ item.actual_start_time }}</td>
+            <td>{{ item.actual_end_time }}</td>
+            <td>{{ item.task_progress }}</td>
+            <td>{{ item.task_status }}</td>
+          </tr>
+        </ng-container>
+      </ng-container>
+    </tbody>
+  </nz-table>
+</div>

@@ -5,10 +5,12 @@ import {
   ChangeDetectorRef,
   ElementRef,
   OnDestroy,
+  OnChanges,
+  SimpleChanges,
 } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { FormGroup } from '@angular/forms';
-import { OpenWindowService } from '@ng-dynamic-forms/ui-ant-web';
+import { OpenWindowService } from '@athena/dynamic-ui';
 import {
   cloneDeep,
   DynamicFormLayout,
@@ -16,7 +18,7 @@ import {
   DynamicFormService,
   DynamicFormLayoutService,
   DynamicFormValidationService,
-} from '@ng-dynamic-forms/core';
+} from '@athena/dynamic-core';
 import { DwUserService } from '@webdpt/framework/user';
 import { ListOfDeliverableService } from './list-of-deliverable.service';
 import { CommonService, Entry } from '../../service/common.service';
@@ -34,12 +36,10 @@ import { DynamicWbsService } from '../wbs/wbs.service';
 /**
  * 项目计划维护、计划协同排定
  */
-export class ListOfDeliverableComponent implements OnInit, OnDestroy {
-
-  @Input() source: Entry = Entry.card
+export class ListOfDeliverableComponent implements OnInit, OnDestroy, OnChanges {
+  @Input() source: Entry = Entry.card;
   @Input() executeContext: any;
-
-
+  @Input() tabName: String;
   @Input() tabIndex: any; // 页面中的tab页下标
 
   public dynamicGroup: FormGroup;
@@ -48,9 +48,12 @@ export class ListOfDeliverableComponent implements OnInit, OnDestroy {
 
   attachmentList: any[] = [];
   sampleAttachmentList: any[] = [];
+  planChanges: any[] = [];
+  projectChangeTask: any[] = [];
+  projectStatusChange: any[] = [];
+  plmList: any[] = [];
   allAttachmentList: any[] = [];
   nzExpandAll: boolean = true;
-
   allData = [];
 
   treeData = [
@@ -75,14 +78,20 @@ export class ListOfDeliverableComponent implements OnInit, OnDestroy {
     protected validationService: DynamicFormValidationService,
     private messageService: NzMessageService,
     protected elementRef: ElementRef,
-    public wbsService: DynamicWbsService,
-  ) { }
+    public wbsService: DynamicWbsService
+  ) {}
 
   ngOnInit(): void {
-    this.getWbsAllData();
+    // this.getWbsAllData();
   }
 
-  ngOnDestroy(): void { }
+  ngOnChanges(changes: SimpleChanges): void {
+    if (this.tabName === 'app-list-of-deliverable') {
+      this.getWbsAllData();
+    }
+  }
+
+  ngOnDestroy(): void {}
 
   // 获取wbs的数据
   getWbsAllData(): void {
@@ -96,37 +105,362 @@ export class ListOfDeliverableComponent implements OnInit, OnDestroy {
         },
       ],
     };
-    this.commonService.getInvData('task.info.get', params).subscribe((res: any): void => {
-      this.allData = res.data.project_info ?? [];
-      this.changeRef.markForCheck();
-      this.getProjectAttachmentList();
-    });
-    this.commonService.getInvData('bm.pisc.project.get', { project_info: [{ project_no: this.wbsService.project_no }] })
+    this.commonService
+      .getInvData('task.info.get', params)
+      .subscribe(async (res: any): Promise<void> => {
+        this.allData = res.data.project_info ?? [];
+        this.changeRef.markForCheck();
+        const allAttachmentList = await this.getAllAttachmentList();
+        if (Object.keys(allAttachmentList).length) {
+          const resPlmData =
+            allAttachmentList.resPlm && allAttachmentList.resPlm?.data
+              ? allAttachmentList.resPlm?.data?.attachment_info
+              : [];
+          const resProjectData =
+            allAttachmentList.resProject && allAttachmentList.resProject?.data
+              ? allAttachmentList.resProject?.data?.attachment_info
+              : [];
+          const attachment_info = cloneDeep(resProjectData);
+          if (resPlmData.length) {
+            resPlmData.forEach((element) => {
+              const data = [];
+              element?.deliverable_info.forEach((info) => {
+                data.push({
+                  id: info.delivery_no,
+                  name: info.delivery_name,
+                  category: info.category,
+                  categoryId: info.category,
+                  upload_user_name: '',
+                  upload_user_id: '',
+                  size: 0,
+                  create_date: '',
+                  row_data: element.project_no + element.task_no,
+                });
+              });
+              const elementTmp = cloneDeep(element);
+              Reflect.deleteProperty(elementTmp, 'deliverable_info');
+              attachment_info.push({
+                ...elementTmp,
+                attachment: { data },
+              });
+            });
+          }
+          this.processingData(attachment_info);
+        }
+        // this.getProjectAttachmentList();
+      });
+    this.commonService
+      .getInvData('bm.pisc.project.get', {
+        project_info: [{ project_no: this.wbsService.project_no }],
+      })
       .subscribe((res) => {
         if (res.data && res.data.project_info && res.data.project_info[0]) {
-          this.treeData[0].title = res.data.project_info[0].project_name ? res.data.project_info[0].project_name : this.treeData[0].title;
+          this.treeData[0].title = res.data.project_info[0].project_name
+            ? res.data.project_info[0].project_name
+            : this.treeData[0].title;
         }
         this.changeRef.markForCheck();
       });
-
   }
 
-  getProjectAttachmentList(): void {
-    const project_info = this.executeContext?.taskWithBacklogData?.bpmData?.attachment_project_info ?? [];
-    const params = project_info.length
-      ? { project_info }
-      : {
+  async getAllAttachmentList(): Promise<any> {
+    try {
+      const project_info =
+        this.executeContext?.taskWithBacklogData?.bpmData?.attachment_project_info ?? [];
+      const params = project_info.length
+        ? { query_scope: '1', project_info }
+        : {
+            query_scope: '1',
+            project_info: [
+              {
+                project_id: this.executeContext?.taskWithBacklogData?.bpmData?.project_id,
+                task_id: this.executeContext?.taskWithBacklogData?.bpmData?.task_id,
+                category: this.executeContext?.taskWithBacklogData?.bpmData?.category,
+                project_no:
+                  this.wbsService.project_no ||
+                  this.executeContext?.taskWithBacklogData?.bpmData?.project_info[0]?.project_no,
+              },
+            ],
+          };
+      const resProject: any = await this.commonService
+        .getInvData('project.attachment.info.get', params)
+        .toPromise();
+      const paramsPlm = {
+        // 1.PCC文档 2.PLM文档
+        query_scope: '2',
         project_info: [
           {
-            project_id: this.executeContext?.taskWithBacklogData?.bpmData?.project_id,
-            task_id: this.executeContext?.taskWithBacklogData?.bpmData?.task_id,
-            category: this.executeContext?.taskWithBacklogData?.bpmData?.category,
             project_no:
               this.wbsService.project_no ||
               this.executeContext?.taskWithBacklogData?.bpmData?.project_info[0]?.project_no,
           },
         ],
       };
+      const resPlm: any = await this.commonService
+        .getInvData('project.attachment.info.get', paramsPlm)
+        .toPromise();
+      return { resProject, resPlm };
+    } catch (err) {
+      return Promise.reject(err.description);
+    }
+  }
+
+  processingData(attachment_info: any) {
+    const attachmentList = [];
+    const sampleAttachmentList = []; // 交付物样板
+    const planChanges = []; // 计划变更
+    const projectChangeTask = []; // 项目变更任务 pcc_project_change_task
+    const plmList = []; // PLM
+    const projectStatusChange = []; // 项目状态变更
+    attachment_info?.forEach((list: any): void => {
+      if (list.attachment && list.attachment.category === 'pcc_wbs_planChanges') {
+        list.attachment.categoryName = this.translateService.instant('dj-pcc-计划变更');
+        planChanges.push(cloneDeep(list));
+      }
+
+      if (list.attachment?.data && list.attachment?.data.length) {
+        list.attachment?.data?.forEach((attachment: any): void => {
+          attachment.uploadUserName = attachment.upload_user_name;
+          attachment.uploadIdCopy = attachment.upload_user_id
+            ? attachment.upload_user_id
+            : attachment.uploadUserId;
+          attachment.upload_user_id = '';
+          attachment.createDate = attachment.create_date;
+          attachment.root_task_no = list?.root_task_no;
+          // category 文件类型标识符
+          switch (attachment.category) {
+            case 'pcc_project_status_change':
+              attachment.categoryName = this.translateService.instant('dj-pcc-项目状态变更附件');
+              break;
+            case 'manualAssignmentDelivery':
+              attachment.categoryName = this.translateService.instant('dj-default-交付物');
+              break;
+            case 'manualAssignmentAttachment':
+              attachment.categoryName = this.translateService.instant('dj-default-附件');
+              break;
+            case 'mohDeliverable':
+              attachment.categoryName = this.translateService.instant('dj-default-交付物');
+              break;
+            case 'mohAttachment':
+              attachment.categoryName = this.translateService.instant('dj-default-附件');
+              break;
+            case 'athena_LaunchSpecialProject_create':
+              attachment.categoryName = this.translateService.instant('dj-pcc-专案附件');
+              break;
+            case 'manualAssignmentSampleDelivery':
+              attachment.categoryName = this.translateService.instant('dj-default-交付物样板');
+              break;
+            case 'pcc_wbs_planChanges':
+              attachment.categoryName = this.translateService.instant('dj-pcc-计划变更');
+              break;
+            case 'pcc_project_change_task':
+              attachment.categoryName = this.translateService.instant('dj-pcc-项目变更附件');
+              break;
+            case 'manualAssignmentDelivery_PLM':
+              attachment.categoryName = this.translateService.instant('dj-default-PLM交付物');
+              break;
+          }
+          // 提取信息--begin
+          // 附件的类型标识符名称
+          list.categoryName = attachment.categoryName;
+          // 附件的类型标识符
+          list.category = attachment.category;
+          list.taskId = attachment.taskId; // 没有..
+          // 附件的类型标识符
+          list.categoryId = attachment.categoryId ? attachment.categoryId : attachment.category_id;
+        });
+
+        list.attachment1 = {
+          data: list.attachment.data,
+          rowDataKey: list.project_no + ';' + list.task_no,
+        };
+        list.dataKey = list.project_no + ';' + list.task_no;
+        if (list.category === 'manualAssignmentSampleDelivery') {
+          // 交付物样板
+          sampleAttachmentList.push(list);
+        } else if (list.category === 'pcc_wbs_planChanges') {
+          planChanges.push(list);
+        } else if (list.category === 'pcc_project_change_task') {
+          projectChangeTask.push(list);
+        } else if (list.category === 'manualAssignmentDelivery_PLM') {
+          plmList.push(list);
+        } else if (list.category === 'pcc_project_status_change') {
+          projectStatusChange.push(list);
+          attachmentList.push(list);
+        } else {
+          // category : "athena_LaunchSpecialProject_create"
+          attachmentList.push(list);
+        }
+      }
+    });
+    let newArr = [];
+    // 其它category类型
+    const attachmentList1 = JSON.parse(JSON.stringify(attachmentList));
+    for (let i = 0; i < attachmentList1.length; i++) {
+      const index = newArr.findIndex(function (item) {
+        if (attachmentList1[i].category === 'pcc_project_status_change') {
+          return (
+            item.dataKey === attachmentList1[i].dataKey &&
+            item.category === attachmentList1[i].category &&
+            item.task_name === attachmentList1[i].task_name &&
+            item.task_no === attachmentList1[i].task_no
+          );
+        }
+        return (
+          item.dataKey === attachmentList1[i].dataKey &&
+          item.category === attachmentList1[i].category
+        );
+      });
+      if (index !== -1) {
+        newArr[index].attachment1.data.push(...attachmentList1[i].attachment1.data);
+        newArr[index].attachment.data.push(...attachmentList1[i].attachment.data);
+      } else {
+        newArr.push(attachmentList1[i]);
+      }
+    }
+    this.allAttachmentList = [...newArr, ...sampleAttachmentList]; // 项目附件、交付物样板
+    newArr = this.setParent(newArr);
+    this.attachmentList = newArr;
+    // 交付物样板
+    this.sampleAttachmentList = sampleAttachmentList;
+    if (this.sampleAttachmentList && this.sampleAttachmentList.length) {
+      this.treeData.push({
+        title: this.translateWord('交付物样板'),
+        key: '-1',
+        children: [],
+      });
+    }
+
+    // 计划变更
+    const planChangesList = [];
+    if (planChanges && planChanges.length) {
+      planChanges.forEach((item) => {
+        const attachment = cloneDeep(item.attachment);
+        if (attachment) {
+          attachment.uploadUserName = item.attachment.upload_user_name;
+          attachment.uploadIdCopy = item.attachment.upload_user_id
+            ? item.attachment.upload_user_id
+            : item.attachment.uploadUserId;
+          attachment.upload_user_id = '';
+          attachment.createDate = item.attachment.create_date;
+          attachment.categoryName = item.attachment.categoryName;
+
+          let flag = false;
+          planChangesList.forEach((val) => {
+            if (val.task_name === item.task_name && val.task_no === item.task_no) {
+              flag = true;
+              val.attachment.data.push(attachment);
+            }
+          });
+
+          if (!flag) {
+            item.category = item.attachment.category;
+            item.categoryId = item.attachment.categoryId
+              ? item.attachment.categoryId
+              : item.attachment.category_id;
+            item.categoryName = item.attachment.categoryName;
+            item.dataKey = item.project_no + ';' + item.task_no;
+            item.attachment = {
+              data: [],
+              row_data: attachment.row_data,
+            };
+            item.attachment['data'].push(attachment);
+            // 显示文件内容
+            item['attachment1'] = {
+              data: item.attachment.data,
+              rowDataKey: item.project_no + ';' + item.task_no,
+            };
+            planChangesList.push(item);
+          }
+        }
+      });
+      this.planChanges = planChangesList;
+
+      this.treeData.push({
+        title: this.translatePccWord('计划变更'),
+        key: '-2',
+        children: [],
+      });
+    }
+
+    // 项目变更
+    if (projectChangeTask && projectChangeTask.length) {
+      this.projectChangeTask = projectChangeTask;
+      this.treeData.push({
+        title: this.translatePccWord('项目变更'),
+        key: '-4',
+        children: [],
+      });
+    }
+
+    // plm
+    if (plmList && plmList.length) {
+      this.plmList = plmList;
+      this.treeData.push({
+        title: this.translateWord('PLM任务'),
+        key: '-5',
+        children: [],
+      });
+    }
+
+    // 项目状态变更
+    if (projectStatusChange && projectStatusChange.length) {
+      // this.projectStatusChange = projectStatusChange;
+      // this.treeData.push({
+      //   title: this.translatePccWord('项目状态变更附件'),
+      //   key: '0',
+      //   children: [],
+      // });
+    }
+
+    if (this.treeData[0].children.length) {
+      this.defaultSelectedKeys = [this.treeData[0].children[0].key];
+      this.getSelectList(this.treeData[0].children[0].key);
+    } else {
+      if (this.attachmentList.length) {
+        this.defaultSelectedKeys = ['0'];
+        this.getSelectList('0');
+      } else {
+        if (this.sampleAttachmentList.length) {
+          this.defaultSelectedKeys = ['-1'];
+          this.getSelectList('-1');
+        } else if (this.planChanges && this.planChanges.length) {
+          this.defaultSelectedKeys = ['-2'];
+          this.getSelectList('-2');
+        } else if (this.projectChangeTask && this.projectChangeTask.length) {
+          this.defaultSelectedKeys = ['-4'];
+          this.getSelectList('-4');
+        } else if (this.plmList && this.plmList.length) {
+          this.defaultSelectedKeys = ['-5'];
+          this.getSelectList('-5');
+        } else if (this.projectStatusChange && this.projectStatusChange.length) {
+          this.defaultSelectedKeys = ['-6'];
+          this.getSelectList('-6');
+        } else {
+          this.getSelectList('-3');
+        }
+      }
+    }
+    this.changeRef.markForCheck();
+  }
+
+  getProjectAttachmentList(): void {
+    const project_info =
+      this.executeContext?.taskWithBacklogData?.bpmData?.attachment_project_info ?? [];
+    const params = project_info.length
+      ? { project_info }
+      : {
+          project_info: [
+            {
+              project_id: this.executeContext?.taskWithBacklogData?.bpmData?.project_id,
+              task_id: this.executeContext?.taskWithBacklogData?.bpmData?.task_id,
+              category: this.executeContext?.taskWithBacklogData?.bpmData?.category,
+              project_no:
+                this.wbsService.project_no ||
+                this.executeContext?.taskWithBacklogData?.bpmData?.project_info[0]?.project_no,
+            },
+          ],
+        };
     // this.messageService.info('交付物开始调用！');
     this.commonService
       .getInvData('project.attachment.info.get', params)
@@ -134,56 +468,83 @@ export class ListOfDeliverableComponent implements OnInit, OnDestroy {
         // this.messageService.info('交付物调用成功！');
         if (res.code === 0) {
           const attachmentList = [];
-          const sampleAttachmentList = [];
+          const sampleAttachmentList = []; // 交付物样板
+          const planChanges = []; // 计划变更
+          const projectChangeTask = []; // 项目变更任务 pcc_project_change_task
           res.data.attachment_info?.forEach((list: any): void => {
-            list.attachment?.data?.forEach((attachment: any): void => {
-              attachment.uploadUserName = attachment.upload_user_name;
-              attachment.uploadIdCopy = attachment.upload_user_id
-                ? attachment.upload_user_id
-                : attachment.uploadUserId;
-              attachment.upload_user_id = '';
-              attachment.createDate = attachment.create_date;
-              switch (attachment.category) {
-                case 'manualAssignmentDelivery':
-                  attachment.categoryName = this.translateService.instant('dj-default-交付物');
-                  break;
-                case 'manualAssignmentAttachment':
-                  attachment.categoryName = this.translateService.instant('dj-default-附件');
-                  break;
-                case 'mohDeliverable':
-                  attachment.categoryName = this.translateService.instant('dj-default-交付物');
-                  break;
-                case 'mohAttachment':
-                  attachment.categoryName = this.translateService.instant('dj-default-附件');
-                  break;
-                case 'athena_LaunchSpecialProject_create':
-                  attachment.categoryName = this.translateService.instant('dj-pcc-专案附件');
-                  break;
-                case 'manualAssignmentSampleDelivery':
-                  attachment.categoryName = this.translateService.instant('dj-default-交付物样板');
-                  break;
-              }
-              list.categoryName = attachment.categoryName;
-              list.category = attachment.category;
-              list.taskId = attachment.taskId;
-              list.categoryId = attachment.categoryId
-                ? attachment.categoryId
-                : attachment.category_id;
-            });
+            if (list.attachment && list.attachment.category === 'pcc_wbs_planChanges') {
+              list.attachment.categoryName = this.translateService.instant('dj-pcc-计划变更');
+              planChanges.push(cloneDeep(list));
+            }
+
             if (list.attachment?.data && list.attachment?.data.length) {
+              list.attachment?.data?.forEach((attachment: any): void => {
+                attachment.uploadUserName = attachment.upload_user_name;
+                attachment.uploadIdCopy = attachment.upload_user_id
+                  ? attachment.upload_user_id
+                  : attachment.uploadUserId;
+                attachment.upload_user_id = '';
+                attachment.createDate = attachment.create_date;
+                attachment.root_task_no = list?.root_task_no;
+                // category 文件类型标识符
+                switch (attachment.category) {
+                  case 'manualAssignmentDelivery':
+                    attachment.categoryName = this.translateService.instant('dj-default-交付物');
+                    break;
+                  case 'manualAssignmentAttachment':
+                    attachment.categoryName = this.translateService.instant('dj-default-附件');
+                    break;
+                  case 'mohDeliverable':
+                    attachment.categoryName = this.translateService.instant('dj-default-交付物');
+                    break;
+                  case 'mohAttachment':
+                    attachment.categoryName = this.translateService.instant('dj-default-附件');
+                    break;
+                  case 'athena_LaunchSpecialProject_create':
+                    attachment.categoryName = this.translateService.instant('dj-pcc-专案附件');
+                    break;
+                  case 'manualAssignmentSampleDelivery':
+                    attachment.categoryName =
+                      this.translateService.instant('dj-default-交付物样板');
+                    break;
+                  case 'pcc_wbs_planChanges':
+                    attachment.categoryName = this.translateService.instant('dj-pcc-计划变更');
+                    break;
+                  case 'pcc_project_change_task':
+                    attachment.categoryName = this.translateService.instant('dj-pcc-项目变更附件');
+                    break;
+                }
+                // 提取信息--begin
+                // 附件的类型标识符名称
+                list.categoryName = attachment.categoryName;
+                // 附件的类型标识符
+                list.category = attachment.category;
+                list.taskId = attachment.taskId; // 没有..
+                // 附件的类型标识符
+                list.categoryId = attachment.categoryId
+                  ? attachment.categoryId
+                  : attachment.category_id;
+              });
+
               list.attachment1 = {
                 data: list.attachment.data,
                 rowDataKey: list.project_no + ';' + list.task_no,
               };
               list.dataKey = list.project_no + ';' + list.task_no;
               if (list.category === 'manualAssignmentSampleDelivery') {
+                // 交付物样板
                 sampleAttachmentList.push(list);
+              } else if (list.category === 'pcc_wbs_planChanges') {
+                planChanges.push(list);
+              } else if (list.category === 'pcc_project_change_task') {
+                projectChangeTask.push(list);
               } else {
                 attachmentList.push(list);
               }
             }
           });
           let newArr = [];
+          // 其它category类型
           const attachmentList1 = JSON.parse(JSON.stringify(attachmentList));
           for (let i = 0; i < attachmentList1.length; i++) {
             const index = newArr.findIndex(function (item) {
@@ -199,9 +560,13 @@ export class ListOfDeliverableComponent implements OnInit, OnDestroy {
               newArr.push(attachmentList1[i]);
             }
           }
-          this.allAttachmentList = [...newArr, ...sampleAttachmentList];
+
+          // 因为【计划变更】没有上传、删除功能，所以没有放入
+          this.allAttachmentList = [...newArr, ...sampleAttachmentList]; // 所以的附件信息
+
           newArr = this.setParent(newArr);
           this.attachmentList = newArr;
+          // 交付物样板
           this.sampleAttachmentList = sampleAttachmentList;
           if (this.sampleAttachmentList && this.sampleAttachmentList.length) {
             this.treeData.push({
@@ -210,6 +575,69 @@ export class ListOfDeliverableComponent implements OnInit, OnDestroy {
               children: [],
             });
           }
+
+          // 计划变更
+          const planChangesList = [];
+          if (planChanges && planChanges.length) {
+            planChanges.forEach((item) => {
+              const attachment = cloneDeep(item.attachment);
+              if (attachment) {
+                attachment.uploadUserName = item.attachment.upload_user_name;
+                attachment.uploadIdCopy = item.attachment.upload_user_id
+                  ? item.attachment.upload_user_id
+                  : item.attachment.uploadUserId;
+                attachment.upload_user_id = '';
+                attachment.createDate = item.attachment.create_date;
+                attachment.categoryName = item.attachment.categoryName;
+
+                let flag = false;
+                planChangesList.forEach((val) => {
+                  if (val.task_name === item.task_name && val.task_no === item.task_no) {
+                    flag = true;
+                    val.attachment.data.push(attachment);
+                  }
+                });
+
+                if (!flag) {
+                  item.category = item.attachment.category;
+                  item.categoryId = item.attachment.categoryId
+                    ? item.attachment.categoryId
+                    : item.attachment.category_id;
+                  item.categoryName = item.attachment.categoryName;
+                  item.dataKey = item.project_no + ';' + item.task_no;
+                  item.attachment = {
+                    data: [],
+                    row_data: attachment.row_data,
+                  };
+                  item.attachment['data'].push(attachment);
+                  // 显示文件内容
+                  item['attachment1'] = {
+                    data: item.attachment.data,
+                    rowDataKey: item.project_no + ';' + item.task_no,
+                  };
+                  planChangesList.push(item);
+                }
+              }
+            });
+            this.planChanges = planChangesList;
+
+            this.treeData.push({
+              title: this.translatePccWord('计划变更'),
+              key: '-2',
+              children: [],
+            });
+          }
+
+          // 项目变更
+          if (projectChangeTask && projectChangeTask.length) {
+            this.projectChangeTask = projectChangeTask;
+            this.treeData.push({
+              title: this.translatePccWord('项目变更'),
+              key: '-4',
+              children: [],
+            });
+          }
+
           if (this.treeData[0].children.length) {
             this.defaultSelectedKeys = [this.treeData[0].children[0].key];
             this.getSelectList(this.treeData[0].children[0].key);
@@ -221,8 +649,14 @@ export class ListOfDeliverableComponent implements OnInit, OnDestroy {
               if (this.sampleAttachmentList.length) {
                 this.defaultSelectedKeys = ['-1'];
                 this.getSelectList('-1');
-              } else {
+              } else if (this.planChanges && this.planChanges.length) {
+                this.defaultSelectedKeys = ['-2'];
                 this.getSelectList('-2');
+              } else if (this.projectChangeTask && this.projectChangeTask.length) {
+                this.defaultSelectedKeys = ['-4'];
+                this.getSelectList('-4');
+              } else {
+                this.getSelectList('-3');
               }
             }
           }
@@ -235,14 +669,28 @@ export class ListOfDeliverableComponent implements OnInit, OnDestroy {
     let list = [];
     if (key === '-1') {
       list = this.sampleAttachmentList;
+      this.initTemplateJson(list);
+    } else if (key === '-2') {
+      list = this.planChanges;
+      this.initTemplateJson(list, false);
+    } else if (key === '-4') {
+      list = this.projectChangeTask;
+      this.initTemplateJson(list, false);
+    } else if (key === '-5') {
+      list = this.plmList;
+      this.initTemplateJson(list, false);
+    } else if (key === '-6') {
+      list = this.projectStatusChange;
+      this.initTemplateJson(list, false);
     } else {
       for (const i in this.attachmentList) {
         if (this.attachmentList[i].parentId === key) {
           list.push(this.attachmentList[i]);
         }
       }
+      this.initTemplateJson(list);
     }
-    this.initTemplateJson(list);
+
     this.changeRef.markForCheck();
   }
 
@@ -281,10 +729,11 @@ export class ListOfDeliverableComponent implements OnInit, OnDestroy {
     }
   }
 
-  initTemplateJson(data: Array<any>): void {
+  initTemplateJson(data: Array<any>, isEditFlag?: boolean): void {
     const condition = this.wbsService.editable && this.source !== Entry.collaborate;
     const isEdit = condition ? true : false;
-    const result = this.listOfDeliverableService.setTemplateJson(data, isEdit);
+    const flag = isEditFlag !== undefined ? isEditFlag : isEdit;
+    const result = this.listOfDeliverableService.setTemplateJson(data, flag);
     result.layout = result.layout && Array.isArray(result.layout) ? result.layout : [];
     result.content = result.content || {};
     const initializedData = this.formService.initData(
@@ -319,8 +768,37 @@ export class ListOfDeliverableComponent implements OnInit, OnDestroy {
       if (event?.group?.value) {
         const value = event.group.value;
         this.updataValue(value);
+        this.attachmentChange(event);
       }
     }, 200);
+  }
+
+  attachmentChange(event) {
+    // 若交付设计器.文档同步至知识中台 = true
+    if (!this.wbsService.is_sync_document || this.source !== Entry.card) {
+      return;
+    }
+    if (event?.$event?.type === 'success' || event?.$event?.type === 'delete') {
+      console.log(event?.$event?.type);
+      const params = { project_info: [{ project_no: this.wbsService.project_no }] };
+      this.commonService.getInvData('bm.pisc.project.get', params).subscribe((res: any): void => {
+        const status = res.data.project_info[0].project_status;
+        if (status === '30') {
+          const processParams = {
+            data_type: '1',
+            project_info: [
+              {
+                project_no: this.wbsService.project_no,
+                root_task_no: event?.group?.value?.root_task_no,
+              },
+            ],
+          };
+          this.commonService
+            .getInvData('document.info.sync.process', processParams)
+            .subscribe((res1: any): void => {});
+        }
+      });
+    }
   }
 
   updateFile(value) {
@@ -343,6 +821,7 @@ export class ListOfDeliverableComponent implements OnInit, OnDestroy {
       }
     }
     const param = {
+      is_sync_document: this.source === Entry.card ? this.wbsService.is_sync_document : false,
       project_info: [
         {
           project_no: value.project_no,
@@ -352,19 +831,20 @@ export class ListOfDeliverableComponent implements OnInit, OnDestroy {
             row_data: value.attachment1.rowDataKey,
             data: fileList,
           },
+          root_task_no: this.source === Entry.card ? value.root_task_no : null,
         },
       ],
     };
     this.commonService
       .getInvData('project.attachment.info.update', param)
-      .subscribe((res: any): void => { });
+      .subscribe((res: any): void => {});
   }
 
   // 附件和交付物变更时触发
   updataValue(data) {
     let list, action, actionData;
     const listAction = [];
-    data.attachment1.data.forEach((res) => {
+    data?.attachment1?.data?.forEach((res) => {
       listAction.push({
         category: data.category,
         categoryId: data.categoryId,
@@ -379,7 +859,7 @@ export class ListOfDeliverableComponent implements OnInit, OnDestroy {
         upload_user_id: '',
         uploadIdCopy: res.uploadIdCopy ? res.uploadIdCopy : res.upload_user_id,
         upload_user_name: res.upload_user_name,
-        projectId: 'task_Assignment',
+        projectId: 'projectCenterConsole_userProject',
         taskId: data.taskId,
       });
     });
@@ -398,11 +878,29 @@ export class ListOfDeliverableComponent implements OnInit, OnDestroy {
           actionData = this.getArrDifference(listAction, list);
         }
         if (actionData.length > 0) {
+          // 项目附件 或者  任务的交付物样板
           if (
             data.category === 'athena_LaunchSpecialProject_create' ||
             data.category === 'manualAssignmentSampleDelivery'
           ) {
-            this.updateFile(data);
+            const check_type = ['1', '2', '4', '5'];
+            if ('manualAssignmentSampleDelivery' === data.category) {
+              check_type.push('3');
+            }
+            this.commonService
+              .getProjectChangeStatus(data.project_no, check_type, '1', data.task_no)
+              .subscribe(
+                (result: any): void => {
+                  if (result.data?.project_info[0]?.check_result) {
+                    this.updateFile(data);
+                  } else {
+                    this.getWbsAllData();
+                  }
+                },
+                (error) => {
+                  this.getWbsAllData();
+                }
+              );
           } else {
             this.uploadApi(action, actionData[0]);
           }
@@ -435,7 +933,7 @@ export class ListOfDeliverableComponent implements OnInit, OnDestroy {
         taskId: data.taskId,
       };
     }
-    this.uploadService.tableInfoToAi(url, params).subscribe((res: any): void => { });
+    this.uploadService.tableInfoToAi(url, params).subscribe((res: any): void => {});
   }
 
   // 实时获取表格数据改变的值
@@ -461,6 +959,9 @@ export class ListOfDeliverableComponent implements OnInit, OnDestroy {
   }
 
   downLoadAll() {
+    // if (this.defaultSelectedKeys && (this.defaultSelectedKeys[0] === '-5')) {
+    //   return;
+    // }
     const params = {
       fileIds: [],
     };
@@ -479,7 +980,7 @@ export class ListOfDeliverableComponent implements OnInit, OnDestroy {
       if (params.fileIds.length) {
         const time = this.getNowTime();
         const fileName = this.wbsService.project_no + '-' + time + '.zip';
-        this.uploadService.downloadMultiUrl('Athena', params, fileName).subscribe((res) => { });
+        this.uploadService.downloadMultiUrl('Athena', params, fileName).subscribe((res) => {});
       } else {
         this.messageService.error(this.translateService.instant(`dj-pcc-请选择下载文件`));
       }

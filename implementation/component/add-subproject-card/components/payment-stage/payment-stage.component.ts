@@ -24,7 +24,7 @@ export class PaymentStageComponent implements OnInit {
   ngOnInit(): void { }
 
   get isDisable(): boolean {
-    return this.addSubProjectCardService.currentCardInfo?.someEdit;
+    return this.addSubProjectCardService.isPreview || this.addSubProjectCardService.currentCardInfo?.someEdit;
   }
 
   /**

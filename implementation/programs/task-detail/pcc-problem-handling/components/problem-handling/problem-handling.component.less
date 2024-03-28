@@ -1,0 +1,176 @@
+@quest-do-collapse-tab-header: 50px;
+@quest-do-btn-group-h: 28px;
+@quest-do-header: 24px;
+@quest-do-btn-group-margin-bottom: 16px;
+@page-card-info-H: 36px;
+@page-card-info-margin-top: 12px;
+@page-header-padding-top: 12px;
+:host {
+  height: 100%;
+  ::ng-deep .pcc-problem-handling {
+    height: 100%;
+
+    .text-overflow {
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .ant-spin-container {
+      height: 100%;
+    }
+    .content-container {
+      height: 100%;
+    }
+    .pcc-problem-handling-header {
+      display: flex;
+      justify-content: space-between;
+      &.has-padding {
+        padding-top: @page-header-padding-top;
+      }
+      .h-right {
+        display: flex;
+        ::ng-deep .pcc-file-upload-button {
+          height: 24px;
+          font-size: 12px;
+        }
+        .view-journeys,
+        .view-attachment {
+          background-color: none;
+        }
+        .view-attachment {
+          margin-left: 8px;
+        }
+      }
+      .h-left {
+      }
+
+      .status-processing,
+      .status-acceptance,
+      .status-returnAndRedo,
+      .status-closed {
+        line-height: 18px;
+        border-radius: 2px;
+        margin-left: 8px;
+        font-size: 12px;
+      }
+      .status-processing {
+        border: 1px solid #266ae5;
+        background: rgba(38, 106, 229, 0.1);
+        color: #266ae5;
+      }
+      .status-acceptance {
+        background: rgba(97, 103, 204, 0.1);
+        border: 1px solid #6167cc;
+        color: #6167cc;
+      }
+      .status-returnAndRedo {
+        background: rgba(245, 139, 0, 0.1);
+        border: 1px solid #f58b00;
+        color: #f58b00;
+      }
+      .status-closed {
+        background: rgba(109, 126, 156, 0.1);
+        border: 1px solid #6d7e9c;
+        color: #6d7e9c;
+      }
+    }
+    .page-card-info {
+      margin-top: @page-card-info-margin-top;
+      height: @page-card-info-H;
+      ::ng-deep {
+        .ant-alert-success {
+          background: rgba(34, 163, 86, 0.1);
+          border: 1px solid rgba(34, 163, 86, 0.4);
+          border-radius: 4px;
+        }
+        .ant-alert-warning {
+          background: rgba(245, 139, 0, 0.1);
+          border: 1px solid rgba(245, 139, 0, 0.4);
+          border-radius: 4px;
+        }
+        .ant-alert-content {
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          overflow: hidden;
+        }
+      }
+    }
+    .pcc-problem-handling-body {
+      height: calc(
+        100% - @quest-do-btn-group-h - @quest-do-header - @quest-do-btn-group-margin-bottom -
+          @page-header-padding-top
+      );
+      &.header-has-padding {
+        &.has-page-card-info {
+          height: calc(
+            100% - @quest-do-btn-group-h - @quest-do-header - @quest-do-btn-group-margin-bottom -
+              @page-card-info-H - @page-card-info-margin-top - @page-header-padding-top
+          );
+        }
+        &.readonly {
+          height: calc(
+            100% - @quest-do-header - @quest-do-btn-group-margin-bottom - @page-header-padding-top
+          );
+        }
+        &.readonly.has-page-card-info {
+          height: calc(
+            100% - @quest-do-header - @page-card-info-H - @page-card-info-margin-top -
+              @page-header-padding-top
+          );
+        }
+        &.readonly.has-page-card-info.can-submit {
+          height: calc(
+            100% - @quest-do-btn-group-h - @quest-do-header - @quest-do-btn-group-margin-bottom -
+              @page-card-info-H - @page-card-info-margin-top - @page-header-padding-top
+          );
+        }
+        &.readonly.can-submit {
+          height: calc(
+            100% - @quest-do-btn-group-h - @quest-do-header - @quest-do-btn-group-margin-bottom -
+              @page-header-padding-top
+          );
+        }
+      }
+      &.has-page-card-info {
+        height: calc(
+          100% - @quest-do-btn-group-h - @quest-do-header - @quest-do-btn-group-margin-bottom -
+            @page-card-info-H - @page-card-info-margin-top
+        );
+      }
+      &.readonly {
+        height: calc(100% - @quest-do-header - @quest-do-btn-group-margin-bottom);
+      }
+      &.readonly.has-page-card-info {
+        height: calc(100% - @quest-do-header - @page-card-info-H - @page-card-info-margin-top);
+      }
+      &.readonly.has-page-card-info.can-submit {
+        height: calc(
+          100% - @quest-do-btn-group-h - @quest-do-header - @quest-do-btn-group-margin-bottom -
+            @page-card-info-H - @page-card-info-margin-top
+        );
+      }
+      &.readonly.can-submit {
+        height: calc(
+          100% - @quest-do-btn-group-h - @quest-do-header - @quest-do-btn-group-margin-bottom
+        );
+      }
+      .quest-do-collapse {
+        height: 100%;
+        ::ng-deep {
+          .ant-collapse-content {
+            height: calc(100% - @quest-do-collapse-tab-header);
+          }
+          .ant-collapse-content .ant-collapse-content-box {
+            height: 100%;
+          }
+        }
+      }
+      .btn-item {
+        margin-left: 8px;
+      }
+    }
+    .btn-group {
+      text-align: center;
+    }
+  }
+}

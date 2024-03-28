@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { StandardWorkingHoursComponent } from '../individual-case/standard-working-hours-mc-pcc-input/standard-working-hours.component';
 import { ProjPlanOtherInfoComponent } from '../individual-case/proj-plan-other-info/proj-plan-other-info.component';
 import { DynamicCustomizedModel } from './dynamic-customized.model';
+import { ReasonForLostOrderComponent } from '../individual-case/reason-for-lost-order/reason-for-lost-order.component';
 // eslint-disable-next-line max-len
 @Injectable({
   providedIn: 'root',
@@ -22,7 +23,19 @@ export class DynamicCustomizedService {
       case 'uc72007605-proj-plan-other-info':
         component = new DynamicCustomizedModel(ProjPlanOtherInfoComponent, data);
         break;
+      // 光斯奥指定结案丢单原因
+      case '72007605-reason-for-lost-order':
+      case '72007605_001-reason-for-lost-order':
+      case 'uc_72007605-reason-for-lost-order':
+      case 'uc72007605-reason-for-lost-order':
+        component = new DynamicCustomizedModel(ReasonForLostOrderComponent, data);
+        break;
     }
     return component;
+  }
+  get isGaosiaoIndCase() {
+    const curTenantId = JSON.parse(window.sessionStorage.getItem('DwUserInfo')).tenantId;
+    const tenantIds = ['72007605', '72007605_001', 'uc_72007605', 'uc72007605'];
+    return tenantIds.includes(curTenantId);
   }
 }

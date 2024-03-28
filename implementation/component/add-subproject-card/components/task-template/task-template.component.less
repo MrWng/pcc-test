@@ -1,6 +1,9 @@
 .select-task {
   width: 100%;
   position: relative;
+  .ant-input-disabled::placeholder {
+    color: #999;
+  }
   &:hover {
     .deleteRelate {
       display: flex;
@@ -36,9 +39,12 @@
     }
   }
 }
-::ng-deep .ath-input-group-wrapper .ath-input-group-cocoon.ath-input-inner-label {
-  height: 34px;
-  section {
+
+:host {
+  ::ng-deep .ath-input-group-wrapper .ath-input-group-cocoon.ath-input-inner-label {
     height: 34px;
+    section {
+      height: 34px;
+    }
   }
 }

@@ -108,10 +108,37 @@
 
     .info-left {
       width: calc(~'100% - 48px');
+      .titleIcon{
+        transform: translateY(-3px);
+      }
+      .task_name_box {
+        width: 100%;
+        .task_name {
+          display: inline-block;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          width: 87%;
+        }
+        .card-edit{
+          display: inline-block;
+          font-size: 20px;
+          color: #ff6011;
+          margin-left: 3px;
+          height: 16px;
+          line-height: 24px;
+        }
+      }
     }
 
     .font-size13 {
       font-size: 13px !important;
+      &.task_category {
+        width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
     }
 
     .plan-card-left {
@@ -135,25 +162,10 @@
         }
       }
       .text{
-        flex: 1;
-        display: flex;
         overflow: hidden;
         text-overflow: ellipsis;
-        .task-name-box{
-          height: 16px;
-          overflow: hidden;
-          display: flex;
-          flex-flow: row nowrap;
-          justify-content: flex-start;
-          align-items: center;
-          .card-edit{
-            font-size: 20px;
-            color: #ff6011;
-            margin-left: 3px;
-            height: 16px;
-            line-height: 24px;
-          }
-        }
+        width: 100%;
+        white-space: nowrap;
       }
     }
 
@@ -263,7 +275,7 @@
     font-size: 13px;
     color: #373232cc
   }
-  
+
   .subproject-crad-box {
     position: relative;
   }
@@ -357,6 +369,12 @@
           font-size: 12px;
           transform: scale(0.83);
           border-radius: 3px;
+        }
+
+        .icon-box {
+          .icon-em {
+            font-size: 14px;
+          }
         }
 
         &.in-progress {

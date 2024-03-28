@@ -9,7 +9,7 @@ import {
   ChangeDetectorRef,
 } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { OpenWindowService } from '@ng-dynamic-forms/ui-ant-web';
+import { OpenWindowService } from '@athena/dynamic-ui';
 
 @Component({
   selector: 'app-current-status',

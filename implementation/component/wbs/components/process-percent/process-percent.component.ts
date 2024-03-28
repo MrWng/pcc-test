@@ -17,9 +17,8 @@ export class ProcessPercentComponent implements OnInit ,OnChanges{
   constructor() { }
 
   ngOnChanges(changes: SimpleChanges): void {
-
     if (changes.color && changes.color.currentValue && changes.allProcess && changes.allProcess.currentValue
-      && changes.finishProcess && changes.finishProcess.currentValue) {
+      && changes.finishProcess && ![null, undefined, ''].includes(changes.finishProcess.currentValue)) {
       this.option = this.setOptions(this.color, this.allProcess, this.finishProcess);
     }
   }
@@ -61,7 +60,7 @@ export class ProcessPercentComponent implements OnInit ,OnChanges{
           left: 'center',
           top: 'center',
           style: {
-            text: finishProcess + '%',
+            text: [null, 0].includes(finishProcess) ? '0%' : Math.floor(finishProcess) + '%',
             fill: color[2],
             fontSize: 14,
           }
@@ -75,7 +74,7 @@ export class ProcessPercentComponent implements OnInit ,OnChanges{
         hoverAnimation: false,
         cursor: 'default',
         data: [{
-          value: finishProcess,
+          value: Math.floor(finishProcess),
           itemStyle: {
             normal: {
               color: color[1],
@@ -83,7 +82,7 @@ export class ProcessPercentComponent implements OnInit ,OnChanges{
           }
         },
         {
-          value: allProcess - finishProcess,
+          value: allProcess - Math.floor(finishProcess),
           tooltip: {
             show: false
           },

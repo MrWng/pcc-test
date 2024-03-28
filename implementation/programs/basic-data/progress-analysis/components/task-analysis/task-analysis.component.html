@@ -101,7 +101,7 @@
     <app-dynamic-gantt
       *ngIf="progressAnalysisService.ganttStatus"
       [type]="'multiple'"
-      [ganttData]="taskAnalysisInfo?.task_schedule_detail"
+      [ganttData]="getGanttData()"
     ></app-dynamic-gantt>
   </div>
 </div>

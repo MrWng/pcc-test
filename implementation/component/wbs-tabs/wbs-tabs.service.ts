@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { DwSystemConfigService } from '@webdpt/framework/config';
 import { CommonService } from '../../service/common.service';
-import { MqttChannel, MqttService } from '@ng-dynamic-forms/core';
+import { MqttChannel, MqttService } from '@athena/dynamic-core';
 import { TranslateService } from '@ngx-translate/core';
 import { DwUserService } from '@webdpt/framework/user';
 
@@ -165,7 +165,25 @@ export class WbsTabsService {
   /**
 * 获取项目类型编号
 */
-  async getProjectInfo(project_no: any): Promise<any> {
+  async getProjectInfo(project_no: any, change_version?): Promise<any> {
+    if(change_version){
+      const project_change_doc_info = [
+        {
+          project_no: project_no,
+          change_version
+        },
+      ];
+      return await new Promise((resolve, reject): void => {
+        this.commonService
+          .getInvData('bm.pisc.project.change.doc.get', {
+            project_change_doc_info,
+          })
+          .subscribe((res): void => {
+            resolve(res.data.project_change_doc_info[0]);
+          });
+      });
+    }
+
     const project_info = [
       {
         project_no: project_no,

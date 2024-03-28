@@ -140,8 +140,6 @@ export class DroppableDirective implements OnInit {
           this.el.nativeElement.appendChild(this.dragDropService.tempElement);
         }
       }
-      console.log(spliceIndex);
-
       this.dragDropService.dropIndex = spliceIndex;
       ev.stopPropagation();
     } else {

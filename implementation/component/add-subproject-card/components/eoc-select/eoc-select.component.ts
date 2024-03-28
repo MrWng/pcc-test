@@ -137,7 +137,7 @@ export class EocSelectComponent implements OnInit {
       )
       .subscribe((response): void => {
         this.options = this.generateOptions(response);
-        if (this.addSubProjectCardService.buttonType !== 'EDIT') {
+        if (!['EDIT', 'PREVIEW'].includes(this.addSubProjectCardService.buttonType)) {
           this.eocCompanyId = this.options[0];
           this.currentEocInfo.emit([
             this.options[0],

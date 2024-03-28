@@ -1,52 +1,34 @@
-import { ThrowStmt } from '@angular/compiler';
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { ControlValueAccessor, FormArray, FormBuilder, FormGroup } from '@angular/forms';
-import { cloneDeep } from '@ng-dynamic-forms/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { cloneDeep } from '@athena/dynamic-core';
 import { TranslateService } from '@ngx-translate/core';
-import { Entry } from 'app/customization/task-project-center-console/service/common.service';
-import { DynamicCustomizedService } from 'app/customization/task-project-center-console/service/dynamic-customized.service';
+import { Entry } from 'app/implementation/service/common.service';
 import * as moment from 'moment';
-import { NzSafeAny } from 'ng-zorro-antd/core/types';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { NzTreeNode } from 'ng-zorro-antd/tree';
 import { Subject } from 'rxjs/internal/Subject';
 import { debounceTime, throttleTime } from 'rxjs/operators';
 import { AddSubProjectCardService } from '../../add-subproject-card.service';
-// import { LiablePersonService } from '../../services/liable-person.service';
-// import { LiablePersonAddRoleService } from '../../services/liable-person-add-role.service';
-import { TaskTemplateService } from '../../services/task-template.service';
 import { WorkLoadService } from '../../services/work-load.service';
 import { CommonService } from '../../../../service/common.service';
-import { AthMessageService } from 'ngx-ui-athena/src/components/message';
+import { AthMessageService } from '@athena/design-ui/src/components/message';
+import { DynamicWbsService } from '../../../wbs/wbs.service';
 
 @Component({
   selector: 'app-work-load',
   templateUrl: './work-load.component.html',
-  styleUrls: ['./work-load.component.less']
+  styleUrls: ['./work-load.component.less'],
 })
 export class WorkLoadComponent implements OnInit {
-
-  @Input() validateForm: FormGroup = this.fb.group({
-    /** 工期 */
-    workload_qty: [null],
-    /** 工期单位	1.小时 2.日 3.月 */
-    workload_unit: ['2'],
-    /** 预计工时 */
-    plan_work_hours: [null],
-
-  });
-
-  @Input() source: any
-  /** 隐藏的执行人列表 */
-  @Input() task_member_infoList = [];
-
-  @Input() projectInfo: any
-
+  @Input() validateForm: FormGroup;
+  @Input() source: any;
+  @Input() projectInfo: any;
   @Input() designStatus: string = '';
   @Input() project_no: string = '';
 
   /** 更新wbs界面任务卡列表 */
-  @Output() onUpdateWbsTasks = new EventEmitter()
+  @Output() updateWbsTasks = new EventEmitter();
+  // 控制【子项开窗】loading
+  @Output() setLoading = new EventEmitter();
 
   Entry = Entry;
   /** 工期单位 */
@@ -58,49 +40,72 @@ export class WorkLoadComponent implements OnInit {
   /** 开始日期提示信息 */
   startNotice = '';
   startNoticeForlate = '';
+  startNoticeErrorInfo = '';
   /** 结束日期提示信息 */
   endNotice = '';
   endNoticeForEarly = '';
+  endNoticeErrorInfo = '';
+
   /** 是否完成结束日期反推天数 */
   isHasRerverse: boolean = false;
   /** 一级任务卡信息 */
   parentTime: any;
 
-  plan_finish_date: string = null;
   private workloadQtyChange$ = new Subject<number>();
-  maxWorkloadQty: number
-  isDisable: boolean = false
+
+  // 自动重推日期及工期
+  automatic_re_push: boolean = true;
+
+  // 控制日期同值按钮的 可用 / 置灰
+  // 1.新增置灰；2.编辑可用；3.任务状态不是未开始，都置灰
+  isDisable: boolean = false;
+  // 是否调用API进行推算
+  isCallTaskWorkCalendar: boolean = true;
+  // 是否格式化[工期]栏位
+  isFormatterPercent: boolean = false;
 
   constructor(
     public addSubProjectCardService: AddSubProjectCardService,
     protected changeRef: ChangeDetectorRef,
     private messageService: NzMessageService,
     private translateService: TranslateService,
-    private taskTemplateService: TaskTemplateService,
-    private dynamicCustomizedService: DynamicCustomizedService,
     private fb: FormBuilder,
-    // private liablePersonService: LiablePersonService,
     private workLoadService: WorkLoadService,
     public commonService: CommonService,
     private athMessageService: AthMessageService,
-  ) { }
+    public wbsService: DynamicWbsService
+  ) {}
 
   ngOnInit(): void {
+    this.setIsDisable();
+    this.addSubProjectCardService.getDateCheck();
     this.monitorWorkloadQtyChange();
   }
 
-  /**
-* 不禁用状态
-*/
+  // 不禁用状态
   get isForbidden() {
     return this.addSubProjectCardService.currentCardInfo?.isCollaborationCard;
   }
 
-  /**
-  * 修改工期
-  * @param workload_qty 工期
-  * @returns
-  */
+  onFocusForWorkLoadQty($event) {
+    if (!this.validateForm.controls['workload_qty'].value) {
+      if (this.validateForm.controls['workload_qty'].status === 'DISABLED') {
+        return;
+      }
+      this.validateForm.get('workload_qty').reset();
+    }
+  }
+
+  onFocusForWorkHours($event) {
+    if (!this.validateForm.controls['plan_work_hours'].value) {
+      if (this.validateForm.controls['plan_work_hours'].status === 'DISABLED') {
+        return;
+      }
+      this.validateForm.get('plan_work_hours').reset();
+    }
+  }
+
+  // 修改工期
   workloadQtyChange(workload_qty: number): void {
     this.workloadQtyChange$.next(workload_qty);
   }
@@ -111,351 +116,624 @@ export class WorkLoadComponent implements OnInit {
    * 2: 如果有开始时间和工期,设置结束时间
    */
   monitorWorkloadQtyChange(): void {
-    this.workloadQtyChange$.pipe(debounceTime(500)).subscribe(workload_qty => {
-      if (this.isHasRerverse || isNaN(workload_qty) || !this.addSubProjectCardService.validateForm.get('workload_qty').dirty) {
+    let num: number = 0;
+    this.workloadQtyChange$.pipe(debounceTime(500)).subscribe((workload_qty) => {
+      num++;
+      if (!(Number(workload_qty) > 0) || num === 1 || !this.isCallTaskWorkCalendar) {
+        this.isFormatterPercent = true; // 初始化渲染，后，开启[工期]精度控制
+        this.isCallTaskWorkCalendar = true;
         return;
       }
-      if (workload_qty < 0) {
-        this.messageService.error(
-          this.translateService.instant(`dj-default-工期不可以为负数，请调整工期！`)
-        );
-        this.addSubProjectCardService.validateForm.get('plan_work_hours').patchValue(null);
-        this.changeRef.markForCheck();
-        return;
-      }
-      const workHours = workload_qty ? workload_qty : 0;
-      this.setPlanWorkHours(workHours);
-      const start_time = this.getFormItem('plan_start_date').value;
-      if (this.getFormItem('workload_qty').dirty && start_time) {
-        this.setPlanFinishDateFromWorkloadQty(workload_qty);
-      }
-      this.changeRef.markForCheck();
+      this.setLoading.emit({ value: true });
+      this.callTaskWorkCalendarFn('1', 'workload_qty', workload_qty);
     });
   }
-  /**
-   *  工期改变, 如果开始时间和工期有值,设置结束时间并校验结束日期
-   * @param workload_qty
-   * @returns
-   */
-  setPlanFinishDateFromWorkloadQty(workload_qty: number): void {
-    workload_qty = Number(workload_qty);
-    if (isNaN(workload_qty) || Number(workload_qty) <= 0) {
+
+  // 修改工期单位
+  // workloadUnitChange(workload_unit: any): void {
+  //   if (!this.getFormItem('workload_qty').value) {
+  //     return;
+  //   }
+  //   this.callTaskWorkCalendar('1');
+  // }
+
+  // 修改开始时间
+  startTimeChange(start_time: any): void {
+    const plan_start_date = start_time ? moment(start_time).format('YYYY/MM/DD') : '';
+    if (this.getFormItem('plan_start_date') === plan_start_date) {
       return;
     }
-    const { workload_unit, plan_start_date } = this.addSubProjectCardService.validateForm.getRawValue();
-    const plan_finish_date = this.workLoadService.calculatePlanFinishDate(workload_unit, workload_qty, plan_start_date);
-    const date = plan_finish_date ? moment(plan_finish_date).format('YYYY/MM/DD') : '';
-    this.getFormItem('plan_finish_date').patchValue(date);
-    this.setIsDisable(false);
-    this.checkPlanFinishDate(plan_finish_date);
-  }
-
-  /**
-   * 校验结束日期
-   */
-  checkPlanFinishDate(plan_finish_date: any): void {
-    if (moment(plan_finish_date).format('YYYY-MM-DD') >
-      moment(this.addSubProjectCardService.firstLevelTaskCard?.plan_finish_date).format('YYYY-MM-DD')
-      && this.source === Entry.collaborate) {
-      this.messageService.error(this.translateService.instant(`dj-default-任务结束日期不可大于一级计划的结束日期，请核查！`));
-    } else {
-      this.getEndTimeNotice(plan_finish_date);
-    }
-  }
-
-  /**
-   * 设置预计工时
-   * @param workload_qty 工期
-   */
-  setPlanWorkHours(workload_qty: number): void {
-    workload_qty = Number(workload_qty);
-    const workload_unit = this.getFormItem('workload_unit').value;
-    const plan_work_hours = this.workLoadService.calculatePlanWorkHours(workload_unit, workload_qty);
-    this.getFormItem('plan_work_hours').patchValue(plan_work_hours);
-  }
-
-  /**
-   * 结束日期变更
-   * @param $event
-   * @returns
-   */
-  endTimeChange(end_time: any): void {
-    this.setIsDisable(false);
-    if (!moment(end_time).isValid()) {
-      if (!end_time) {
-        this.getFormItem('plan_finish_date').patchValue('');
+    this.setFormValue('plan_start_date', plan_start_date);
+    // 预计开始时间，记录校验信息
+    this.startNotice = '';
+    this.startNoticeForlate = '';
+    // 校验，预计开始时间，并进行提示
+    if (plan_start_date) {
+      const startTime = moment(start_time).format('YYYY-MM-DD');
+      // 项目变更，任务卡，预计开始，校验信息
+      if (this.source === Entry.projectChange) {
+        this.checkPromptForStartDateByProjectChangeEntry(startTime);
       }
+
+      // 协同排定，任务卡，预计开始，校验信息
+      if (this.source === Entry.collaborate) {
+        this.checkPromptForStartDateByCollaborateEntry(startTime);
+      }
+
+      // 项目计划维护、模板，任务卡，预计开始，校验信息
+      if (this.source === Entry.card || this.source === Entry.maintain) {
+        this.checkPromptForStartDateByCardOrMaintainEntry(startTime);
+      }
+    }
+    if (
+      (!this.getFormItem('workload_qty') && !this.getFormItem('plan_finish_date')) ||
+      !this.getFormItem('plan_start_date') ||
+      !this.isCallTaskWorkCalendar
+    ) {
+      this.isCallTaskWorkCalendar = true;
       return;
     }
-    this.getFormItem('plan_finish_date').patchValue(moment(end_time).format('YYYY/MM/DD'));
-    if (this.source === Entry.collaborate && moment(end_time).format('YYYY-MM-DD')
-      > moment(this.addSubProjectCardService?.firstLevelTaskCard?.plan_finish_date).format('YYYY-MM-DD')
-    ) {
-      this.messageService.error(this.translateService.instant(`dj-default-任务结束日期不可大于一级计划的结束日期，请核查！`));
-    } else {
-      this.getEndTimeNotice(end_time);
-    }
-    this.setEndTimeAndWorkloadUnit(end_time);
+    this.setLoading.emit({ value: true });
+    this.callTaskWorkCalendarFn('1', 'plan_start_date', plan_start_date);
   }
 
-  /**
-   *  结束时间提示消息
-   * @param end_time 结束时间
-   */
-  getEndTimeNotice(end_time: any): void {
-    const showTime = moment(end_time).format('YYYY-MM-DD');
-    this.endNotice = '';
-    this.endNoticeForEarly = '';
+  // 项目计划维护、模板，预计开始，校验信息
+  checkPromptForStartDateByCardOrMaintainEntry(startTime: string): void {
+    // 校验，和上阶任务卡（一级任务卡)
+    const { firstLevelTaskCard, buttonType } = this.addSubProjectCardService;
+    const task_no =
+      this.getFormItem('task_no') ?? this.addSubProjectCardService.currentCardInfo?.task_no;
+    if (
+      ((firstLevelTaskCard?.children?.length && buttonType === 'EDIT') ||
+        (firstLevelTaskCard?.task_no && buttonType !== 'EDIT')) &&
+      task_no !== firstLevelTaskCard?.task_no
+    ) {
+      // 获取卡一级的内容
+      this.getParentTime(firstLevelTaskCard); // this.parentTime
+      if (
+        this.parentTime?.plan_start_date &&
+        startTime < moment(this.parentTime.plan_start_date).format('YYYY-MM-DD')
+      ) {
+        this.startNotice = this.translateService.instant(`dj-pcc-预计开始日早于上阶任务预计开始日`);
+      } else if (
+        this.parentTime?.plan_finish_date &&
+        startTime > moment(this.parentTime.plan_finish_date).format('YYYY-MM-DD')
+      ) {
+        this.startNotice = this.translateService.instant(`dj-pcc-预计开始日晚于上阶任务预计完成日`);
+      } else {
+        this.startNotice = '';
+      }
+      this.changeRef.markForCheck();
+    }
 
-    if (end_time) {
-      const endTime = moment(end_time).format('YYYY-MM-DD');
-      const paras = {
-        query_condition: 'M1',
-        task_info: [{
+    // 校验，和下阶任务卡
+    const paras = {
+      query_condition: 'M1',
+      task_info: [
+        {
           project_no: this.project_no,
-          upper_level_task_no: this.getFormItem('task_no').value,
-          task_property: this.source === Entry.maintain ? '2' : '1'
-        }],
-        search_info: [{
+          upper_level_task_no: task_no,
+          task_property: this.source === Entry.maintain ? '2' : '1',
+        },
+      ],
+      search_info: [
+        {
+          order: 1,
+          search_field: 'plan_start_date',
+          search_operator: 'less',
+          search_value: [startTime],
+          logic: 'and',
+        },
+        {
+          order: 2,
+          search_field: 'task_no',
+          search_operator: 'not_equal',
+          search_value: [task_no],
+        },
+      ],
+    };
+
+    this.commonService.getInvData('bm.pisc.task.get', paras).subscribe(
+      (res: any): void => {
+        if (res && res.data && res.data.task_info && res.data.task_info.length > 0) {
+          this.startNoticeForlate = this.translateService.instant(
+            `dj-pcc-预计开始日已晚于下阶任务的最小预计开始日！`
+          );
+        } else {
+          this.startNoticeForlate = '';
+        }
+        this.changeRef.markForCheck();
+      },
+      (err) => {
+        this.setLoading.emit({ value: false });
+      }
+    );
+  }
+
+  // 项目变更，任务卡，预计开始，校验信息
+  checkPromptForStartDateByProjectChangeEntry(startTime: string): void {
+    const firstLevelTaskCard = this.addSubProjectCardService.firstLevelTaskCard;
+
+    // 校验，和上阶任务卡（一级任务卡)
+    const task_no =
+      this.getFormItem('task_no') ?? this.addSubProjectCardService?.currentCardInfo?.task_no;
+    if (
+      task_no &&
+      firstLevelTaskCard.task_no !== task_no &&
+      firstLevelTaskCard?.plan_start_date &&
+      startTime < moment(firstLevelTaskCard?.plan_start_date).format('YYYY-MM-DD')
+    ) {
+      this.messageService.error(
+        this.translateService.instant(`dj-default-任务开始日期不可小于一级计划的开始日期，请核查！`)
+      );
+    }
+    if (
+      task_no &&
+      firstLevelTaskCard.task_no !== task_no &&
+      firstLevelTaskCard?.plan_start_date &&
+      startTime > moment(firstLevelTaskCard?.plan_finish_date).format('YYYY-MM-DD')
+    ) {
+      this.messageService.error(
+        this.translateService.instant(`dj-default-任务开始日期不可大于一级计划的结束日期，请核查！`)
+      );
+    }
+
+    // 校验，和下阶任务卡
+    const params = {
+      excluded_already_deleted_task: true,
+      project_change_task_detail_info: [
+        {
+          project_no: this.project_no, // 项目编号
+          change_version: this.wbsService.change_version,
+          upper_level_task_no: task_no,
+        },
+      ],
+      search_info: [
+        {
+          order: 1,
+          search_field: 'plan_start_date',
+          search_operator: 'less',
+          search_value: [startTime],
+          logic: 'and',
+        },
+        {
+          order: 2,
+          search_field: 'task_no',
+          search_operator: 'not_equal',
+          search_value: [task_no],
+        },
+      ],
+    };
+    this.commonService.getInvData('bm.pisc.project.change.task.detail.get', params).subscribe(
+      (res: any): void => {
+        if (
+          res &&
+          res.data &&
+          res.data.project_change_task_detail_info &&
+          res.data.project_change_task_detail_info.length > 0
+        ) {
+          this.startNoticeForlate = this.translateService.instant(
+            `dj-pcc-预计开始日已晚于下阶任务的最小预计开始日！`
+          );
+        } else {
+          this.startNoticeForlate = '';
+        }
+        this.changeRef.markForCheck();
+      },
+      (err) => {
+        this.setLoading.emit({ value: false });
+      }
+    );
+  }
+
+  // 协同排定，预计开始，校验信息
+  checkPromptForStartDateByCollaborateEntry(startTime: string): void {
+    // 校验，和上阶任务卡（一级任务卡)
+    const task_no =
+      this.getFormItem('task_no') ?? this.addSubProjectCardService.currentCardInfo?.task_no;
+    // if (startTime < moment(plan_start_date).format('YYYY-MM-DD')) {
+    //   this.messageService.error(this.translateService.instant(`dj-default-任务开始日期小于一级计划的开始日期！`));
+    // }
+    // if (startTime > moment(plan_finish_date).format('YYYY-MM-DD')) {
+    //   this.messageService.error(this.translateService.instant(`dj-default-任务开始日期不可大于一级计划的结束日期，请核查！`));
+    // }
+    if (this.addSubProjectCardService.firstLevelTaskCard) {
+      const {
+        root_task_plan_start_date: plan_start_date,
+        root_task_plan_finish_date: plan_finish_date,
+      } = this.addSubProjectCardService.firstLevelTaskCard;
+      // s17: 交付设计器日期管控
+      if (
+        startTime &&
+        plan_start_date &&
+        this.addSubProjectCardService.dateCheck === '1' &&
+        startTime < moment(plan_start_date).format('YYYY-MM-DD')
+      ) {
+        this.setLoading.emit({ value: false });
+        this.startNoticeErrorInfo =
+          this.translateService.instant(
+            `dj-pcc-开始日期不可早于任务内一级计划的开始日期(API-95的原根任务预计开始日期)`
+          ) + `(${plan_start_date})！`;
+        return;
+      } else {
+        this.startNoticeErrorInfo = '';
+      }
+    }
+
+    // 校验，和下阶任务卡
+    const bpmData = this.commonService.content?.executeContext?.taskWithBacklogData?.bpmData;
+    const taskInfo = bpmData?.assist_schedule_info
+      ? bpmData?.assist_schedule_info[0]
+      : bpmData?.task_info[0];
+    const assist_schedule_seq = taskInfo['assist_schedule_seq']
+      ? taskInfo['assist_schedule_seq']
+      : taskInfo['teamwork_plan_seq'];
+
+    const params = {
+      query_condition: 'M1', // 查询范围
+      level_type: '1', // 阶层类型
+      assist_task_detail_info: [
+        {
+          project_no: this.project_no, // 项目编号
+          upper_level_task_no: task_no,
+          assist_schedule_seq: assist_schedule_seq, // 协助排定计划序号
+          is_delete: 'false', // 是否删除
+        },
+      ],
+      search_info: [
+        {
+          order: 1,
+          search_field: 'plan_start_date',
+          search_operator: 'less',
+          search_value: [startTime],
+          logic: 'and',
+        },
+        {
+          order: 2,
+          search_field: 'task_no',
+          search_operator: 'not_equal',
+          search_value: [task_no],
+        },
+      ],
+    };
+    this.commonService.getInvData('bm.pisc.assist.task.detail.get', params).subscribe(
+      (res: any): void => {
+        if (
+          res &&
+          res.data &&
+          res.data.assist_task_detail_info &&
+          res.data.assist_task_detail_info.length > 0
+        ) {
+          this.startNoticeForlate = this.translateService.instant(
+            `dj-pcc-预计开始日已晚于下阶任务的最小预计开始日！`
+          );
+        } else {
+          this.startNoticeForlate = '';
+        }
+        this.changeRef.markForCheck();
+      },
+      (err) => {
+        this.setLoading.emit({ value: false });
+      }
+    );
+  }
+
+  // 修改结束日期
+  endTimeChange(end_time: any): void {
+    const plan_finish_date = end_time ? moment(end_time).format('YYYY/MM/DD') : '';
+    if (this.getFormItem('plan_finish_date') === plan_finish_date) {
+      return;
+    }
+    this.setFormValue('plan_finish_date', plan_finish_date);
+
+    // 校验结束日期
+    this.endNoticeForEarly = '';
+    this.endNotice = '';
+    if (plan_finish_date) {
+      this.checkPromptForFinishDate(plan_finish_date);
+    }
+
+    if (
+      (!this.getFormItem('workload_qty') && !this.getFormItem('plan_start_date')) ||
+      !this.getFormItem('plan_finish_date') ||
+      !this.isCallTaskWorkCalendar
+    ) {
+      this.isCallTaskWorkCalendar = true;
+      return;
+    }
+    this.setLoading.emit({ value: true });
+    this.callTaskWorkCalendarFn('2', 'plan_finish_date', plan_finish_date);
+  }
+
+  // 校验结束日期
+  checkPromptForFinishDate(plan_finish_date: any): void {
+    const endTime = moment(plan_finish_date).format('YYYY-MM-DD');
+    if (this.source === Entry.projectChange) {
+      // 项目变更，任务卡，预计结束日期，校验信息
+      this.checkPromptForFinishDateByProjectChangeEntry(endTime);
+    } else if (this.source === Entry.collaborate) {
+      // 协同排定，任务卡，预计结束日期，校验信息
+      this.checkPromptForFinishDateByCollaborateEntry(endTime);
+    } else {
+      // 项目计划维护、模板，任务卡，预计结束日期，校验信息
+      this.checkPromptForFinishDateByCardOrMaintainEntry(endTime);
+    }
+
+    // 校验，和项目结束日期
+    if (
+      [Entry.card, Entry.collaborate].includes(this.source) &&
+      endTime > moment(this.wbsService.projectInfo?.plan_finish_date).format('YYYY-MM-DD')
+    ) {
+      this.messageService.error(
+        this.translateService.instant(`dj-default-任务结束日期不可超过项目结束日期,请核查！`)
+      );
+    }
+  }
+
+  // 项目变更，任务卡，预计结束日期，校验信息
+  checkPromptForFinishDateByProjectChangeEntry(endTime: string): void {
+    const { firstLevelTaskCard, buttonType } = this.addSubProjectCardService;
+    const entryCondition = this.source === Entry.maintain || this.source === Entry.card; // 项目、协同任务卡
+    const editCondition = firstLevelTaskCard?.children?.length && buttonType === 'EDIT';
+    const addCondition = firstLevelTaskCard?.task_no && buttonType !== 'EDIT';
+    const task_no =
+      this.getFormItem('task_no') ?? this.addSubProjectCardService.currentCardInfo?.task_no;
+    const taskNoCondition = task_no !== firstLevelTaskCard?.task_no;
+    const endNoticeCondition = (editCondition || addCondition) && taskNoCondition;
+    if (entryCondition && endNoticeCondition) {
+      // 校验，和上阶任务卡（一级任务卡)
+      if (
+        firstLevelTaskCard?.plan_finish_date &&
+        endTime > moment(firstLevelTaskCard?.plan_finish_date).format('YYYY-MM-DD')
+      ) {
+        this.setLoading.emit({ value: false });
+        this.messageService.error(
+          this.translateService.instant(
+            `dj-default-任务结束日期不可大于一级计划的结束日期，请核查！`
+          )
+        );
+        return;
+      }
+    }
+    // 校验，和下阶任务卡
+    const params = {
+      excluded_already_deleted_task: true,
+      project_change_task_detail_info: [
+        {
+          project_no: this.project_no, // 项目编号
+          change_version: this.wbsService.change_version,
+          upper_level_task_no: task_no,
+        },
+      ],
+      search_info: [
+        {
           order: 1,
           search_field: 'plan_finish_date',
           search_operator: 'greater',
           search_value: [endTime],
-          logic: 'and'
-        }, {
+          logic: 'and',
+        },
+        {
           order: 2,
           search_field: 'task_no',
           search_operator: 'not_equal',
-          search_value: [this.getFormItem('task_no').value]
-        }]
-      };
-      this.commonService.getInvData('bm.pisc.task.get', paras)
-        .subscribe((res: any): void => {
-          if (res && res.data && res.data.task_info && (res.data.task_info.length > 0)) {
-            this.endNoticeForEarly = this.translateService.instant(`dj-pcc-预计结束日已早于下阶任务的最大预计结束日！`);
-          } else {
-            this.endNoticeForEarly = '';
-          }
-          this.changeRef.markForCheck();
-        }, (err) => { });
-    }
+          search_value: [task_no],
+        },
+      ],
+    };
+    this.commonService.getInvData('bm.pisc.project.change.task.detail.get', params).subscribe(
+      (res: any): void => {
+        if (
+          res &&
+          res.data &&
+          res.data.project_change_task_detail_info &&
+          res.data.project_change_task_detail_info.length > 0
+        ) {
+          this.endNoticeForEarly = this.translateService.instant(
+            `dj-pcc-预计结束日已早于下阶任务的最大预计结束日！`
+          );
+        } else {
+          this.endNoticeForEarly = '';
+        }
+        this.changeRef.markForCheck();
+      },
+      (err) => {
+        this.setLoading.emit({ value: false });
+      }
+    );
+  }
 
-
-    if (
-      [Entry.card, Entry.collaborate].includes(this.source) &&
-      moment(end_time).format('YYYY-MM-DD') >
-      moment(this.projectInfo?.plan_finish_date).format('YYYY-MM-DD')
-    ) {
-      this.messageService.error(this.translateService.instant(`dj-default-任务结束日期不可超过项目结束日期,请核查！`));
+  // 协同排定，任务卡，预计结束日期，校验信息
+  checkPromptForFinishDateByCollaborateEntry(endTime: string): void {
+    // 校验，和上阶任务卡（一级任务卡)
+    // if (endTime > moment(this.addSubProjectCardService.firstLevelTaskCard?.plan_finish_date).format('YYYY-MM-DD')) {
+    //   this.messageService.error(this.translateService.instant(`dj-default-任务结束日期大于一级计划的结束日期！`));
+    // }
+    if (this.addSubProjectCardService.firstLevelTaskCard) {
+      const {
+        root_task_plan_start_date: plan_start_date,
+        root_task_plan_finish_date: plan_finish_date,
+      } = this.addSubProjectCardService.firstLevelTaskCard;
+      // s17: 交付设计器日期管控
+      if (
+        endTime &&
+        plan_finish_date &&
+        this.addSubProjectCardService.dateCheck === '1' &&
+        endTime > moment(plan_finish_date).format('YYYY-MM-DD')
+      ) {
+        this.setLoading.emit({ value: false });
+        this.endNoticeErrorInfo =
+          this.translateService.instant(
+            `dj-pcc-结束日期不可晚于任务内一级计划的结束日期(API-95的原根任务预计结束日期)`
+          ) + `(${plan_finish_date})！`;
+        return;
+      } else {
+        this.endNoticeErrorInfo = '';
+      }
     }
+    // 校验，和下阶任务卡
+    const bpmData = this.commonService.content?.executeContext?.taskWithBacklogData?.bpmData;
+    const taskInfo = bpmData?.assist_schedule_info
+      ? bpmData?.assist_schedule_info[0]
+      : bpmData?.task_info[0];
+    const assist_schedule_seq = taskInfo['assist_schedule_seq']
+      ? taskInfo['assist_schedule_seq']
+      : taskInfo['teamwork_plan_seq'];
+    const task_no =
+      this.getFormItem('task_no') ?? this.addSubProjectCardService.currentCardInfo?.task_no;
+    const params = {
+      query_condition: 'M1', // 查询范围
+      level_type: '1', // 阶层类型
+      assist_task_detail_info: [
+        {
+          project_no: this.project_no, // 项目编号
+          upper_level_task_no: task_no,
+          assist_schedule_seq: assist_schedule_seq, // 协助排定计划序号
+          is_delete: 'false', // 是否删除
+        },
+      ],
+      search_info: [
+        {
+          order: 1,
+          search_field: 'plan_finish_date',
+          search_operator: 'greater',
+          search_value: [endTime],
+          logic: 'and',
+        },
+        {
+          order: 2,
+          search_field: 'task_no',
+          search_operator: 'not_equal',
+          search_value: [task_no],
+        },
+      ],
+    };
+    this.commonService.getInvData('bm.pisc.assist.task.detail.get', params).subscribe(
+      (res: any): void => {
+        if (
+          res &&
+          res.data &&
+          res.data.assist_task_detail_info &&
+          res.data.assist_task_detail_info.length > 0
+        ) {
+          this.endNoticeForEarly = this.translateService.instant(
+            `dj-pcc-预计结束日已早于下阶任务的最大预计结束日！`
+          );
+        } else {
+          this.endNoticeForEarly = '';
+        }
+        this.changeRef.markForCheck();
+      },
+      (err) => {
+        this.setLoading.emit({ value: false });
+      }
+    );
+  }
+
+  // 项目计划维护、模板，预计结束日期，校验信息
+  checkPromptForFinishDateByCardOrMaintainEntry(endTime: any): void {
+    // 校验，和上阶任务卡（一级任务卡)
     const { firstLevelTaskCard, buttonType } = this.addSubProjectCardService;
-    const entryCondition = this.source === Entry.maintain || this.source === Entry.card;
+    const entryCondition = this.source === Entry.maintain || this.source === Entry.card; // 项目、协同任务卡
     const editCondition = firstLevelTaskCard?.children?.length && buttonType === 'EDIT';
     const addCondition = firstLevelTaskCard?.task_no && buttonType !== 'EDIT';
-    const taskNoCondition = this.getFormItem('task_no').value !== firstLevelTaskCard?.task_no;
+    const task_no =
+      this.getFormItem('task_no') ?? this.addSubProjectCardService.currentCardInfo?.task_no;
+    const taskNoCondition = task_no !== firstLevelTaskCard?.task_no;
     const endNoticeCondition = (editCondition || addCondition) && taskNoCondition;
-    if (showTime && entryCondition && endNoticeCondition) {
-      this.getParentTime(this.addSubProjectCardService.firstLevelTaskCard);
+    if (entryCondition && endNoticeCondition) {
+      this.getParentTime(firstLevelTaskCard); // this.parentTime
       const { plan_start_date, plan_finish_date } = this.parentTime ?? {};
-      if (plan_start_date && moment(showTime).format('YYYY-MM-DD') < moment(plan_start_date).format('YYYY-MM-DD')) {
+      if (plan_start_date && endTime < moment(plan_start_date).format('YYYY-MM-DD')) {
         this.endNotice = this.translateService.instant(`dj-pcc-预计完成日早于上阶任务预计开始日`);
       } else if (
         plan_finish_date &&
-        moment(showTime).format('YYYY-MM-DD') > moment(this.parentTime.plan_finish_date).format('YYYY-MM-DD')) {
+        endTime > moment(this.parentTime.plan_finish_date).format('YYYY-MM-DD')
+      ) {
         this.endNotice = this.translateService.instant(`dj-pcc-预计完成日晚于上阶任务预计完成日`);
       } else {
         this.endNotice = '';
       }
     }
-  }
 
-  /**
- * 设置工期单位和预计工时
- * @param end_time 结束日期
- * @returns
- */
-  setEndTimeAndWorkloadUnit(end_time): void {
-    const changeQty = moment(end_time).format('YYYY-MM-DD') > moment(this.projectInfo?.plan_finish_date).format('YYYY-MM-DD');
-    if (!this.isHasRerverse && !changeQty) {
-      return;
-    }
-    const startTime = moment(this.getFormItem('plan_start_date').value).format('YYYY-MM-DD');
-    const endTime = moment(this.getFormItem('plan_finish_date').value).format('YYYY-MM-DD');
-    this.addSubProjectCardService.validateForm.get('workload_unit').patchValue('2');
-    if (end_time && this.addSubProjectCardService.validateForm.getRawValue().plan_start_date) {
-      this.changeWorkloadQtyAndPlanWorkHours(startTime, endTime);
-    }
-  }
-
-
-  /**
-   * 改变工期和预计工时
-   * @param startTime
-   * @param endTime
-   */
-  changeWorkloadQtyAndPlanWorkHours(startTime, endTime): void {
-    const start = moment(startTime);
-    const end = moment(endTime);
-    const day = end.diff(start, 'day');
-    this.addSubProjectCardService.validateForm.get('plan_work_hours').patchValue((day + 1) * 8);
-    this.addSubProjectCardService.validateForm.get('workload_qty').patchValue(day + 1);
-  }
-
-  /**
-   * 修改工期单位
-   * 修改工期单位，修改预计工时
-   * 如果有开始时间，设置结束时间
-   * @returns
-   */
-  workloadUnitChange(): void {
-    const workload_unit = this.getFormItem('workload_unit');
-    if (!workload_unit.dirty || this.isHasRerverse) {
-      return;
-    }
-    this.setPlanWorkHours(this.getFormItem('workload_qty').value);
-    const start_time = this.getFormItem('plan_start_date').value;
-    if (workload_unit.dirty && start_time) {
-      this.setPlanFinishDateFromWorkloadUnit();
-    }
-    this.changeRef.markForCheck();
-  }
-
-  /**
-   * 修改工期单位，如果有开始时间，设置结束时间
-   * @returns
-   */
-  setPlanFinishDateFromWorkloadUnit() {
-    const workload_qty = Number(this.getFormItem('workload_qty').value);
-    if (isNaN(workload_qty) || workload_qty <= 0) {
-      return;
-    }
-    const { workload_unit, plan_start_date } = this.addSubProjectCardService.validateForm.getRawValue();
-    const plan_finish_date = this.workLoadService.calculatePlanFinishDate(workload_unit, workload_qty, plan_start_date);
-    const date = plan_finish_date ? moment(plan_finish_date).format('YYYY/MM/DD') : '';
-    this.getFormItem('plan_finish_date').patchValue(date);
-    this.checkPlanFinishDate(plan_finish_date);
-  }
-
-  rerverseClick(): void {
-    this.isHasRerverse = false;
-  }
-
-
-  /**
- * 结束时间
- */
-  endTimeClick(): void {
-    this.isHasRerverse = true;
-  }
-
-  /**
- * 修改开始时间
- * @param start_time
- * @returns
- */
-  startTimeChange(start_time: any): void {
-    this.setIsDisable(false);
-    if (this.isHasRerverse || !moment(start_time).isValid()) {
-      if (!start_time) {
-        this.getFormItem('plan_start_date').patchValue('');
+    // 校验，和下阶任务卡
+    const paras = {
+      query_condition: 'M1',
+      task_info: [
+        {
+          project_no: this.project_no,
+          upper_level_task_no: task_no,
+          task_property: this.source === Entry.maintain ? '2' : '1',
+        },
+      ],
+      search_info: [
+        {
+          order: 1,
+          search_field: 'plan_finish_date',
+          search_operator: 'greater',
+          search_value: [endTime],
+          logic: 'and',
+        },
+        {
+          order: 2,
+          search_field: 'task_no',
+          search_operator: 'not_equal',
+          search_value: [task_no],
+        },
+      ],
+    };
+    this.commonService.getInvData('bm.pisc.task.get', paras).subscribe(
+      (res: any): void => {
+        if (res && res.data && res.data.task_info && res.data.task_info.length > 0) {
+          this.endNoticeForEarly = this.translateService.instant(
+            `dj-pcc-预计结束日已早于下阶任务的最大预计结束日！`
+          );
+        } else {
+          this.endNoticeForEarly = '';
+        }
+        this.changeRef.markForCheck();
+      },
+      (err) => {
+        this.setLoading.emit({ value: false });
       }
-      return;
-    }
-
-    const plan_start_date = start_time ? moment(start_time).format('YYYY/MM/DD') : '';
-    this.getFormItem('plan_start_date').patchValue(plan_start_date);
-    this.getStartTimeNotice(start_time);
-    if (this.projectInfo?.plan_finish_date) {
-      this.setMaxWorkloadQty(start_time, this.projectInfo?.plan_finish_date);
-    }
-    this.setTime(start_time);
+    );
   }
 
-  /**
-   *  预计开始时间提示消息
-   * @param start_time 预计开始时间
-   */
-  getStartTimeNotice(start_time: any): void {
-    this.startNotice = '';
-    this.startNoticeForlate = '';
-    this.collaborateEntry(start_time);
-    this.cardAndMaintainEntry(start_time);
-  }
-
-  /**
- * 设置结束日期、工期和预计工时
- * 如果workload_qty > 0 则推算结束时间
- * 如果workload_qty <= 0 ,并且有结束时间，则推算出工期
- */
-  setTime(start_time: any): void {
-    if (!start_time) {
-      return;
-    }
-    const { workload_qty, plan_start_date, plan_finish_date } = this.addSubProjectCardService.validateForm.getRawValue();
-    if (workload_qty > 0) {
-      this.setPlanFinishDateFromStartTime();
-    } else if (plan_finish_date) {
-      this.setWorkQtyAndHours(moment(plan_start_date).format('YYYY-MM-DD'), moment(plan_finish_date).format('YYYY-MM-DD'));
-    }
-  }
-
-  setMaxWorkloadQty(startTime, endTime): void {
-    const start = moment(startTime);
-    const end = moment(endTime);
-    const day = end.diff(start, 'day');
-    this.maxWorkloadQty = day + 1;
-  }
-
-  /**
-   * 设置结束时间和提示消息
-   */
-  setPlanFinishDateFromStartTime(): void {
-    const { workload_qty, workload_unit, plan_start_date } = this.addSubProjectCardService.validateForm.getRawValue();
-    const plan_finish_date = this.workLoadService.calculatePlanFinishDate(workload_unit, workload_qty, plan_start_date);
-    const date = plan_finish_date ? moment(plan_finish_date).format('YYYY/MM/DD') : '';
-    this.getFormItem('plan_finish_date').patchValue(date);
-    this.checkPlanFinishDate(plan_finish_date);
-  }
-
-
-  /**
-   * 设置工期和工时
-   * @param startTime
-   * @param endTime
-   */
-  setWorkQtyAndHours(startTime, endTime): void {
-    let day = moment(endTime).diff(moment(startTime), 'day');
-    day = day > 0 ? day : 0;
-    this.addSubProjectCardService.validateForm.get('plan_work_hours').patchValue((day + 1) * 8);
-    this.addSubProjectCardService.validateForm.get('workload_qty').patchValue(day + 1);
-  }
-
-  /**
-   * 日期同值
-   * @param type personnel:人员同值 date：日期同值
-   * @returns
-   */
-  setSameValue(type, event) {
-    if (event.target.className.includes('dis-btn-event') || event.target.className.includes('dis-btn')) {
+  // 日期同值
+  setSameValue(event) {
+    if (
+      event.target.className.includes('dis-btn-event') ||
+      event.target.className.includes('dis-btn')
+    ) {
       return;
     }
     this.setIsDisable(true);
-    const project_no = this.projectInfo.project_no ? this.projectInfo.project_no : this.projectInfo.project_template_no;
-    this.workLoadService.setSameValue(project_no, this.source)
-      .pipe(debounceTime(1000))
-      .subscribe(res => {
-        if (!res) {
-          this.setIsDisable(false);
-          return;
-        }
-        const info = this.translateService.instant('dj-default-更新成功');
-        this.athMessageService.success(info);
 
-        res && (this.onUpdateWbsTasks.emit(this.addSubProjectCardService.currentCardInfo));
-      }, er => {
-        console.log('setSameValue----err');
-        this.setIsDisable(true);
-      });
+    let project_no = this.wbsService.projectInfo.project_no
+      ? this.wbsService.projectInfo.project_no
+      : this.wbsService.projectInfo.project_template_no;
+    if (!project_no) {
+      project_no = this.project_no;
+    }
+    this.workLoadService
+      .setSameValue(project_no, this.source, this.wbsService.change_version)
+      .pipe(debounceTime(1000))
+      .subscribe(
+        (res) => {
+          if (!res) {
+            // 调用失败，按钮，仍然可用
+            this.setIsDisable(false);
+            return;
+          }
+          const info = this.translateService.instant('dj-default-更新成功');
+          this.athMessageService.success(info);
+
+          this.updateWbsTasks.emit(this.addSubProjectCardService.currentCardInfo);
+        },
+        (err) => {
+          this.setIsDisable(true);
+        }
+      );
   }
 
   /**
@@ -467,15 +745,18 @@ export class WorkLoadComponent implements OnInit {
     if (!startValue) {
       return false;
     }
-    if (this.projectInfo?.plan_finish_date && ([Entry.collaborate, Entry.card].includes(this.source))) {
+    if (
+      this.wbsService.projectInfo?.plan_finish_date &&
+      [Entry.collaborate, Entry.card, Entry.projectChange].includes(this.source)
+    ) {
       return (
         moment(startValue).format('YYYY-MM-DD') >
-        moment(this.projectInfo?.plan_finish_date).format('YYYY-MM-DD')
+        moment(this.wbsService.projectInfo?.plan_finish_date).format('YYYY-MM-DD')
       );
     } else {
       return false;
     }
-  }
+  };
 
   /**
    * 结束时间是否可选
@@ -486,131 +767,34 @@ export class WorkLoadComponent implements OnInit {
     if (!endValue) {
       return false;
     }
-    if (this.source === Entry.card || this.source === Entry.collaborate) {
-      if (!this.addSubProjectCardService.validateForm.getRawValue().plan_start_date) {
+    const { plan_start_date } = this.addSubProjectCardService.validateForm.getRawValue();
+    if (
+      this.source === Entry.card ||
+      this.source === Entry.collaborate ||
+      this.source === Entry.projectChange
+    ) {
+      if (!plan_start_date) {
         return (
-          moment(this.projectInfo?.plan_finish_date).format('YYYY-MM-DD') <
+          moment(this.wbsService.projectInfo?.plan_finish_date).format('YYYY-MM-DD') <
           moment(endValue).format('YYYY-MM-DD')
         );
       } else {
         return (
-          moment(endValue).format('YYYY-MM-DD') <
-          moment(this.addSubProjectCardService.validateForm.getRawValue().plan_start_date).format(
-            'YYYY-MM-DD'
-          ) ||
-          moment(this.projectInfo?.plan_finish_date).format('YYYY-MM-DD') <
-          moment(endValue).format('YYYY-MM-DD')
+          moment(endValue).format('YYYY-MM-DD') < moment(plan_start_date).format('YYYY-MM-DD') ||
+          moment(this.wbsService.projectInfo?.plan_finish_date).format('YYYY-MM-DD') <
+            moment(endValue).format('YYYY-MM-DD')
         );
       }
     } else {
-      if (this.addSubProjectCardService.validateForm.getRawValue().plan_start_date) {
-        return (
-          moment(endValue).format('YYYY-MM-DD') <
-          moment(this.addSubProjectCardService.validateForm.getRawValue().plan_start_date).format(
-            'YYYY-MM-DD'
-          )
-        );
+      if (plan_start_date) {
+        return moment(endValue).format('YYYY-MM-DD') < moment(plan_start_date).format('YYYY-MM-DD');
       } else {
         return false;
       }
     }
-  }
+  };
 
-  /**
-   * 协同任务卡入口时
-   * @param start_time 预计开始时间
-   * @returns
-   */
-  collaborateEntry(start_time: string): void {
-    if (this.source !== Entry.collaborate || !start_time) {
-      return;
-    }
-    if (
-      moment(start_time).format('YYYY-MM-DD') <
-      moment(this.addSubProjectCardService.firstLevelTaskCard?.plan_start_date).format(
-        'YYYY-MM-DD'
-      )) {
-      this.messageService.error(this.translateService.instant(`dj-default-任务开始日期不可小于一级计划的开始日期，请核查！`));
-    }
-    if (
-      moment(start_time).format('YYYY-MM-DD') >
-      moment(this.addSubProjectCardService.firstLevelTaskCard?.plan_finish_date).format(
-        'YYYY-MM-DD'
-      )) {
-      this.messageService.error(this.translateService.instant(`dj-default-任务开始日期不可大于一级计划的结束日期，请核查！`));
-    }
-  }
-
-  /**
-  * 项目卡和基础资料维护入口时
-  * @param start_time 预计开始时间
-  * @returns
-  */
-  cardAndMaintainEntry(start_time: string): void {
-    if (start_time) {
-      const startTime = moment(start_time).format('YYYY-MM-DD');
-      const paras = {
-        query_condition: 'M1',
-        task_info: [{
-          project_no: this.project_no,
-          upper_level_task_no: this.getFormItem('task_no').value,
-          task_property: this.source === Entry.maintain ? '2' : '1'
-        }],
-        search_info: [{
-          order: 1,
-          search_field: 'plan_start_date',
-          search_operator: 'less',
-          search_value: [startTime],
-          logic: 'and'
-        }, {
-          order: 2,
-          search_field: 'task_no',
-          search_operator: 'not_equal',
-          search_value: [this.getFormItem('task_no').value]
-        }]
-      };
-      this.commonService.getInvData('bm.pisc.task.get', paras)
-        .subscribe((res: any): void => {
-          if (res && res.data && res.data.task_info && (res.data.task_info.length > 0)) {
-            this.startNoticeForlate = this.translateService.instant(`dj-pcc-预计开始日已晚于下阶任务的最小预计开始日！`);
-          } else {
-            this.startNoticeForlate = '';
-          }
-          this.changeRef.markForCheck();
-        }, (err) => { });
-    }
-    if (this.source !== Entry.card && this.source !== Entry.maintain) {
-      return;
-    }
-    if (!start_time) {
-      return;
-    }
-    const { firstLevelTaskCard, buttonType } = this.addSubProjectCardService;
-    if (
-      ((firstLevelTaskCard?.children?.length && buttonType === 'EDIT')
-        || (firstLevelTaskCard?.task_no && buttonType !== 'EDIT'))
-      && this.getFormItem('task_no').value !== firstLevelTaskCard?.task_no
-    ) {
-      // 获取卡一级的内容
-      this.getParentTime(firstLevelTaskCard);
-      if (
-        this.parentTime?.plan_start_date &&
-        moment(start_time).format('YYYY-MM-DD') < moment(this.parentTime.plan_start_date).format('YYYY-MM-DD')) {
-        this.startNotice = this.translateService.instant(`dj-pcc-预计开始日早于上阶任务预计开始日`);
-      } else if (this.parentTime?.plan_finish_date &&
-        moment(start_time).format('YYYY-MM-DD') > moment(this.parentTime.plan_finish_date).format('YYYY-MM-DD')) {
-        this.startNotice = this.translateService.instant(`dj-pcc-预计开始日晚于上阶任务预计完成日`);
-      } else {
-        this.startNotice = '';
-      }
-      this.changeRef.markForCheck();
-    }
-  }
-
-  /**
-   * 获取一级任务卡信息
-   * @param data
-   */
+  // 获取一级任务卡信息
   getParentTime(data) {
     const parentId = this.addSubProjectCardService.validateForm.getRawValue().upper_level_task_no;
     if (data.task_no === parentId) {
@@ -627,40 +811,133 @@ export class WorkLoadComponent implements OnInit {
     }
   }
 
-
-
-  /**
-   * html 中文字翻译
-   * @param val
-   */
-  translateWord(val: string): String {
-    return this.translateService.instant(`dj-default-${val}`);
+  translateWord(val: string, type?: string): String {
+    const info = type === 'pcc' ? `dj-pcc-${val}` : `dj-default-${val}`;
+    return this.translateService.instant(info);
   }
 
-  /**
- * html 中文字翻译
- * @param val
- */
-  translateWordPcc(val: string): String {
-    return this.translateService.instant(`dj-pcc-${val}`);
+  translateForAutomaticTip(): String {
+    const tip =
+      '勾选此栏位，在当前界面维护日期、工期，将依据系统标准规则自动互推，若不勾选，则系统不进行互推，以用户手填信息为准。';
+    return this.translateWord(tip, 'pcc');
   }
-
 
   getFormItem(key: string): any {
-    return this.addSubProjectCardService.validateForm.get(key);
+    let value = this.validateForm.value[key];
+    // 为了兼容 setSomeEdit()
+    // this.validateForm.controls[control].disable();
+    // 导致的数据丢失问题
+    const { task_status, plan_start_date, old_task_status } =
+      this.addSubProjectCardService.currentCardInfo;
+    if (Number(old_task_status || task_status) > 10 && key === 'plan_start_date') {
+      value = plan_start_date;
+    }
+    return value;
   }
 
   setFormValue(key: string, value: any): any {
     this.addSubProjectCardService.validateForm.get(key).patchValue(value);
   }
 
-
   /**
-   * 控制日期同值的显示和隐藏
-   * @param value 是否禁用
+   * 控制日期同值按钮的 可用 / 置灰
+   * @param value = true，置灰
    */
-  setIsDisable(value: boolean): void {
-    this.isDisable = value;
+  setIsDisable(value?: boolean): void {
+    const { buttonType, currentCardInfo } = this.addSubProjectCardService;
+    // 控制日期同值按钮的 可用 / 置灰
+    // 1.新增置灰；2.编辑可用；3.点击后置灰，再编辑又可用；4.任务状态不是未开始，都置灰
+    if (
+      buttonType === 'EDIT' &&
+      (currentCardInfo?.old_task_status
+        ? currentCardInfo?.old_task_status === '10'
+        : currentCardInfo?.task_status === '10')
+    ) {
+      this.isDisable = false;
+    } else {
+      this.isDisable = true;
+    }
+    if (value !== undefined) {
+      this.isDisable = value;
+    }
   }
 
+  /**
+   * 调用推算栏位值的API
+   * @param calculation_method 计算方式
+   * @param callName 调用的栏位名称
+   * @param callVale 调用的栏位值
+   */
+  callTaskWorkCalendarFn(calculation_method: string, callName: string, callVale: any) {
+    const task_no =
+      this.getFormItem('task_no') ?? this.addSubProjectCardService.currentCardInfo?.task_no;
+    const params = {
+      is_repush_workload_qty_and_date: this.automatic_re_push, // 是否重推工作量及日期
+      calculation_method, // 计算方式
+      task_info: [
+        {
+          project_no: this.project_no,
+          task_no: task_no,
+          workload_qty: Number(this.getFormItem('workload_qty') ?? 0),
+          workload_unit: this.getFormItem('workload_unit'), // 日期单位：1.小时；2.日；3.月
+          plan_work_hours: Number(this.getFormItem('plan_work_hours') ?? 0),
+          plan_start_date: this.getFormItem('plan_start_date'),
+          plan_finish_date: this.getFormItem('plan_finish_date'),
+        },
+      ],
+    };
+
+    this.commonService
+      .taskWorkCalendar(params)
+      .pipe(debounceTime(1000))
+      .subscribe(
+        (res: any): void => {
+          if (res && res.data && res.data.task_info && res.data.task_info.length > 0) {
+            // （编辑，修改栏位）成功后 -- 改变 日期同值按钮 状态
+            this.setIsDisable();
+
+            // 预计工时
+            const return_plan_work_hours = res.data.task_info[0].plan_work_hours;
+            if (this.getFormItem('plan_work_hours') !== return_plan_work_hours) {
+              this.setFormValue('plan_work_hours', return_plan_work_hours);
+            }
+            if (calculation_method === '1') {
+              // 计划结束日期
+              const return_plan_finish_date = res.data.task_info[0].plan_finish_date;
+              const date = return_plan_finish_date
+                ? moment(return_plan_finish_date).format('YYYY/MM/DD')
+                : '';
+              if (this.getFormItem('plan_finish_date') !== date) {
+                this.setFormValue('plan_finish_date', date);
+              }
+
+              if (this.getFormItem('plan_finish_date')) {
+                // 校验结束日期
+                this.checkPromptForFinishDate(this.getFormItem('plan_finish_date'));
+              }
+            } else {
+              // 工作量
+              const return_workload_qty = res.data.task_info[0].workload_qty;
+              // if (this.getFormItem('workload_qty') !== return_workload_qty) {
+              this.isCallTaskWorkCalendar = false;
+              this.setFormValue('workload_qty', return_workload_qty);
+              // }
+
+              // 工作单位
+              const return_workload_unit = res.data.task_info[0].workload_unit;
+              if (this.getFormItem('workload_unit') !== return_workload_unit) {
+                this.setFormValue('workload_unit', return_workload_unit);
+              }
+            }
+          }
+          setTimeout(() => {
+            this.setLoading.emit({ value: false });
+          }, 80);
+          this.changeRef.markForCheck();
+        },
+        (err) => {
+          this.setLoading.emit({ value: false });
+        }
+      );
+  }
 }

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { DwUserService } from '@webdpt/framework/user';
 import { DwSystemConfigService } from '@webdpt/framework/config';
 import { Observable } from 'rxjs';
-import { CommonService } from 'app/customization/task-project-center-console/service/common.service';
+import { CommonService } from 'app/implementation/service/common.service';
 
 @Injectable()
 export class ProjectProcessRouteService {

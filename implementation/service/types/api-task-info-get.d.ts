@@ -5,6 +5,7 @@ export interface Attachment {
     row_data: string;
 }
 export interface TaskInfoGet {
+    old_is_issue_task_card: any;
     /** 项目编号 */
     project_no: string;
     /** 任务编号 */
@@ -46,7 +47,8 @@ export interface TaskInfoGet {
     /** 上阶任务编号 */
     upper_level_task_no: string;
     /** 任务状态 10.未开始 20.进行中(任务报工时回写) 30.已完成(任务报工时回写) 40.指定完成 (画面按钮user指定) 50.暂停 (画面按钮user指定) 60.签核中 */
-    task_status: string;
+    task_status?: string;
+    old_task_status?: string; // 原任務狀態
     /** 工作量 */
     workload_qty: number;
     /** 工作量单位	1.天 2.月 3.年 */
@@ -61,13 +63,17 @@ export interface TaskInfoGet {
     actual_finish_date: string;
     liable_person_code_data?: any;
     /** 负责人编号 */
-    liable_person_code: string;
+    liable_person_code?: string;
     /** 负责人名称 */
-    liable_person_name: string;
+    liable_person_name?: string;
     /** 负责人部门编号 */
-    liable_person_department_code: string;
+    liable_person_department_code?: string;
     /** 负责人部门名称 */
-    liable_person_department_name: string;
+    liable_person_department_name?: string;
+    responsible_person_no?:string; // 負責人
+    responsible_person_name?: string; // 負責人名稱
+    responsibility_department_no?: string; // 負責人部門編號
+    responsibility_department_name?: string; // 負責人部門名稱
     liable_person_role_no?: string;
     liable_person_role_name?: string;
     /** 完成率 */
@@ -104,6 +110,8 @@ export interface TaskInfoGet {
     task_template_no: number;
     /** 任务模板类型名称 */
     task_template_name: string;
+    task_template_parameter_no?: number; // 任務範本參數編號
+    task_template_parameter_name?: string; // 任務範本參數名稱
     /** 任务说明 */
     attachment_remark: string;
     /** 款项阶段编号	 */
@@ -176,8 +184,12 @@ export interface TaskInfoGet {
     required_task: boolean;
     /** 任务成员信息 */
     task_member_info: any[];
+    assist_task_member_info?: any[];
+    project_change_task_member_info?:any[];
     /** 任务依赖信息 */
     task_dependency_info: any[];
+    assist_task_dependency_info?: any[];
+    project_change_task_dep_info?: any[];
     /**	任务报工资讯  */
     task_report_info: any[];
     /**	主单位  */
@@ -223,9 +235,11 @@ export interface TaskInfoGet {
 
     level?: number;
     /** 是否是协同任务卡 */
-    isCollaborationCard?: string
+    isCollaborationCard?: boolean
     /** 任务状态大于 > 10 ? true : false */
     someEdit?: boolean
     /**  */
-    hasEdit?: boolean
+    hasEdit?: boolean,
+    /** s10项目变更增加的根任务字段 */
+    root_task_no?:any
 }

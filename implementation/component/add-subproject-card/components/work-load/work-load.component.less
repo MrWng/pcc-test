@@ -3,6 +3,31 @@
   margin-right: -6px !important;
 }
 
+.row-switch-box {
+  display: flex !important;
+  flex-flow: row nowrap;
+  justify-content: start;
+  height: 18px;
+  line-height: 18px;
+  margin: 0px 0px 15px;
+
+  .switch-label {
+    color: #888;
+    font-size: 12px !important;
+    display: inline-block;
+    margin-right: 10px;
+    cursor: pointer;
+  }
+  .icon-info {
+    display: inline-block;
+    font-size: 16px;
+    color: #555;
+    font-weight: bold;
+    margin-left: 10px;
+    transform: translateY(2px);
+  }
+}
+
 .btn-event {
   width: 52px;
   font-size: 13px;
@@ -34,6 +59,14 @@
     left: 0;
     bottom: -16px;
   }
+}
+.work-load-error-info {
+  font-size: 12px;
+  color: red;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  width: 100%;
 }
 .notice {
   font-size: 12px;

@@ -2,6 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background-color: #ffffff;
   .precautions {
     padding-left: 16px;
     color: red;
@@ -155,13 +156,40 @@
     width: 240px;
     margin-bottom: 10px;
   }
+  .change-reason-box {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    height: 32px;
+    width: 100%;
+    margin: 10px 0px;
+    .ant-form-item-label {
+      margin-right: 4px;
+    }
+  }
+  .error-message {
+    width: 100%;
+    font-size: 12px;
+    color: #ea3d46;
+    height: 20px;
+    line-height: 20px;
+    text-align: left;
+  }
 }
 
 .delay-title {
   text-align: center;
   font-size: 16px;
-  padding-bottom: 20px;
+  margin-bottom: 10px;
   color: #333333;
+  height: 30px;
+  line-height: 30px;
+}
+
+.extend-days {
+  ::ng-deep .ant-input-number {
+    border: none;
+  }
 }
 
 .template-box-home {
@@ -171,6 +199,11 @@
 ::ng-deep .ant-modal-wrap.delay-modal-box {
   .ant-modal {
     width: 400px !important;
+  }
+  .continue-attachment-wrapper {
+    .uploadItem .upload .file-list .file .file-info .name {
+      max-width: 100px !important;
+    }
   }
 }
 
@@ -184,24 +217,15 @@
   }
 }
 
-::ng-deep .ant-modal.delay_new1 {
-  .ant-modal-content {
-    width: 400px !important;
-    height: 220px !important;
-  }
-  .button-box {
-    padding: 0 94px !important;
-  }
-}
-
 .progress-tracking-operations {
   display: flex;
   flex-direction: row-reverse;
   color: #2012d9;
-  padding: 10px;
+  padding: 10px 0;
   font-size: 14px;
+  align-items: center;
   > div {
-    margin-left: 16px;
+    margin-left: 8px;
     cursor: pointer;
   }
   .disabled-status {
@@ -251,6 +275,7 @@
   }
   .full-screen-box {
     line-height: 32px;
+    padding: 5px 6px 3px !important;
   }
   .alldelay-disabled {
     position: relative;
@@ -268,6 +293,26 @@
       opacity: 0;
     }
   }
+  ::ng-deep.alldelay-disabled {
+    position: relative;
+    &::before {
+      display: block;
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      left: 0;
+      top: 0;
+      background: rgba(252, 252, 252, 0.15);
+      z-index: 100;
+      cursor: not-allowed;
+      opacity: 0;
+    }
+  }
+  .gantt-btn {
+    height: 32px;
+    line-height: 32px;
+  }
   .alldelay {
     height: 32px;
     line-height: 32px;
@@ -278,14 +323,70 @@
     margin-right: 0;
   }
   .alldelayDisabled {
-    color: #ccc;
+    color: #ccc !important;
     cursor: not-allowed;
+  }
+  .alldelayDisabled:hover {
+    border: 1px solid #ccc !important;
+  }
+  .baseSelectStyle {
+    margin-left: 16px;
+    ::ng-deep .ant-select-selector {
+      height: 26px;
+      line-height: 26px;
+      font-size: 12px;
+      background: transparent;
+      border-radius: 2px !important;
+    }
+  }
+  .baseButtonStyle {
+    padding: 4px 8px;
+    color: #333333;
+    border: 1px solid #dddddd;
+    border-radius: 2px 0 0 2px;
+    font-size: 12px;
+    line-height: 16px;
+  }
+  .baseButtonStyle:hover {
+    color: #6167cc;
+    border: 1px solid #6167cc;
+    position: relative;
+    z-index: 10;
+  }
+  ::ng-deep {
+    .baseButtonStyle {
+      padding: 4px 8px;
+      color: #333333;
+      border: 1px solid #dddddd;
+      border-radius: 2px 0 0 2px;
+      font-size: 12px;
+      line-height: 16px;
+    }
+    .baseButtonStyle:hover {
+      color: #6167cc;
+      border: 1px solid #6167cc;
+      position: relative;
+      z-index: 10;
+    }
+  }
+  .typeChange {
+    color: #6167cc;
+    border: 1px solid #6167cc;
+    position: relative;
+    z-index: 10;
+  }
+  .typeChangeBox {
+    div {
+      float: left;
+      margin-left: -1px;
+    }
+    :after {
+      clear: both;
+    }
   }
 }
 
 .use-template {
-  margin: 0 10px 0 0;
-  padding: 5px 0;
   .use-template-disable {
     color: #ccc;
   }
@@ -329,5 +430,87 @@
     height: 14px;
     width: 55px;
     text-align: center;
+  }
+
+  .uploadItem {
+    display: flex;
+    flex-flow: row nowrap;
+    min-height: 40px;
+    font-size: 15px;
+
+    .title {
+      line-height: 34px;
+      width: 120px;
+      font-size: 14px;
+      text-align: right;
+      padding-right: 2px;
+    }
+
+    .upload {
+      width: 320px;
+      margin-top: 5px;
+
+      .file-list {
+        width: 100%;
+        margin-bottom: 4px;
+        .file {
+          display: flex;
+          width: 100%;
+          flex-flow: row nowrap;
+          justify-content: space-between;
+          margin-bottom: 2px;
+          .file-info {
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: space-between;
+            white-space: nowrap;
+            display: flex;
+            .name {
+              max-width: 200px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              margin-right: 4px;
+            }
+            .size {
+              margin-left: 5px;
+            }
+            .delete-btn {
+              cursor: pointer;
+              margin-left: 9px;
+              i {
+                margin-right: 4px;
+                color: rgb(22, 127, 276);
+              }
+            }
+          }
+        }
+      }
+
+      .uploadBtn {
+        height: 46px;
+        text-align: center;
+        cursor: default;
+        position: relative;
+
+        i {
+          margin-top: 5px;
+          color: rgb(22, 127, 276);
+          text-align: center;
+        }
+        input {
+          opacity: 0;
+          position: absolute;
+          height: 46px;
+          left: 0;
+          top: 0;
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+::ng-deep .confirm-modal-center-sty {
+  .ant-modal-confirm-content {
+    margin-top: 20px !important;
   }
 }

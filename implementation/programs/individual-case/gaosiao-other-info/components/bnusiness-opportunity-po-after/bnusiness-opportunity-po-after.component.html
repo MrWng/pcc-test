@@ -1,0 +1,74 @@
+<div class="bnusiness-opportunity-po-after" [formGroup]="templateGroup">
+  <div class="table-wrapper t-a">
+    <dl class="table-row">
+      <dd class="table-cell cell-title">{{ 'dj-pcc-确收风险等级' | translate }}：</dd>
+      <dd class="table-cell">
+        <ath-select
+          nzPlaceHolder="{{ 'dj-请选择' | translate }}"
+          [formControl]="templateGroup.get('confirm_risk_level')"
+        >
+          <ath-option nzValue="1" nzLabel="{{ 'dj-pcc-无' | translate }}"></ath-option>
+          <ath-option nzValue="2" nzLabel="{{ 'dj-default-低' | translate }}"></ath-option>
+          <ath-option nzValue="3" nzLabel="{{ 'dj-default-高' | translate }}"></ath-option>
+        </ath-select>
+      </dd>
+      <dd class="table-cell cell-title">{{ 'dj-pcc-是否确收' | translate }}：</dd>
+      <dd class="table-cell">
+        <ath-select
+          nzPlaceHolder="{{ 'dj-请选择' | translate }}"
+          [formControl]="templateGroup.get('is_confirm')"
+        >
+          <ath-option nzValue="1" nzLabel="{{ 'dj-pcc-是' | translate }}"></ath-option>
+          <ath-option nzValue="2" nzLabel="{{ 'dj-pcc-否' | translate }}"></ath-option>
+        </ath-select>
+      </dd>
+    </dl>
+  </div>
+  <div class="table-wrapper t-b">
+    <dl class="top-header table-row">
+      <dd class="table-cell cell-title">{{ 'dj-pcc-款项类型' | translate }}</dd>
+      <dd class="table-cell cell-title">{{ 'dj-pcc-回款风险等级' | translate }}</dd>
+      <dd class="table-cell cell-title">{{ 'dj-pcc-风险确认日期' | translate }}</dd>
+    </dl>
+    <dl class="table-row" *ngFor="let item of opportunityPaymentTypeCtrs">
+      <dd class="table-cell">
+        <ath-select
+          class="input-ctr"
+          nzPlaceHolder="{{ 'dj-请选择' | translate }}"
+          [formControl]="item.get('payment_type')"
+          [(ngModel)]="item.get('payment_type').value"
+          [title]="item.get('payment_type').value || ''"
+          [nzDisabled]="true"
+        >
+          <ath-option nzValue="1" nzLabel="{{ 'dj-pcc-预付款' | translate }}"></ath-option>
+          <ath-option nzValue="2" nzLabel="{{ 'dj-pcc-出货款' | translate }}"></ath-option>
+          <ath-option nzValue="3" nzLabel="{{ 'dj-pcc-到货款' | translate }}"></ath-option>
+          <ath-option nzValue="4" nzLabel="{{ 'dj-pcc-验机款' | translate }}"></ath-option>
+          <ath-option nzValue="5" nzLabel="{{ 'dj-pcc-验收款' | translate }}"></ath-option>
+          <ath-option nzValue="6" nzLabel="{{ 'dj-pcc-质保款' | translate }}"></ath-option>
+        </ath-select>
+      </dd>
+      <dd class="table-cell">
+        <ath-select
+          class="input-ctr"
+          nzPlaceHolder="{{ 'dj-请选择' | translate }}"
+          [formControl]="item.get('risk_level_of_repayment')"
+          [title]="item.get('risk_level_of_repayment').value || ''"
+        >
+          <ath-option nzValue="1" nzLabel="{{ 'dj-pcc-无' | translate }}"></ath-option>
+          <ath-option nzValue="2" nzLabel="{{ 'dj-default-低' | translate }}"></ath-option>
+          <ath-option nzValue="3" nzLabel="{{ 'dj-default-高' | translate }}"></ath-option>
+        </ath-select>
+      </dd>
+      <dd class="table-cell">
+        <ath-date-picker
+          class="input-ctr"
+          nzPlaceHolder="{{ 'dj-请选择' | translate }}"
+          [formControl]="item.get('risk_confirmation_date')"
+          [title]="gOtherInfoService.dateTransForShow(item.get('risk_confirmation_date').value)"
+          (ngModelChange)="gOtherInfoService.dateTrans(item.get('risk_confirmation_date'))"
+        ></ath-date-picker>
+      </dd>
+    </dl>
+  </div>
+</div>

@@ -1,16 +1,17 @@
 import { Injectable } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { cloneDeep } from '@ng-dynamic-forms/core';
-import { OpenWindowService } from '@ng-dynamic-forms/ui-ant-web';
+import { cloneDeep } from '@athena/dynamic-core';
+import { OpenWindowService } from '@athena/dynamic-ui';
 import { TranslateService } from '@ngx-translate/core';
 import { DwUserService } from '@webdpt/framework/user';
-import { CommonService, Entry } from 'app/customization/task-project-center-console/service/common.service';
+import { CommonService, Entry } from 'app/implementation/service/common.service';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { observable, Observable } from 'rxjs';
 import { AddSubProjectCardService } from '../add-subproject-card.service';
 import { AdvancedOptionService } from './advanced-option.service';
 import { DynamicWbsService } from '../../wbs/wbs.service';
+import { AthModalService } from '@athena/design-ui';
 
 type ICheckValueParams = {
   personLiable: any;
@@ -20,20 +21,20 @@ type ICheckValueParams = {
   changeReason: any;
   source: any;
   projectInfo: any;
-}
+};
 
 type ICheckValueResult = {
   /** 校验状态 */
   status: 'fail' | 'success';
   /** 需要回显设置的变量 */
   setData?: {
-    [key: string]: any
-  }
+    [key: string]: any;
+  };
   /** 返回的数据 */
   response?: {
-    [key: string]: any
-  }
-}
+    [key: string]: any;
+  };
+};
 
 type IHandeDataParams = {
   taskTemplateInfo: any;
@@ -43,20 +44,21 @@ type IHandeDataParams = {
   source: string;
   attachmentData: any;
   changeReason: any;
+  change_attachment?: any;
   hasGroundEnd: any;
   tempCurrentData: any;
   difficultyLevelForm: any;
   task_member_infoList: any;
   pageDatas: any;
   personList: any;
-}
+};
 
 type IHandeDataResult = {
   /** 提交表单需要的参数 */
-  params,
+  params;
   /** 单别信息 */
-  temp_doc_condition_value
-}
+  temp_doc_condition_value;
+};
 
 @Injectable()
 export class SubmitCardService {
@@ -71,8 +73,9 @@ export class SubmitCardService {
     private fb: FormBuilder,
     private userService: DwUserService,
     private messageService: NzMessageService,
+    private athModalService: AthModalService,
     public advancedOptionService: AdvancedOptionService
-  ) { }
+  ) {}
 
   /**
    * 校验表单值
@@ -86,13 +89,16 @@ export class SubmitCardService {
       pageDatas,
       changeReason,
       source,
-      projectInfo
+      projectInfo,
     } = enterParams;
     // 校验
     const { validateForm } = this.addSubProjectCardService;
     const params = validateForm.getRawValue();
     // 校验：[品号类别/群组]有值，[品号类别条件值]不能为空
-    if ((validateForm.controls['item_type'].value === '0') && !validateForm.controls['item_type_value'].value) {
+    if (
+      validateForm.controls['item_type'].value === '0' &&
+      !validateForm.controls['item_type_value'].value
+    ) {
       return;
     }
     // 校验是否通过
@@ -147,8 +153,8 @@ export class SubmitCardService {
         return {
           status: 'fail',
           setData: {
-            valueNotUnique: false
-          }
+            valueNotUnique: false,
+          },
         };
       }
     }
@@ -184,33 +190,69 @@ export class SubmitCardService {
       this.messageService.error(this.translateService.instant('dj-default-请选择款项阶段'));
       return;
     }
+    if (source === Entry.collaborate && this.addSubProjectCardService.firstLevelTaskCard) {
+      const {
+        root_task_plan_start_date: plan_start_date,
+        root_task_plan_finish_date: plan_finish_date,
+      } = this.addSubProjectCardService.firstLevelTaskCard;
+      // s17: 交付设计器日期管控
+      if (
+        params.plan_start_date &&
+        plan_start_date &&
+        this.addSubProjectCardService.dateCheck === '1' &&
+        params.plan_start_date < moment(plan_start_date).format('YYYY-MM-DD')
+      ) {
+        this.messageService.error(
+          this.translateService.instant(
+            `dj-pcc-开始日期不可早于任务内一级计划的开始日期(API-95的原根任务预计开始日期)`
+          ) + `(${plan_start_date})！`
+        );
+        return;
+      }
+      // s17: 交付设计器日期管控
+      if (
+        params.plan_finish_date &&
+        plan_finish_date &&
+        this.addSubProjectCardService.dateCheck === '1' &&
+        params.plan_finish_date > moment(plan_finish_date).format('YYYY-MM-DD')
+      ) {
+        this.messageService.error(
+          this.translateService.instant(
+            `dj-pcc-结束日期不可晚于任务内一级计划的结束日期(API-95的原根任务预计结束日期)`
+          ) + `(${plan_finish_date})！`
+        );
+        return;
+      }
+    }
+
     Object.values(validateForm.controls).forEach((validateFormItme: any): void => {
       validateFormItme.markAsDirty();
       validateFormItme.updateValueAndValidity();
     });
     // 计划维护入口：项目状态为进行中（30）,需输入变更原因
-    const condition2 = ((source === Entry.card) || (source === Entry.collaborate)) && Number(projectInfo.project_status) === 30;
+    const condition2 =
+      (source === Entry.card || source === Entry.collaborate) &&
+      Number(projectInfo.project_status) === 30;
     const status = condition2 && this.addSubProjectCardService.buttonType !== 'EDIT' ? true : false;
     return {
       status: 'success',
       response: {
         condition2,
-        status
-      }
+        status,
+      },
     };
     // condition2 && this.addSubProjectCardService.buttonType === 'EDIT' ? changeReason.showModal() : this.handelData({ status });
   }
 
-
   /**
    * 任务类型为MO_H时，该项目卡内单别、单号、类型条件值、次类型条件值唯一性检查
    */
-  checkUnique(target: any, taskData: any,): void {
+  checkUnique(target: any, taskData: any): void {
     taskData.some((item: any) => {
       if (this.matchRules(item, target) || this.isUnique) {
         this.isUnique = true;
         return true;
-      };
+      }
       if (item.children.length) {
         this.checkUnique(target, item.children);
       }
@@ -218,12 +260,14 @@ export class SubmitCardService {
   }
 
   matchRules(item: any, target: any): boolean {
-    return item.task_no !== target.task_no && item.doc_no === target.doc_no
-      && item.doc_type_no === target.doc_type_no
-      && item.sub_type_condition_value === target.sub_type_condition_value
-      && item.type_condition_value === target.type_condition_value;
+    return (
+      item.task_no !== target.task_no &&
+      item.doc_no === target.doc_no &&
+      item.doc_type_no === target.doc_type_no &&
+      item.sub_type_condition_value === target.sub_type_condition_value &&
+      item.type_condition_value === target.type_condition_value
+    );
   }
-
 
   /**
    * 获取入参 提交内容
@@ -238,12 +282,13 @@ export class SubmitCardService {
       source,
       attachmentData,
       changeReason,
+      change_attachment,
       hasGroundEnd,
       tempCurrentData,
       difficultyLevelForm,
       task_member_infoList,
       pageDatas,
-      personList
+      personList,
     } = enterParams;
 
     let params = this.addSubProjectCardService.validateForm.getRawValue();
@@ -251,12 +296,31 @@ export class SubmitCardService {
     params.record_task_change = changeReason.status;
     // 变更原因
     params.change_reason = changeReason?.value;
+    if (change_attachment) {
+      params.change_attachment = change_attachment;
+    }
     if (taskTemplateInfo?.task_category !== 'ODAR') {
       this.addSubProjectCardService.arStageNo = '';
       this.addSubProjectCardService.arStageName = '';
     }
     params.project_no = project_no;
     params.sequence = this.addSequence([tempCurrentData], params, pageDatas);
+    if (!params.liable_person_code && params.liable_person_code_data) {
+      // if ((source === Entry.collaborate) && (params.liable_person_code || params.liable_person_code_data)) {
+      // 格式参考："id:pvq017;name:erp内勤1;deptId:C001;deptName:仓管部;roleNo:;roleName:無角色"
+      const arr1 = params.liable_person_code_data.split(';');
+      const item = {};
+      arr1.forEach((v) => {
+        const temp = v.split(':');
+        item[temp[0]] = temp[1];
+      });
+      params.liable_person_code = item['id'];
+      params.liable_person_name = item['name'];
+      params.liable_person_department_code = item['deptId'];
+      params.liable_person_department_name = item['deptName'];
+      params.liable_person_role_no = item['roleNo'];
+      params.liable_person_role_name = item['roleName'];
+    }
     // 处理多执行人入参
     if (params.task_member_info?.length) {
       if (params.task_member_info[0].indexOf(':') < 0) {
@@ -264,10 +328,10 @@ export class SubmitCardService {
         params.task_member_info = this.setMember(params, task_member_infoList, personList);
       } else {
         const arr = [];
-        params.task_member_info.forEach(element => {
+        params.task_member_info.forEach((element) => {
           const arr1 = element.split(';');
           const item = {};
-          arr1.forEach(v => {
+          arr1.forEach((v) => {
             const temp = v.split(':');
             item[temp[0]] = temp[1];
           });
@@ -302,8 +366,30 @@ export class SubmitCardService {
         params.task_dependency_info.push(data);
       }
     });
+
     // 处理单别条件值
-    const temp_doc_condition_value = [...params.doc_type_info].map(o => o.doc_condition_value).join(',');
+    let temp_doc_condition_value = '';
+
+    // 如果单别条件值为对象转成数组
+    if (
+      params.doc_type_info &&
+      Object.prototype.toString.call(params.doc_type_info) === '[object Object]'
+    ) {
+      params.doc_type_info = [params.doc_type_info];
+    }
+    if (params.doc_type_info?.length) {
+      temp_doc_condition_value = params.doc_type_info
+        .filter((o) => o.doc_condition_value)
+        ?.map((o) => o.doc_condition_value)
+        ?.join();
+      params.doc_type_info = params.doc_type_info.map((doc) => {
+        if (Object.getOwnPropertyNames(doc).find((item) => item === 'doc_condition_value')) {
+          return doc;
+        } else {
+          return { doc_condition_value: doc };
+        }
+      });
+    }
     params.task_template_no = this.addSubProjectCardService.taskTemplateNo || '';
     params.task_template_name = this.addSubProjectCardService.taskTemplateName || '';
     params.task_category = taskTemplateInfo?.task_category || '';
@@ -313,44 +399,51 @@ export class SubmitCardService {
     params.ar_stage_no = this.addSubProjectCardService.arStageNo || '';
     params.ar_stage_name = this.addSubProjectCardService.arStageName || '';
     params.is_equipment_list_unfold =
-      source === Entry.card ? null : params.is_equipment_list_unfold;
+      source === Entry.card || source === Entry.projectChange
+        ? null
+        : params.is_equipment_list_unfold;
     params = this.getInvisibleField(params, taskTemplateInfo);
     // params.complete_rate_method = params.complete_rate_method ? params.complete_rate_method : '1';
-    params.complete_rate_method = taskTemplateInfo.complete_rate_method ? taskTemplateInfo.complete_rate_method : '1';
+    params.complete_rate_method = taskTemplateInfo.complete_rate_method
+      ? taskTemplateInfo.complete_rate_method
+      : '1';
     const aList = [];
-    attachmentData.forEach(file => {
-      if (file.status === 'done') {
-        aList.push({
-          id: file.id,
-          name: file.name,
-          category: file.category,
-          categoryId: file.categoryId,
-          upload_user_name: file.upload_user_name,
-          upload_user_id: file.upload_user_id,
-          size: file.size,
-          // url: file.url,
-          create_date: file.create_date,
-          // lastModified: file.lastModified,
-          row_data: file.row_data
-        });
-      }
-    });
+    if (attachmentData && attachmentData.length) {
+      attachmentData.forEach((file) => {
+        if (file.status === 'done') {
+          aList.push({
+            id: file.id,
+            name: file.name,
+            category: file.category,
+            categoryId: file.categoryId,
+            upload_user_name: file.upload_user_name,
+            upload_user_id: file.upload_user_id,
+            size: file.size,
+            // url: file.url,
+            create_date: file.create_date,
+            // lastModified: file.lastModified,
+            row_data: file.row_data,
+          });
+        }
+      });
+    }
     params.attachment = {
       data: aList,
-      row_data: params.project_no + ';' + (this.addSubProjectCardService.currentCardInfo as any).task_no,
+      row_data:
+        params.project_no + ';' + (this.addSubProjectCardService.currentCardInfo as any).task_no,
     };
     params.task_status = String(params.task_status);
-    params.task_classification_no =
-      taskClassificationForm?.value?.classificationType?.task_classification_no ?? '';
-    params.task_classification_name =
-      taskClassificationForm?.value?.classificationType?.task_classification_name ?? '';
-    params.difficulty_level_no =
-      difficultyLevelForm?.value?.difficultyLevelObj?.difficulty_level_no ?? ''; // 难度等级
-    params.difficulty_level_name =
-      difficultyLevelForm?.value?.difficultyLevelObj?.difficulty_level_name ?? '';
-    params.difficulty_coefficient =
-      difficultyLevelForm?.value?.difficultyLevelObj?.difficulty_coefficient ?? '';
-    params.task_proportion = params.task_proportion / 100; // 任务比重
+    const classificationType = JSON.parse(
+      taskClassificationForm?.value?.classificationType || '{}'
+    );
+    params.task_classification_no = classificationType?.task_classification_no ?? '';
+    params.task_classification_name = classificationType?.task_classification_name ?? '';
+    const difficultyLevelObj = JSON.parse(difficultyLevelForm?.value?.difficultyLevelObj || '{}');
+
+    params.difficulty_level_no = difficultyLevelObj?.difficulty_level_no ?? ''; // 难度等级
+    params.difficulty_level_name = difficultyLevelObj?.difficulty_level_name ?? '';
+    params.difficulty_coefficient = difficultyLevelObj?.difficulty_coefficient ?? '';
+    params.task_proportion = this.commonService.accDiv(params.task_proportion, 100); // 任务比重
     params.main_unit = String(params.main_unit);
     params.second_unit = String(params.second_unit);
     const val1 = params.plan_main_unit_value === '' ? 0 : params.plan_main_unit_value;
@@ -369,7 +462,7 @@ export class SubmitCardService {
     }
     return {
       params,
-      temp_doc_condition_value
+      temp_doc_condition_value,
     };
   }
 
@@ -380,14 +473,20 @@ export class SubmitCardService {
    */
   addSequence(currentData: any, params: any, pageDatas): number {
     let sequenceNum: number = 1;
-    const upper_level_task_no_old = (this.addSubProjectCardService.currentCardInfo as any).upper_level_task_no;
-    if ((this.addSubProjectCardService.buttonType === 'CREATE')
-      || ((this.addSubProjectCardService.buttonType === 'ADD') && !params.upper_level_task_no)) {
+    const upper_level_task_no_old = (this.addSubProjectCardService.currentCardInfo as any)
+      .upper_level_task_no;
+    if (
+      this.addSubProjectCardService.buttonType === 'CREATE' ||
+      (this.addSubProjectCardService.buttonType === 'ADD' && !params.upper_level_task_no)
+    ) {
       // 新增一级计划
       const taskGroupLength = pageDatas?.length ?? 0;
       sequenceNum = taskGroupLength ? pageDatas[taskGroupLength - 1].sequence + 1 : 1;
-    } else if (params.upper_level_task_no && (params.task_no !== params.upper_level_task_no)
-      && (params.upper_level_task_no !== upper_level_task_no_old)) {
+    } else if (
+      params.upper_level_task_no &&
+      params.task_no !== params.upper_level_task_no &&
+      params.upper_level_task_no !== upper_level_task_no_old
+    ) {
       const brother = this.wbsService.findChildrenTaskInfo(params.upper_level_task_no);
       let maxSequence = 0;
       brother.forEach((item) => {
@@ -468,7 +567,7 @@ export class SubmitCardService {
       'outsourcing_field_code',
       'user_defined01',
       'user_defined02',
-      'user_defined03'
+      'user_defined03',
     ];
 
     const invisibleData = {
@@ -493,14 +592,16 @@ export class SubmitCardService {
           params[control] = taskTemplateInfo[control];
         }
       });
-      params.type_field_code = taskTemplateInfo.changeTemplateInfo ?
-        taskTemplateInfo.user_defined01 : params.type_field_code;
-      params.sub_type_field_code = taskTemplateInfo.changeTemplateInfo ?
-        taskTemplateInfo.user_defined02 : params.sub_type_field_code;
-      params.outsourcing_field_code = taskTemplateInfo.changeTemplateInfo ?
-        taskTemplateInfo.user_defined03 : params.outsourcing_field_code;
+      params.type_field_code = taskTemplateInfo.changeTemplateInfo
+        ? taskTemplateInfo.user_defined01
+        : params.type_field_code;
+      params.sub_type_field_code = taskTemplateInfo.changeTemplateInfo
+        ? taskTemplateInfo.user_defined02
+        : params.sub_type_field_code;
+      params.outsourcing_field_code = taskTemplateInfo.changeTemplateInfo
+        ? taskTemplateInfo.user_defined03
+        : params.outsourcing_field_code;
     }
     return params;
   }
-
 }

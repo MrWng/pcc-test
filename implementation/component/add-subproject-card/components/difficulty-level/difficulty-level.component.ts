@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, SimpleChanges, OnChanges, } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { OpenWindowService } from '@ng-dynamic-forms/ui-ant-web';
+import { OpenWindowService } from '@athena/dynamic-ui';
 import { CommonService } from '../../../../service/common.service';
 import { AddSubProjectCardService } from '../../add-subproject-card.service';
 
@@ -48,7 +48,7 @@ export class DifficultyLevelComponent implements OnInit, OnChanges {
 * 不禁用状态
 */
   get isForbidden() {
-    return this.addSubProjectCardService.currentCardInfo?.isCollaborationCard;
+    return this.addSubProjectCardService.isPreview || this.addSubProjectCardService.currentCardInfo?.isCollaborationCard;
   }
 
   // 获取任务分类列表
@@ -73,10 +73,9 @@ export class DifficultyLevelComponent implements OnInit, OnChanges {
 
   // 设置回显
   setEcho(identifier): void {
-    console.log(identifier, 'identifier');
     this.dataList.forEach((obj) => {
       if (obj.difficulty_level_no === identifier) {
-        this.form.patchValue({ difficultyLevelObj: obj, });
+        this.form.patchValue({ difficultyLevelObj: JSON.stringify(obj), });
         return true;
       }
     });
@@ -86,4 +85,7 @@ export class DifficultyLevelComponent implements OnInit, OnChanges {
     return this.translateService.instant(`dj-default-${val}`);
   }
 
+  translateItem(item){
+    return JSON.stringify(item)
+  }
 }

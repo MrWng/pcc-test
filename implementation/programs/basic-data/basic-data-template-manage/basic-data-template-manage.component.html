@@ -37,7 +37,7 @@
         <nz-form-control>
           <div class="item-box project-type-box">
             <div class="title">{{ 'dj-pcc-项目类型' | translate }}</div>
-            <div class="box-choose" (click)="openProjectTypeInfoWindow()">
+            <div class="box-choose" (click)="openProjectTypeInfoWindow()" [title]="templateInfo.temp ? templateInfo.temp : translateWords('请选择项目类型>')">
               {{ templateInfo.temp ? templateInfo.temp : translateWords('请选择项目类型>') }}
             </div>
           </div>
@@ -45,7 +45,7 @@
       </nz-form-item>
       <button
         [ngClass]="{ active: activeStatus && !validateForm.invalid }"
-        (click)="saveToTemplate()"
+        (click)="callSaveToTemplate()"
       >
         {{ 'dj-pcc-保存' | translate }}
       </button>

@@ -17,16 +17,16 @@ import {
   DynamicFormLayoutService,
   DynamicFormValidationService,
   DynamicUserBehaviorCommService,
-} from '@ng-dynamic-forms/core';
+} from '@athena/dynamic-core';
 import { DwUserService } from '@webdpt/framework/user';
 import { CommonService, Entry } from '../../../service/common.service';
 import { DynamicWbsService } from '../../../component/wbs/wbs.service';
 import { forkJoin, Subject, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DynamicProgressTrackModel } from '../../../model/progress-track/progress-track.model';
-import { AddSubProjectCardService } from 'app/customization/task-project-center-console/component/add-subproject-card/add-subproject-card.service';
-import { PosumService } from 'app/customization/task-project-center-console/component/add-subproject-card/services/posum.service';
-import { WbsTabsService } from 'app/customization/task-project-center-console/component/wbs-tabs/wbs-tabs.service';
+import { AddSubProjectCardService } from 'app/implementation/component/add-subproject-card/add-subproject-card.service';
+import { PosumService } from 'app/implementation/component/add-subproject-card/services/posum.service';
+import { WbsTabsService } from 'app/implementation/component/wbs-tabs/wbs-tabs.service';
 
 @Component({
   selector: 'app-progress-track',

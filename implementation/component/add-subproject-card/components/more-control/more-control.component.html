@@ -18,7 +18,7 @@
             [eocSiteId]="addSubProjectCardService.eocSiteId?.id || ''"
             [eocRegionId]="addSubProjectCardService.eocRegionId?.id || ''"
             [eocCompanyIds]="addSubProjectCardService.eocCompanyId?.id || ''"
-            [disbale]="addSubProjectCardService.currentCardInfo?.someEdit || eocMapDisabled"
+            [disbale]="addSubProjectCardService.isPreview || addSubProjectCardService.currentCardInfo?.someEdit || eocMapDisabled"
             (currentEocInfo)="currentEocInfo($event)"
           ></app-eoc-select>
         </nz-form-control>
@@ -78,7 +78,7 @@
       <!-- 单别条件值 -->
       <div nz-col class="gutter-row" nzSpan="8">
         <ath-select
-          [nzDisabled]="isForbidden"
+          [nzDisabled]="isForbiddenForDocTypeInfo"
           style="width: 100%; min-width: 100%"
           formControlName="doc_type_info"
           nzShowSearch
@@ -202,7 +202,23 @@
       <div nz-col class="gutter-row" nzSpan="8">
         <nz-form-item>
           <nz-form-control>
-            <ath-input-group [label]="translateWord('单别')" [innerLabel]="true">
+            <ath-select
+              style="width: 100%; min-width: 100%"
+              formControlName="doc_type_no"
+              nzShowSearch
+              nzDropdownClassName="add-subproject-card-select"
+              [nzPlaceHolder]="translateWord('单别')"
+              isInsideLabel
+              [label]="translateWord('单别')"
+            >
+              <ath-option
+                *ngFor="let item of docTypeNoList"
+                [nzValue]="item['doc_type_no']"
+                [nzLabel]="item.docTypeLabel"
+              >
+              </ath-option>
+            </ath-select>
+            <!-- <ath-input-group [label]="translateWord('单别')" [innerLabel]="true">
               <input
                 formControlName="doc_type_no"
                 athInput
@@ -210,7 +226,7 @@
                 type="text"
                 [placeholder]="translateWord('单别')"
               />
-            </ath-input-group>
+            </ath-input-group> -->
           </nz-form-control>
         </nz-form-item>
       </div>

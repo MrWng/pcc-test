@@ -14,9 +14,9 @@ import {
   DynamicFormLayout,
   DynamicFormLayoutService,
   DynamicFormValidationService,
-} from '@ng-dynamic-forms/core';
+} from '@athena/dynamic-core';
 import { ProgressAnalysisService } from './progress-analysis.service';
-import { OpenWindowService } from '@ng-dynamic-forms/ui-ant-web';
+import { OpenWindowService } from '@athena/dynamic-ui';
 import { DynamicProgressAnalysisModel } from '../../../model/progress-analysis/progress-analysis.model';
 
 @Component({

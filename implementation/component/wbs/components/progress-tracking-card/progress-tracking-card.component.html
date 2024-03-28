@@ -67,7 +67,7 @@
             {{ wbsService.getPjPeriod(item.plan_start_date, item.plan_finish_date) }}
           </p>
           <div class="work-number">
-            <p>{{ wbsService.durationCalculation(item) }}{{ 'dj-default-n天工期' | translate }}</p>
+            <p>{{ item.workload_qty }}{{ ((item.workload_unit === '1') ? 'dj-default-时' : (item.workload_unit === '2') ? 'dj-default-日' : 'dj-default-月') | translate }}{{ 'dj-default-工期' | translate }}</p>
             <p class="is-issue" *ngIf="item.children && !item.children.length">
               {{
                 (item.is_issue_task_card ? 'dj-default-已下发' : 'dj-default-未下发') | translate
@@ -80,7 +80,7 @@
         <div
           class="overdue-status"
           *ngIf="
-            (item.task_status === 20 || item.task_status === 10 || item.task_status === 30) &&
+            (item.task_status === 20 || item.task_status === 10 || item.task_status === 30 || (item.task_status === 60)) &&
             item.isOverdue &&
             item.children &&
             !item.children.length
@@ -96,42 +96,54 @@
             {{ 'dj-pcc-逾期n' | translate : { n: item.overdue_days } }}
           </p>
         </div>
+
+        <!-- 需要交付物/交付物已上传，标记 -->
+        <div class="icon-box" *ngIf="(!item.children || !item.children.length) && item.attachment_status">
+          <em class="icon-em" athTooltip [athTooltipTitle]="translatePccWord(item.attachment_status === '1' ? '需交付物' : '已有交付物')">
+            <svg class="iconfont" aria-hidden="true">
+              <use xlink:href="#iconjiaofuwumobanicon" *ngIf="item.attachment_status === '1'"></use>
+              <use xlink:href="#icona-21" *ngIf="item.attachment_status === '2'"></use>
+            </svg>
+          </em>
+        </div>
       </div>
       <div class="info" [ngClass]="{ 'info-style': item.level !== 0 }">
         <div class="info-left">
           <div class="title">
             <em class="icon" *ngIf="item.is_milepost">
-              <svg class="iconfont" aria-hidden="true">
+              <svg class="iconfont titleIcon" aria-hidden="true">
                 <use xlink:href="#iconlichengbei"></use>
               </svg>
             </em>
             <em class="icon" *ngIf="item.is_attachment">
-              <svg class="iconfont" aria-hidden="true">
+              <svg class="iconfont titleIcon" aria-hidden="true">
                 <use xlink:href="#iconjiaofuwu"></use>
               </svg>
             </em>
             <em class="icon" *ngIf="item.is_approve">
-              <svg class="iconfont" aria-hidden="true">
+              <svg class="iconfont titleIcon" aria-hidden="true">
                 <use xlink:href="#iconqianhe"></use>
               </svg>
             </em>
             <div
-              class="text"
+              class="task_name_box"
               nz-tooltip
               [nzTooltipTitle]="item.task_name"
               nzTooltipPlacement="topLeft"
             >
-              {{ item.task_name }}
+              <span class="task_name">
+                {{ item.task_name }}
+              </span>
+              <span *ngIf="wbsService.isTrackPages && item.update_flag" class="card-edit">*</span>
             </div>
           </div>
           <div
-            class="font-size13"
+            class="font-size13 task_category"
             nz-tooltip
-            [nzTooltipTitle]="item.task_category"
+            [nzTooltipTitle]="getTaskCategoryInfo(item)"
             nzTooltipPlacement="topLeft"
           >
-            {{ 'dj-pcc-任务类型' | translate }}
-            {{ wbsService.TaskType[item.task_category] | translate }}
+            {{getTaskCategoryInfo(item)}}
           </div>
           <p
             class="person"
@@ -220,6 +232,7 @@
 </div>
 
 <!-- 通知执行人 -->
+<!-- 对谈， 已废弃 -->
 <nz-modal
   [(nzVisible)]="msgModalVisible"
   [nzContent]="msgModalTmpl"
@@ -236,6 +249,7 @@
         nz-input
         [placeholder]="'dj-c-msg-content' | translate"
         [(ngModel)]="msgContentVal"
+        [maxlength]="255"
       ></textarea>
     </div>
     <div class="msg-modal-btns">

@@ -66,6 +66,9 @@
         color: #2012d9;
         cursor: pointer;
       }
+      .delete-icon {
+        cursor: pointer;
+      }
     }
   }
   .loading {
@@ -115,7 +118,7 @@
   .redActive {
     color: red;
   }
-  .ant-table-tbody > tr > td {
+  .ant-table-tbody > tr > td.td-info {
     white-space: pre-wrap !important;
   }
   .ant-table-thead > tr > th {
@@ -130,4 +133,10 @@
 
 ::ng-deep .maskcardEnd {
   z-index: 1002;
+}
+
+.tr-box {
+  td.td-number {
+    white-space: nowrap !important;
+  }
 }

@@ -1,9 +1,10 @@
 import { Component, OnInit, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { CommonService } from '../../../../../service/common.service';
-import { OpenWindowService } from '@ng-dynamic-forms/ui-ant-web';
+import { OpenWindowService } from '@athena/dynamic-ui';
 import { ProgressAnalysisService } from '../../progress-analysis.service';
-import { multiple, subtract } from '@ng-dynamic-forms/core';
+import { multiple, subtract } from '@athena/dynamic-core';
+import { DynamicWbsService } from '../../../../../component/wbs/wbs.service';
 
 @Component({
   selector: 'app-task-analysis',
@@ -24,6 +25,7 @@ export class TaskAnalysisComponent implements OnInit {
     private translateService: TranslateService,
     protected changeRef: ChangeDetectorRef,
     public commonService: CommonService,
+    public wbsService: DynamicWbsService,
     public openWindowService: OpenWindowService,
     public progressAnalysisService: ProgressAnalysisService
   ) {}
@@ -60,6 +62,10 @@ export class TaskAnalysisComponent implements OnInit {
       this.planFinishDate = this.progressAnalysisService.searchProjectInfo?.plan_finish_date;
       this.changeRef.markForCheck();
     });
+  }
+
+  getGanttData(){
+    return this.wbsService.ganttData;
   }
 
   getAllProjectList(): void {

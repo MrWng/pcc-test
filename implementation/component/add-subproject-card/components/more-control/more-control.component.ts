@@ -1,8 +1,8 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { cloneDeep } from '@ng-dynamic-forms/core';
+import { cloneDeep } from '@athena/dynamic-core';
 import { TranslateService } from '@ngx-translate/core';
-import { CommonService } from 'app/customization/task-project-center-console/service/common.service';
+import { CommonService } from 'app/implementation/service/common.service';
 
 import { AddSubProjectCardService } from '../../add-subproject-card.service';
 
@@ -19,7 +19,10 @@ export class MoreControlComponent implements OnInit {
   docTypeInfoList: any[] = [];
   /** 品号类别/群组list */
   listOfItemType: any[] = [];
-
+  /** 单别list */
+  docTypeNoList: any[] = [];
+  /** 任务模版信息 */
+  @Input() taskTemplateInfo = { task_category: '' };
   @Input() validateForm: FormGroup = this.fb.group({
     /** 单别信息 */
     doc_type_info: [{ doc_condition_value: '' }],
@@ -78,14 +81,57 @@ export class MoreControlComponent implements OnInit {
    * 不禁用状态
    */
   get isForbidden() {
-    return this.addSubProjectCardService.currentCardInfo?.isCollaborationCard;
+    return this.addSubProjectCardService.isPreview || this.addSubProjectCardService.currentCardInfo?.isCollaborationCard;
+  }
+
+  /**
+   * todo:特定的任务类型
+   * 清空、置灰
+   * 单别条件值
+   */
+  get isForbiddenForDocTypeInfo() {
+    /**
+     * 隐藏：
+     * ORD.一般
+     * 置灰：
+     * ODAR.订单帐款分期；PLM.PLM工作项；PLM_PROJECT.PLM项目；MES.MES；ASSC_ISA_ORDER.售后云安调工单；
+     * APC.装配进度(工单)；APC_O.装配进度(工单工艺)；SFT.SFT；MO_H.工单(工时)；REVIEW.项目检讨；
+     * 可用：
+     * MO.工单；PO.采购；OD.订单；MOOP.工单工艺；EXPORT.出货通知单；SHIPMENT.出货单；PR.请购；
+     * PRSUM.请购(汇总)；POSUM.采购(汇总)；POPUR.采购进货明细；PO_KEY.采购(关键料)；PO_NOT_KEY.采购(关键料)；MOMA.工单发料；
+     */
+    const flag1 = this.addSubProjectCardService.isPreview; // true，置灰
+    const flag2 = this.addSubProjectCardService.currentCardInfo?.isCollaborationCard === true; // 置灰
+    const flag3 = Number(this.validateForm.value.task_status) !== 10; // 置灰
+    // 置灰
+    const flag4 = ['ODAR','PLM','PLM_PROJECT','MES','ASSC_ISA_ORDER','APC','APC_O','SFT','MO_H','REVIEW', 'PCM']
+      .includes(this.taskTemplateInfo?.task_category);
+    // 可用
+    // const flag5 = ['MO','PO','OD','MOOP','EXPORT','SHIPMENT','PR','PRSUM','POSUM','POPUR','PO_KEY','PO_NOT_KEY','MOMA']
+    //   .includes(this.taskTemplateInfo?.task_category);
+    if (flag1 || flag2 || flag3 || flag4) {
+      this.validateForm.controls['doc_type_info'].disable();
+      return true;
+    } else {
+      this.validateForm.controls['doc_type_info'].enable();
+      return false;
+    }
   }
 
   ngOnInit(): void {
     if (this.addSubProjectCardService.taskTemplateNo && Object.keys(this.addSubProjectCardService.currentCardInfo).length) {
       this.setDocTypeInfoList(this.addSubProjectCardService.currentCardInfo);
+      this.setDocTypeNoList(this.addSubProjectCardService.currentCardInfo);
       this.setItemType(this.addSubProjectCardService.currentCardInfo);
       this.resetBRegionValue(this.addSubProjectCardService.currentCardInfo.task_category);
+      if ((this.validateForm.get('is_need_doc_no').value === true)
+      && (this.addSubProjectCardService.currentCardInfo.task_status === '20') && !this.addSubProjectCardService.isPreview) {
+        const enableColumn = ['doc_type_no', 'doc_no', 'seq', 'type_condition_value', 'sub_type_condition_value'];
+        enableColumn.forEach((column) => { this.validateForm.get(column).enable(); });
+        if (this.addSubProjectCardService.currentCardInfo.task_category === 'MO_H') {
+          this.validateForm.get('outsourcing_condition_value').enable();
+        }
+      }
     }
 
     this.checkItemOperator();
@@ -147,14 +193,18 @@ export class MoreControlComponent implements OnInit {
   }
 
   /**
-   * todo:特定的任务类型时 清空一些值
+   * todo:特定的任务类型
+   * 清空、置灰
+   * 运营编号、据点编号、运营编号、
+   * 单别条件值、品号类别/群组、品号类别条件值、
+   * 料号运算符、料号条件值、序号
    * @param taskCategory
    */
   resetBRegionValue(taskCategory: string): void {
-    if (['ODAR', 'REVIEW', 'PLM', 'MES', 'PLM_PROJECT'].includes(taskCategory)) {
+    if (['ODAR', 'REVIEW', 'PLM', 'MES', 'PLM_PROJECT', 'ASSC_ISA_ORDER', 'PCM'].includes(taskCategory)) {
       this.resetBAreaData();
     }
-    this.eocMapDisabled = ['PLM', 'PLM_PROJECT'].includes(taskCategory) ? true : false;
+    this.eocMapDisabled = ['PLM', 'PLM_PROJECT', 'ASSC_ISA_ORDER', 'PCM'].includes(taskCategory) ? true : false;
   }
 
   /**
@@ -195,6 +245,7 @@ export class MoreControlComponent implements OnInit {
   setDocTypeInfoList(taskTemplate: any): void {
     const docType = this.transferTaskCategory(taskTemplate.task_category);
     if (!docType) { return; }
+    // 单别条件值
     const params = {
       doc_type: docType,
       eoc_company_id: taskTemplate.eoc_company_id || '',
@@ -212,12 +263,40 @@ export class MoreControlComponent implements OnInit {
   }
 
   /**
+   * 设置更多选项中单别
+   * @param taskTemplate
+   * @returns
+   */
+  setDocTypeNoList(taskTemplate: any): void {
+    const docType = this.transferTaskCategoryNo(taskTemplate.task_category);
+    if (!docType) { return; }
+    // 单别
+    const paramsDoc = {
+      doc_type: 14,
+      eoc_company_id: taskTemplate.eoc_company_id || '',
+      eoc_site_id: taskTemplate.eoc_site_id || '',
+      eoc_region_id: taskTemplate.eoc_region_id || '',
+    };
+    const docEcoMap = taskTemplate.eoc_company_id;
+    this.commonService
+      .getInvData('bm.dnsc.document.type.get', paramsDoc, docEcoMap)
+      .subscribe((res: any): void => {
+        this.changStatus.emit({ type: 'loading', value: false });
+        this.docTypeNoList = res.data.document.map(item=>{
+          item.docTypeLabel = item.doc_type_no + item.doc_type_name;
+          return item;
+        });
+        this.changeRef.markForCheck();
+      });
+  }
+
+  /**
    * 设置更多选项中品號類別/群組数组
    * @param taskTemplate
    * @returns
    */
   setItemType(taskTemplate: any): void {
-    if (['PLM', 'MES', 'PLM_PROJECT', 'REVIEW', 'APC', 'APC_O'].includes(taskTemplate.task_category)) {
+    if (['PLM', 'MES', 'PLM_PROJECT', 'REVIEW', 'APC', 'APC_O', 'ASSC_ISA_ORDER', 'PCM'].includes(taskTemplate.task_category)) {
       this.changStatus.emit({ type: 'loading', value: false });
       return;
     }
@@ -226,8 +305,9 @@ export class MoreControlComponent implements OnInit {
     this.commonService.hasDependsGround().toPromise().then((result) => {
       // 同步稳态	Y.同步；N.不同步
       if (result?.data?.hasGroundEnd === 'Y') {
+        // sprint 4.6 product.classification.definition.data.get => bm.pisc.product.classification.get todo spring 4.8
         this.commonService
-          .getInvData('product.classification.definition.data.get', {}, taskTemplate.eoc_company_id)
+          .getInvData('bm.pisc.product.classification.get', {}, taskTemplate.eoc_company_id)
           .subscribe((res: any): void => {
             this.changStatus.emit({ type: 'loading', value: false });
             res.data.classification_method_info.forEach((info: any): void => {
@@ -243,6 +323,7 @@ export class MoreControlComponent implements OnInit {
   }
 
   /**
+   * 【单别条件值】需要调API
    * 根据任务类型 返回一个编号
    * @param taskCategory 任务类型
    * @returns
@@ -252,7 +333,7 @@ export class MoreControlComponent implements OnInit {
       MO: 14,
       PO: 4,
       OD: 9,
-      ODAR: 9,
+      // ODAR: 9,
       MOOP: 14,
       EXPORT: 15,
       SHIPMENT: 10,
@@ -262,8 +343,20 @@ export class MoreControlComponent implements OnInit {
       POPUR: 4,
       MOMA: 14,
       PO_KEY: 4,
+      PO_NOT_KEY: 4,
     };
     return transferInfo[taskCategory];
+  }
+
+  /**
+   * 【单别】需要调API
+   * 根据任务类型 返回一个编号
+   * @param taskCategory 任务类型
+   * @returns
+   */
+  transferTaskCategoryNo(taskCategory: string): any {
+    const transferInfo = ['PRSUM','POSUM','MO_H','MOOP','APC','APC_O','SFT'];
+    return transferInfo.includes(taskCategory);
   }
 
   /**

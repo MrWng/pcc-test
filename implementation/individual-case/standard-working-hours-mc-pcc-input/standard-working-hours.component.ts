@@ -10,9 +10,9 @@ import {
   DynamicFormLayoutService,
   DynamicFormValidationService,
   isEmpty,
-} from '@ng-dynamic-forms/core';
+} from '@athena/dynamic-core';
 import { CommonService } from '../../service/common.service';
-import { OpenWindowService } from '@ng-dynamic-forms/ui-ant-web';
+import { OpenWindowService } from '@athena/dynamic-ui';
 import { TranslateService } from '@ngx-translate/core';
 import { APIService } from '../../service/api.service';
 import { Subscription } from 'rxjs';

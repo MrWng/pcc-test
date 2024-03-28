@@ -3,7 +3,7 @@ import { Observable, Subject } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { DwSystemConfigService } from '@webdpt/framework/config';
 import { gantt } from 'dhtmlx-gantt';
-import { CommonService } from 'app/customization/task-project-center-console/service/common.service';
+import { CommonService } from 'app/implementation/service/common.service';
 import { TranslateService } from '@ngx-translate/core';
 
 @Injectable()

@@ -1,0 +1,39 @@
+.opportunity-information {
+  // padding: 0 40px;
+  .table-wrapper.t-a {
+    .table-cell {
+      text-align: left;
+      &:nth-child(2n) {
+        width: 18.333333%;
+      }
+      &:nth-child(2n + 1) {
+        text-align: right;
+        width: 15%;
+      }
+      ::ng-deep .ath-input-number-wrapper,
+      ::ng-deep .ant-input-number {
+        width: 100% !important;
+      }
+      ::ng-deep .ath-date-picker {
+        width: 100%;
+      }
+      ::ng-deep .ant-select {
+        min-width: initial;
+      }
+    }
+  }
+  .table-wrapper.t-b {
+    .table-cell {
+      border-top: none;
+      &:nth-child(1) {
+        text-align: right;
+      }
+      &:nth-child(2) {
+        width: 85%;
+      }
+      // ::ng-deep .ath-input-affix-wrapper {
+      //   border: none;
+      // }
+    }
+  }
+}

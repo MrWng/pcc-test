@@ -1,45 +1,26 @@
-<div class="wbs_upload">
-  <button
-    *ngIf="
+<li
+  *ngIf="
       source === Entry.maintain ||
-      wbsService.projectInfo?.project_status === '10' ||
-      wbsService.showExcel
+      source === Entry.card
     "
-    nzType="text"
-    nzBlock
-    nz-button
-    [nzSize]="'small'"
-    class="download"
-    (click)="downLoad()"
-    [userBehavior]="{ name: 'dj-default-下载EXCEL模板', code: downLoadCode }"
-    [disabled]="
-      (wbsService.projectInfo?.project_status === '10' &&
-        !wbsService.projectInfo.project_type_no) ||
-      !wbsService.editable
-    "
-    nzType="link"
-  >
-    {{ 'dj-default-下载EXCEL模板' | translate }}
-  </button>
-  <button
-    *ngIf="source === Entry.maintain || wbsService.projectInfo?.project_status === '10'"
-    nzType="text"
-    nzBlock
-    nz-button
-    [nzSize]="'small'"
-    class="download"
-    (click)="upload()"
-    [disabled]="
-      (wbsService.projectInfo?.project_status === '10' &&
+  nz-menu-item
+  (click)="downLoad()"
+  [userBehavior]="{ name: 'dj-default-下载EXCEL模板', code: downLoadCode }"
+  [nzDisabled]='source === Entry.card && !wbsService.projectInfo.project_type_no'
+>
+  {{ 'dj-default-下载EXCEL模板' | translate }}
+</li>
+<li
+  nz-menu-item
+  *ngIf="source === Entry.maintain || wbsService.projectInfo?.project_status === '10'"
+  (click)="upload()"
+  [nzDisabled]="(wbsService.projectInfo?.project_status === '10' &&
         !wbsService.projectInfo.project_type_no) ||
       wbsService.hasCollaborationCard ||
-      !wbsService.editable
-    "
-    nzType="link"
-  >
-    {{ 'dj-default-EXCEL导入' | translate }}
-  </button>
-</div>
+      !wbsService.editable"
+>
+  {{ 'dj-default-EXCEL导入' | translate }}
+</li>
 <nz-modal
   [(nzVisible)]="isVisible"
   nzTitle=""
@@ -82,10 +63,15 @@
   nzClassName="uploadErrorModal"
 >
   <ng-template nzModalContent>
-    <nz-table #basicTable [nzData]="errorList" [nzShowPagination]="isShowPage">
+    <nz-table
+      nzTableLayout="fixed"
+      #basicTable
+      [nzData]="errorList"
+      [nzShowPagination]="isShowPage"
+    >
       <thead>
         <tr>
-          <th nzWidth="150px">{{ 'dj-default-任务名称' | translate }}</th>
+          <th nzEllipsis nzBreakWord nzWidth="150px">{{ 'dj-default-任务名称' | translate }}</th>
           <th>{{ 'dj-pcc-检验结果' | translate }}</th>
         </tr>
       </thead>

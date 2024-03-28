@@ -65,6 +65,67 @@ export const getOpportunityInformationGroupCop = () => {
       headerName: '预计PO时间',
     },
     {
+      type: 'select',
+      schema: 'repayment_risk_level',
+      headerName: '回款风险等级',
+      options: [
+        {
+          title: '高风险',
+          value: '1',
+        },
+        {
+          title: '低风险',
+          value: '2',
+        },
+        {
+          title: '无风险',
+          value: '3',
+        },
+      ],
+    },
+    {
+      type: 'select',
+      schema: 'identify_income_risk_level',
+      headerName: '确认收入风险等级',
+      options: [
+        {
+          title: '高风险',
+          value: '1',
+        },
+        {
+          title: '低风险',
+          value: '2',
+        },
+        {
+          title: '无风险',
+          value: '3',
+        },
+      ],
+    },
+
+    {
+      type: 'input',
+      schema: 'estimate_target_amt',
+      headerName: '预估目标金额',
+      dataType: 'numeric',
+      dataPrecision: {
+        // 总长度
+        length: 20,
+        // 小数位数
+        place: 6,
+      },
+    },
+    {
+      type: 'date',
+      schema: 'repayment_risk_level_date',
+      headerName: '回款风险等级日期',
+    },
+    {
+      type: 'date',
+      schema: 'identify_income_risk_level_date',
+      headerName: '确认收入风险等级日期',
+    },
+    {
       type: 'textarea',
       schema: 'business_sales_strategy',
       headerName: '销售策略',

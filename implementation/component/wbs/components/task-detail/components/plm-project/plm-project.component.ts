@@ -12,7 +12,7 @@ import {
   DynamicFormLayoutService,
   DynamicFormService,
   DynamicFormValidationService,
-} from '@ng-dynamic-forms/core';
+} from '@athena/dynamic-core';
 import { TranslateService } from '@ngx-translate/core';
 import { PlmProjectService } from './plm-project.service';
 

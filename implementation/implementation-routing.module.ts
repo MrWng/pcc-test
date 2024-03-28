@@ -2,17 +2,19 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { MODULE_ROUTES } from '../routes';
-import { DefaultLayoutComponent } from './layout/default-layout/default-layout.component';
 import { DwLanguageService } from '@webdpt/framework/language';
 import { DwSsoLoginComponent } from '@webdpt/components/sso-login';
+import { DwLayoutAthenaComponent } from '@webdpt/athena-dev-tools';
+import { programs } from 'app/config/custom-app-config';
 
 const routes: Routes = [
   {
     path: '',
     pathMatch: 'prefix',
-    component: DefaultLayoutComponent,
+    component: DwLayoutAthenaComponent,
     children: [...MODULE_ROUTES],
     data: {
+      programs,
       dwRouteData: {
         programId: 'default',
         i18n: ['basic', 'ant-components'],

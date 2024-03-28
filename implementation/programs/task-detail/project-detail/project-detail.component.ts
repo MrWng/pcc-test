@@ -15,13 +15,13 @@ import {
   DynamicTableModel,
   DynamicFormLayoutService,
   DynamicFormValidationService,
-} from '@ng-dynamic-forms/core';
+} from '@athena/dynamic-core';
 import { TranslateService } from '@ngx-translate/core';
 import { DynamicProjectDetailModel } from '../../../model/project-detail/project-detail.model';
 import { CommonService, Entry } from '../../../service/common.service';
 import { DynamicWbsService } from '../../../component/wbs/wbs.service';
-import { AddSubProjectCardService } from 'app/customization/task-project-center-console/component/add-subproject-card/add-subproject-card.service';
-import { WbsTabsService } from 'app/customization/task-project-center-console/component/wbs-tabs/wbs-tabs.service';
+import { AddSubProjectCardService } from 'app/implementation/component/add-subproject-card/add-subproject-card.service';
+import { WbsTabsService } from 'app/implementation/component/wbs-tabs/wbs-tabs.service';
 
 @Component({
   selector: 'app-dynamic-project-detail',

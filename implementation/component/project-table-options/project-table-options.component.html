@@ -1,0 +1,62 @@
+<div class="project_table_options">
+  <div class="project_table_options_button" (click)="preview($event)">
+    {{ 'dj-pcc-查看' | translate }}
+  </div>
+  <div
+    class="project_table_options_button"
+    style="margin-left: 16px"
+    (click)="editOrDelete($event)"
+    nz-dropdown
+    nzTrigger="click"
+    [nzVisible]="moreVisible"
+    [nzClickHide]="false"
+    [nzDropdownMenu]="menu"
+    *ngIf="mainOperateConditionAggregation()"
+  >
+    {{ 'dj-default-更多' | translate }}<span nz-icon nzType="down"></span>
+  </div>
+  <nz-dropdown-menu #menu="nzDropdownMenu">
+    <ul nz-menu>
+      <li nz-menu-item [nzDisabled]="!taskDetail.canEdit" (click)="edit($event)">
+        {{ 'dj-default-编辑' | translate }}
+      </li>
+      <li nz-menu-item [nzDisabled]="isDisableDeleteButton()" (click)="delete($event)">
+        {{ 'dj-default-删除' | translate }}
+      </li>
+      <li
+        class="cancel-collaboration-wrapper"
+        *ngIf="
+          taskDetail.isCollaborationCardTrue &&
+          !cancelCollaborationOk &&
+          source === Entry.card &&
+          taskDetail.upper_level_task_no === taskDetail.task_no
+        "
+        nz-menu-item
+      >
+        <app-cancel-collaboration
+          #$cancelCollaboration
+          [sourceData]="taskDetail"
+          (cancelSuccess)="cancelCollaborationSuccess()"
+          (cancelFullFail)="cancelCollaborationFullFail()"
+        ></app-cancel-collaboration>
+      </li>
+    </ul>
+  </nz-dropdown-menu>
+</div>
+<!-- 变更原因输入 -->
+<app-change-reason
+  #changeReason
+  [source]="source"
+  [showUploadFile]="false"
+  (confirmInput)="changeReasonOk($event)"
+></app-change-reason>
+<nz-modal
+  [(nzVisible)]="confirmDeleteVisible"
+  [nzTitle]="translateWord('提示')"
+  [nzOkText]="translateWord('确定')"
+  [nzCancelText]="translateWord('取消')"
+  (nzOnOk)="handleOk()"
+  (nzOnCancel)="handleCancel()"
+>
+  <ng-container *nzModalContent> {{ 'dj-default-确定删除么？' | translate }} </ng-container>
+</nz-modal>

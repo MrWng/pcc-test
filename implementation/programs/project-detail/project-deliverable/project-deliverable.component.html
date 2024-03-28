@@ -1,10 +1,17 @@
 <div class="project-deliverable" *ngIf="deliverable_info?.length">
   <div *ngFor="let file of deliverable_info">
-    <span class="delivery-name">{{ file.delivery_name }}</span>
+    <span class="delivery-name ellipsis"
+      *ngIf="group?.value?.category === 'manualAssignmentDelivery_PLM'; else other"
+      athTooltip
+      [athTooltipTitle]="file.delivery_name"
+    >{{ file?.delivery_name }}</span>
+    <ng-template #other>
+      <span class="delivery-name">{{ file.delivery_name }}</span>
+    </ng-template>
     <i
       athIcon
       nz-tooltip
-      nzTooltipTitle="下载"
+      [nzTooltipTitle]="translateService.instant('dj-c-下载')"
       nzTooltipPlacement="top"
       iconfont="icon-xiazai"
       (click)="downLoad(file)"
@@ -12,7 +19,7 @@
     <i
       athIcon
       nz-tooltip
-      nzTooltipTitle="预览"
+      [nzTooltipTitle]="translateService.instant('dj-c-预览')"
       nzTooltipPlacement="top"
       iconfont="icon-chakan"
       (click)="previewFile(file)"

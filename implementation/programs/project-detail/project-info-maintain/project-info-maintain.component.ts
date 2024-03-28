@@ -14,12 +14,10 @@ import {
   DynamicFormLayout,
   DynamicFormLayoutService,
   DynamicFormValidationService,
-} from '@ng-dynamic-forms/core';
+} from '@athena/dynamic-core';
 import { TranslateService } from '@ngx-translate/core';
 import { CommonService } from '../../../service/common.service';
-import {
-  DynamicProjectInfoMaintainModel
-} from 'app/customization/task-project-center-console/model/project-info-maintain/project-info-maintain.model';
+import { DynamicProjectInfoMaintainModel } from 'app/implementation/model/project-info-maintain/project-info-maintain.model';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { DwUserService } from '@webdpt/framework/user';
@@ -33,7 +31,7 @@ export class ProjectInfoMaintainComponent extends DynamicFormControlComponent im
   @Input() formLayout: DynamicFormLayout;
   @Input() group: FormGroup;
   @Input() layout: DynamicFormControlLayout;
-  @Input() model: DynamicProjectInfoMaintainModel
+  @Input() model: DynamicProjectInfoMaintainModel;
   @Output() blur: EventEmitter<any> = new EventEmitter();
   @Output() change: EventEmitter<any> = new EventEmitter();
   @Output() focus: EventEmitter<any> = new EventEmitter();
@@ -45,9 +43,8 @@ export class ProjectInfoMaintainComponent extends DynamicFormControlComponent im
   // 起讫时间是否被修改过
   isModified: boolean = false;
   // 是否显示提示消息
-  tipMessage: boolean = false;
+  tipMessage: Map<any, any> = new Map();
   hasPermission: boolean = false;
-
 
   constructor(
     protected elementRef: ElementRef,
@@ -57,8 +54,7 @@ export class ProjectInfoMaintainComponent extends DynamicFormControlComponent im
     protected validationService: DynamicFormValidationService,
     public commonService: CommonService,
     private message: NzMessageService,
-    private userService: DwUserService,
-
+    private userService: DwUserService
   ) {
     super(layoutService, validationService, changeRef, elementRef);
   }
@@ -70,15 +66,19 @@ export class ProjectInfoMaintainComponent extends DynamicFormControlComponent im
 
   /**
    * 获取项目集编号和项目信息
-  */
+   */
   getProgramNumberAndInfo(): void {
-    const { projectSet_info } = this.model.content?.executeContext?.taskWithBacklogData?.bpmData ?? {};
+    const { projectSet_info } =
+      this.model.content?.executeContext?.taskWithBacklogData?.bpmData ?? {};
     const { project_set_no } = projectSet_info.at(0);
-    this.commonService.getInvData('bm.pisc.project.set.get', { project_set_info: [{ project_set_no }] }).subscribe((res: any): void => {
-      this.programInfo = res.data?.project_set_info.at(0) ?? {};
-      this.getPermission();
-    });
-    this.commonService.getInvData('bm.pisc.project.get', { project_info: [{ project_set_no: project_set_no }] })
+    this.commonService
+      .getInvData('bm.pisc.project.set.get', { project_set_info: [{ project_set_no }] })
+      .subscribe((res: any): void => {
+        this.programInfo = res.data?.project_set_info.at(0) ?? {};
+        this.getPermission();
+      });
+    this.commonService
+      .getInvData('bm.pisc.project.get', { project_info: [{ project_set_no: project_set_no }] })
       .subscribe((resp: any): void => {
         this.project_info = resp.data?.project_info ?? [];
         this.changeRef.markForCheck();
@@ -91,13 +91,15 @@ export class ProjectInfoMaintainComponent extends DynamicFormControlComponent im
    *  2 历史卡不可编辑
    */
   getPermission(): void {
-    const isHistory = this.programInfo.project_status === '40' || this.programInfo.project_status === '60';
-    this.commonService.searchUserInfo({ userId: this.userService.getUser('userId') }).subscribe((resData: any): void => {
-      const editable = resData.data.id === this.programInfo.leader_no ? true : false;
-      this.hasPermission = !editable || isHistory;
-      this.changeRef.markForCheck();
-    });
-
+    const isHistory =
+      this.programInfo.project_status === '40' || this.programInfo.project_status === '60';
+    this.commonService
+      .searchUserInfo({ userId: this.userService.getUser('userId') })
+      .subscribe((resData: any): void => {
+        const editable = resData.data.id === this.programInfo.leader_no ? true : false;
+        this.hasPermission = !editable || isHistory;
+        this.changeRef.markForCheck();
+      });
   }
 
   /**
@@ -108,12 +110,53 @@ export class ProjectInfoMaintainComponent extends DynamicFormControlComponent im
     if (this.programInfo[type] === date) {
       return;
     }
-    if (type === 'plan_finish_date') {
-      this.tipMessage = this.project_info.find((item) => { return date < moment(item.plan_finish_date).format('YYYY-MM-DD'); });
-    }
+    this.tipMessage.clear();
     this.programInfo[type] = date;
     this.isModified = true;
+    this.setErrorMsg();
+    this.setWarningMsg();
     this.changeRef.markForCheck();
+  }
+  private setErrorMsg() {
+    const date = this.programInfo['plan_finish_date']
+      ? moment(this.programInfo['plan_finish_date']).format('YYYY-MM-DD')
+      : '';
+    const flag = this.project_info.find((item) => {
+      return date && moment(item.plan_finish_date).format('YYYY-MM-DD') > date;
+    });
+
+    flag
+      ? this.tipMessage.set(
+          'plan_finish_date_error',
+          this.translateService.instant('dj-pcc-项目结束日期不可大于项目集结束日期！')
+        )
+      : this.tipMessage.delete('plan_finish_date_error');
+  }
+  private setWarningMsg() {
+    if (this.tipMessage.has('plan_finish_date_error')) {
+      return;
+    }
+    const date = this.programInfo['plan_start_date']
+      ? moment(this.programInfo['plan_start_date']).format('YYYY-MM-DD')
+      : '';
+    const flagA = this.project_info.find((item) => {
+      return moment(item.plan_start_date).format('YYYY-MM-DD') < date;
+    });
+    const flagB = this.project_info.find((item) => {
+      return moment(item.plan_finish_date).format('YYYY-MM-DD') < date;
+    });
+    flagA
+      ? this.tipMessage.set(
+          'plan_start_date_warning',
+          this.translateService.instant('dj-pcc-项目开始日期早于项目集开始日期！')
+        )
+      : this.tipMessage.delete('plan_start_date_warning');
+    flagB
+      ? this.tipMessage.set(
+          'plan_finish_date_warning',
+          this.translateService.instant('dj-pcc-项目结束日期早于项目集开始日期！')
+        )
+      : this.tipMessage.delete('plan_finish_date_warning');
   }
 
   /**
@@ -126,7 +169,8 @@ export class ProjectInfoMaintainComponent extends DynamicFormControlComponent im
       return false;
     }
     return (
-      moment(endValue).format('YYYY-MM-DD') < moment(this.programInfo.plan_start_date).format('YYYY-MM-DD')
+      moment(endValue).format('YYYY-MM-DD') <
+      moment(this.programInfo.plan_start_date).format('YYYY-MM-DD')
     );
   };
 
@@ -135,18 +179,25 @@ export class ProjectInfoMaintainComponent extends DynamicFormControlComponent im
       return false;
     }
     return (
-      moment(endValue).format('YYYY-MM-DD') > moment(this.programInfo.plan_finish_date).format('YYYY-MM-DD')
+      moment(endValue).format('YYYY-MM-DD') >
+      moment(this.programInfo.plan_finish_date).format('YYYY-MM-DD')
     );
   };
-
 
   /**
    * 是否置灰提交按钮
    */
   isActive(): boolean {
     const isVaildDate =
-      moment(this.programInfo?.plan_start_date).format('YYYY-MM-DD') <= moment(this.programInfo?.plan_finish_date).format('YYYY-MM-DD');
-    return this.programInfo?.plan_start_date && this.programInfo?.plan_finish_date && this.isModified && isVaildDate;
+      moment(this.programInfo?.plan_start_date).format('YYYY-MM-DD') <=
+      moment(this.programInfo?.plan_finish_date).format('YYYY-MM-DD');
+    return (
+      this.programInfo?.plan_start_date &&
+      this.programInfo?.plan_finish_date &&
+      this.isModified &&
+      !this.tipMessage.has('plan_finish_date_error') &&
+      isVaildDate
+    );
   }
 
   /**
@@ -155,11 +206,13 @@ export class ProjectInfoMaintainComponent extends DynamicFormControlComponent im
   submit(): void {
     if (this.isActive()) {
       const params = { project_set_info: [this.programInfo] };
-      this.commonService.getInvData('project.set.info.update', params).subscribe((res: any): void => {
-        this.message.success(this.translateService.instant('dj-default-提交成功'));
-        this.isModified = false;
-        this.changeRef.markForCheck();
-      });
+      this.commonService
+        .getInvData('project.set.info.update', params)
+        .subscribe((res: any): void => {
+          this.message.success(this.translateService.instant('dj-default-提交成功'));
+          this.isModified = false;
+          this.changeRef.markForCheck();
+        });
     }
   }
 }

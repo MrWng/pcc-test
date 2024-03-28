@@ -8,7 +8,7 @@
       style="height: 34px"
       athInput
       type="text"
-      [disabled]="addSubProjectCardService.currentCardInfo?.someEdit ? true : false"
+      [disabled]="isDisable"
       readonly
       [placeholder]="translateWord('任务模板')"
     />
@@ -16,10 +16,7 @@
   <div
     class="deleteRelate"
     (click)="deleteTaskTemplate($event)"
-    *ngIf="
-      addSubProjectCardService.taskTemplateName &&
-      !addSubProjectCardService.currentCardInfo?.someEdit
-    "
+    *ngIf="addSubProjectCardService.taskTemplateName && !isDisable"
   >
     <i athIcon [iconfont]="'iconshanchu'"></i>
   </div>

@@ -19,7 +19,7 @@
     <nz-spin nzSimple></nz-spin>
   </div>
   <div class="table-box" [class.setMaxHeight]="fullScreenStatus" *ngIf="!isShowSpin">
-    <div class="tabs" *ngIf="this.wbsService.taskDetail.task_category !== 'REVIEW'">
+    <div class="tabs" *ngIf="!['REVIEW', 'PCM'].includes(this.wbsService.taskDetail.task_category)">
       <div
         *ngFor="let tab of tabList"
         class="tab-item"
@@ -46,20 +46,24 @@
 
     <div class="table">
       <div class="table-content" *ngIf="dynamicGroup && list.length; else svgTemplate">
+        <button *ngIf='isSHowExport()' class="taskDetailExportExcel" ath-toolbar-button (click)="export()">
+          {{ 'dj-default-导出' | translate }}
+        </button>
         <div
           dynamic-ant-form
           class="table-content"
           [group]="dynamicGroup"
           [model]="dynamicModel"
-          *ngIf="
-            wbsService.taskDetail.task_category !== 'PLM_PROJECT' &&
-            wbsService.taskDetail.task_category !== 'MES'
-          "
+          *ngIf="!['PLM_PROJECT', 'MES', 'ASSC_ISA_ORDER'].includes(wbsService.taskDetail.task_category)"
         ></div>
         <app-plmProject
           [list]="list"
-          *ngIf="wbsService.taskDetail.task_category === 'PLM_PROJECT'"
+          *ngIf="['PLM_PROJECT'].includes(wbsService.taskDetail.task_category)"
         ></app-plmProject>
+        <app-assc-isa-order
+          [list]="list"
+          *ngIf="['ASSC_ISA_ORDER'].includes(wbsService.taskDetail.task_category)"
+        ></app-assc-isa-order>
         <app-mes-project
           [list]="list"
           [compneyId]="wbsService.taskDetail.eoc_company_id"

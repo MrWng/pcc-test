@@ -3,6 +3,7 @@
   [ngClass]="{ uploadDisbale: addSubProjectCardService.currentCardInfo?.someEdit || attachmentData?.length >= 3 }"
 >
   <ath-upload
+    [disabled]='addSubProjectCardService.isPreview'
     (change)="importData($event)"
     [multiple]="true"
     [(fileList)]="attachmentData"
@@ -11,10 +12,10 @@
     [dmcSettings]="dmcSettings"
     [fileListRender]="fileListRender"
   >
-    <div class="uploadBtn">
+    <div class="uploadBtn" [ngClass]='{uploadDisable:addSubProjectCardService.isPreview}' >
       <i athIcon [iconfont]="'icon-duogeshangchuan'" class="icon-duogeshangchuan"></i>
       {{ 'dj-default-交付物样板上传' | translate }}
-      <i athIcon [iconfont]="'icon-shuoming'" class="icon-shuoming"
+      <i athIcon [iconfont]="'iconshuoming5'" class="icon-shuoming"
         athTooltip athTooltipTitle="{{ 'dj-default-请上传50MB以内的附件' | translate }}"
         athTooltipPlacement="right"></i>
     </div>
@@ -46,14 +47,14 @@
                 <div class="ath-upload-item-pop-infos">
                   <span class="ath-pop-file-name">{{ file.name }}</span>
                   <span class="ath-pop-file-time">
-                    上传于{{ file.lastModified ? file.lastModified : file.create_date | date: 'yyyy/MM/dd HH:mm:ss' }}
+                    {{'dj-default-上传于' | translate}}{{ file.lastModified ? file.lastModified : file.create_date | date: 'yyyy/MM/dd HH:mm:ss' }}
                   </span>
                   <div class="ath-pop-file-options">
                     <i
                       class="ath-pop-file-download"
                       athIcon
                       nz-tooltip
-                      nzTooltipTitle="下载"
+                      [nzTooltipTitle]="translateService.instant('dj-c-下载')"
                       nzTooltipPlacement="top"
                       iconfont="icon-xiazai"
                       (click)="downLoad(file)"
@@ -69,7 +70,7 @@
                       <i
                         athIcon
                         nz-tooltip
-                        nzTooltipTitle="预览"
+                        [nzTooltipTitle]="translateService.instant('dj-c-预览')"
                         nzTooltipPlacement="top"
                         iconfont="icon-chakan"
                       ></i>
@@ -111,7 +112,7 @@
                 </span>
               </div>
               <i
-                *ngIf="userId === file.upload_user_id"
+                *ngIf="!addSubProjectCardService.isPreview && userId === file.upload_user_id"
                 class="ath-upload-item-remove-btn"
                 athIcon
                 nzType="close-circle"

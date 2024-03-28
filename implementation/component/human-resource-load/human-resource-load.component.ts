@@ -10,7 +10,7 @@ import {
   OnChanges,
 } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { OpenWindowService } from '@ng-dynamic-forms/ui-ant-web';
+import { OpenWindowService } from '@athena/dynamic-ui';
 import { TranslateService } from '@ngx-translate/core';
 import { HumanResourceLoadService } from './human-resource-load.service';
 import { CommonService } from '../../service/common.service';
@@ -79,9 +79,10 @@ export class HumanResourceLoadComponent implements OnInit, OnChanges {
     private openWindowService: OpenWindowService,
     public commonService: CommonService,
     public wbsTabsService: WbsTabsService
-  ) { }
+  ) {}
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+  }
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.isVisible?.currentValue === false) {
       this.departList = [];
@@ -106,7 +107,7 @@ export class HumanResourceLoadComponent implements OnInit, OnChanges {
       (changes.dateObject &&
         (changes.dateObject.currentValue.endDate !== changes.dateObject.previousValue?.endDate ||
           changes.dateObject.currentValue.startDate !==
-          changes.dateObject.previousValue?.startDate)) ||
+            changes.dateObject.previousValue?.startDate)) ||
       changes.peopleObject
     ) {
       if (!changes.isVisible && this.isVisible) {
@@ -119,7 +120,7 @@ export class HumanResourceLoadComponent implements OnInit, OnChanges {
   }
 
   dateChange() {
-    if (!this.departList.length && !this.peopleList?.length) {
+    if (!this.department_data?.length || (!this.departList.length && !this.peopleList?.length)) {
       return;
     }
     const info =
@@ -182,7 +183,10 @@ export class HumanResourceLoadComponent implements OnInit, OnChanges {
             new Date(info[i].get_date).getFullYear() === new Date().getFullYear()
           ) {
             date =
-              new Date(info[i].get_date).getMonth() + 1 + '/' + new Date(info[i].get_date).getDate();
+              new Date(info[i].get_date).getMonth() +
+              1 +
+              '/' +
+              new Date(info[i].get_date).getDate();
           }
           const obj = {
             value: info[i].get_date,
@@ -190,7 +194,6 @@ export class HumanResourceLoadComponent implements OnInit, OnChanges {
           };
           titleList.push(obj);
         }
-
       }
       this.titleList = titleList;
     } else if (this.dateType === '2') {
@@ -214,7 +217,6 @@ export class HumanResourceLoadComponent implements OnInit, OnChanges {
             monthList[info[i].query_date_year + ';' + info[i].query_date_month] = 1;
           }
         }
-
       }
       for (const i in yearList) {
         if (yearList.hasOwnProperty(i)) {
@@ -225,7 +227,6 @@ export class HumanResourceLoadComponent implements OnInit, OnChanges {
           };
           yearListAll.push(arr);
         }
-
       }
       for (const i in monthList) {
         if (monthList.hasOwnProperty(i)) {
@@ -262,7 +263,6 @@ export class HumanResourceLoadComponent implements OnInit, OnChanges {
             yearList[info[i].query_date_year] = 1;
           }
         }
-
       }
       for (const i in yearList) {
         if (yearList.hasOwnProperty(i)) {
@@ -352,17 +352,18 @@ export class HumanResourceLoadComponent implements OnInit, OnChanges {
                     project_info[j].project_no === list[h].project_no &&
                     project_info[j].task_no === list[h].task_no
                   ) {
-                    list[h].totalHour = (Number(list[h].totalHour) + Number(project_info[j].daily_plan_work_hours)).toFixed(2);
+                    list[h].totalHour = (
+                      Number(list[h].totalHour) + Number(project_info[j].daily_plan_work_hours)
+                    ).toFixed(2);
                     if (this.dateType === '1') {
                       list[h][data_info[n].get_date] = project_info[j].daily_plan_work_hours
                         ? project_info[j].daily_plan_work_hours
                         : '';
                     } else if (this.dateType === '2') {
-                      list[h][data_info[n].query_date_year + data_info[n].query_date_week] = project_info[
-                        j
-                      ].daily_plan_work_hours
-                        ? project_info[j].daily_plan_work_hours
-                        : '';
+                      list[h][data_info[n].query_date_year + data_info[n].query_date_week] =
+                        project_info[j].daily_plan_work_hours
+                          ? project_info[j].daily_plan_work_hours
+                          : '';
                     } else {
                       list[h][data_info[n].query_date_year + data_info[n].query_date_month] =
                         project_info[j].daily_plan_work_hours
@@ -372,18 +373,12 @@ export class HumanResourceLoadComponent implements OnInit, OnChanges {
                   }
                 }
               }
-
             }
           }
-
         }
         listOfMapData.push(obj);
       }
-
-
     }
-
-
 
     listOfMapData.forEach((item) => {
       this.mapOfExpandedData[item.key] = this.convertTreeToList(item);
@@ -396,7 +391,7 @@ export class HumanResourceLoadComponent implements OnInit, OnChanges {
     // 设置滚动宽度 前几列固定宽度 后面平均分配 日120px 其余80px
     const width = this.dateType === '1' ? 120 : 75;
     const x = 414 + this.titleList.length * width;
-    const scroll = { x: x + 'px', y: this.tableHeight };
+    const scroll = { x: x + 'px', y: document.getElementById('humanContent').clientHeight - document.getElementById('humanFormList').clientHeight - 50 + 'px' };
     return scroll;
   }
 
@@ -429,6 +424,10 @@ export class HumanResourceLoadComponent implements OnInit, OnChanges {
                     actions: [
                       {
                         category: 'UI',
+                        backFills: [
+                          { key: 'id', valueScript: "selectedObject['id']" },
+                          { key: 'name', valueScript: "selectedObject['name']" },
+                        ],
                       },
                     ],
                   },
@@ -437,6 +436,12 @@ export class HumanResourceLoadComponent implements OnInit, OnChanges {
             },
           ];
           const selectRow = this.fb.group({ project_no: [''] });
+          const selectedRow = this.departName.split('、').map((item, index) => {
+            return {
+              id: this.departList[index]?.department_no,
+              name: item,
+            };
+          });
           this.openWindowService.openWindow(
             selectRow,
             operations,
@@ -453,7 +458,9 @@ export class HumanResourceLoadComponent implements OnInit, OnChanges {
               this.departName = arr.join('、');
               this.getData();
               this.changeRef.markForCheck();
-            }
+            },
+            '',
+            selectedRow || []
           );
         }
       });
@@ -483,6 +490,7 @@ export class HumanResourceLoadComponent implements OnInit, OnChanges {
                 selectedFirstRow: false,
                 multipleSelect: true,
                 rowSelection: 'single',
+                enableAdvancedSearch: false,
                 allAction: {
                   defaultShow: false,
                   dataSourceSet: res.data.dataSourceSet,
@@ -494,6 +502,10 @@ export class HumanResourceLoadComponent implements OnInit, OnChanges {
                     actions: [
                       {
                         category: 'UI',
+                        backFills: [
+                          { key: 'employee_no', valueScript: "selectedObject['employee_no']" },
+                          { key: 'employee_name', valueScript: "selectedObject['employee_name']" },
+                        ],
                       },
                     ],
                   },
@@ -501,7 +513,13 @@ export class HumanResourceLoadComponent implements OnInit, OnChanges {
               },
             },
           ];
-          const selectRow = this.fb.group({ project_no: [''] });
+          const selectRow = this.fb.group({});
+          const selectedRow = this.peopleName.split('、').map((item, index) => {
+            return {
+              employee_no: this.peopleList[index]?.personnel_no,
+              employee_name: item,
+            };
+          });
           this.openWindowService.openWindow(
             selectRow,
             operations,
@@ -518,7 +536,9 @@ export class HumanResourceLoadComponent implements OnInit, OnChanges {
               this.peopleName = arr.join('、');
               this.getData();
               this.changeRef.markForCheck();
-            }
+            },
+            '',
+            selectedRow || []
           );
         }
       });
@@ -569,6 +589,16 @@ export class HumanResourceLoadComponent implements OnInit, OnChanges {
     };
   }
   closeDialog(): void {
+    this.departList = [];
+    this.departName = '';
+    this.peopleList = [];
+    this.peopleName = '';
+    this.start_date = '';
+    this.finish_date = '';
+    this.dateType = '1';
+    this.listOfMapData = [];
+    this.titleList = [];
+    this.department_data = [];
     this.changeMaskStatus.emit(false);
   }
   mousemove(ev: MouseEvent, type: string): void {

@@ -14,6 +14,7 @@
                 [ngModel]="programInfo?.project_set_no"
                 name="number"
                 [disabled]="true"
+                [title]="programInfo?.project_set_no"
               />
             </div>
           </div>
@@ -32,6 +33,7 @@
                 [ngModel]="programInfo?.project_set_name"
                 name="name"
                 [disabled]="true"
+                [title]="programInfo?.project_set_name"
               />
             </div>
           </div>
@@ -52,6 +54,7 @@
                 [ngModel]="programInfo?.leader_name"
                 name="eader_name"
                 [disabled]="true"
+                [title]="programInfo?.leader_name"
               />
             </div>
           </div>
@@ -72,6 +75,7 @@
               (ngModelChange)="changeTime($event, 'plan_start_date')"
               [nzDisabledDate]="disabledStartDate"
               [nzAllowClear]="true"
+              [title]="programInfo?.plan_start_date"
             >
               >
             </app-input-new>
@@ -84,14 +88,29 @@
               (ngModelChange)="changeTime($event, 'plan_finish_date')"
               [nzDisabledDate]="disabledEndDate"
               [nzAllowClear]="true"
+              [title]="programInfo?.plan_finish_date"
             >
             </app-input-new>
           </div>
         </nz-form-control>
-        <div class="tip" *ngIf="tipMessage">
-          <span>{{
-            'dj-default-存在于子项目计划结束日期晚于母项目计划结束日期!' | translate
-          }}</span>
+        <div class="tip" *ngIf="tipMessage.has('plan_finish_date_warning')">
+          <span>{{ tipMessage.get('plan_finish_date_warning') }}</span>
+        </div>
+        <div
+          class="tip"
+          [style]="
+            tipMessage.has('plan_finish_date_warning')
+              ? {
+                  'margin-top': '20px'
+                }
+              : ''
+          "
+          *ngIf="tipMessage.has('plan_start_date_warning')"
+        >
+          <span>{{ tipMessage.get('plan_start_date_warning') }}</span>
+        </div>
+        <div class="tip error" *ngIf="tipMessage.has('plan_finish_date_error')">
+          <span>{{ tipMessage.get('plan_finish_date_error') }}</span>
         </div>
       </nz-form-item>
     </div>

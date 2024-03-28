@@ -17,12 +17,15 @@
       [source]="source"
       [infoList]="task_member_infoList"
       [personList]="personList"
+      [root_task_card]="root_task_card"
       (changStatus)="callChangStatus($event)"
     ></app-card-header>
     <div class="addSubCard_body">
       <!-- 变更原因输入 -->
       <app-change-reason
         #changeReason
+        [source]="source"
+        [showUploadFile]="true"
         (cancelInput)="setIsClickSaveButton(false)"
         (confirmInput)="changeReasonOk($event)"
       ></app-change-reason>
@@ -52,22 +55,41 @@
                     style="padding-left: 6px; padding-right: 6px"
                   >
                     <nz-form-item>
-                      <nz-form-control>
-                        <div>
+                      <nz-form-control
+                        [nzErrorTip]="validateForm.get('task_name').errors?.characterChecking"
+                      >
+                        <div class="task-name-wrapper">
                           <ath-input-group
                             [label]="translateWord('任务名称')"
                             [required]="true"
                             [innerLabel]="true"
                           >
                             <input
+                              #taskNameInput
                               class="project-name"
                               formControlName="task_name"
                               athInput
                               type="text"
                               maxlength="255"
+                              (blur)="taskNameEnterACheck($event)"
                               [placeholder]="translateWord('请输入标题名称')"
                             />
                           </ath-input-group>
+                          <i
+                            athIcon
+                            [iconfont]="'iconshuoming5'"
+                            class="icon-info"
+                            athTooltip
+                            [athTooltipTitle]="titleTemplate"
+                            athTooltipPlacement="right"
+                            athTooltipOverlayClassName="pcc-add-sub-card-tip-container"
+                          ></i>
+                          <ng-template #titleTemplate>
+                            <div
+                              class="pcc-task-name-tip"
+                              [innerHTML]="translateForTaskNameTip()"
+                            ></div>
+                          </ng-template>
                         </div>
                       </nz-form-control>
                     </nz-form-item>
@@ -83,11 +105,12 @@
                             [nzDefaultExpandAll]="false"
                             [nzNodes]="parentTaskSerialNumList"
                             [nzDisabled]="
-                              (parentTaskSerialNumList &&
-                                parentTaskSerialNumList[0].isCollaborationCard) ||
-                              upperLevelTaskNoForIssue
-                                ? true
-                                : false
+                              !!(
+                                source === Entry.projectChange ||
+                                (parentTaskSerialNumList &&
+                                  parentTaskSerialNumList[0].isCollaborationCard) ||
+                                upperLevelTaskNoForIssue
+                              )
                             "
                             nzShowSearch
                             [nzPlaceHolder]="translateWord('请选择层级')"
@@ -176,6 +199,7 @@
                   (callParentSetData)="callSetData($event)"
                   (callUpdateWbsTasks)="updateWbsTasks($event)"
                   (callChangeMaskData)="callChangeMaskData($event)"
+                  (changStatus)="callChangStatus($event)"
                   (callChangePersonLiable)="callChangePersonLiable($event)"
                   (callChangeExecutor)="callChangeExecutor($event)"
                 ></app-liable-person-add-role>
@@ -183,29 +207,36 @@
                 <!-- 工期 & 单位 & 预计工时 & 开始时间 & 结束时间 -->
                 <app-work-load
                   [source]="source"
-                  [task_member_infoList]="task_member_infoList"
                   [projectInfo]="wbsService.projectInfo"
                   [validateForm]="validateForm"
                   [designStatus]="designStatus"
                   [project_no]="wbsService.project_no"
-                  (onUpdateWbsTasks)="updateWbsTasks($event)"
+                  (updateWbsTasks)="updateWbsTasks($event)"
+                  (setLoading)="setLoadingStatus($event)"
                 ></app-work-load>
 
                 <div nz-row class="row-box" [nzGutter]="24">
                   <!-- 请选择任务分类 -->
                   <div nz-col class="gutter-row" nzSpan="12">
                     <app-task-classification
-                      [taskStatus]="addSubProjectCardService.currentCardInfo?.task_status"
+                      [taskStatus]="
+                        source === Entry.projectChange
+                          ? addSubProjectCardService.currentCardInfo?.old_task_status
+                          : addSubProjectCardService.currentCardInfo?.task_status
+                      "
                       [identifier]="validateForm.value.task_classification_no"
                       (changeSubcomponents)="callTaskClassificationForm($event)"
                     >
                     </app-task-classification>
                   </div>
-
                   <!-- 请选择难度等级 -->
                   <div nz-col class="gutter-row" nzSpan="12">
                     <app-difficulty-level
-                      [taskStatus]="addSubProjectCardService.currentCardInfo?.task_status"
+                      [taskStatus]="
+                        source === Entry.projectChange
+                          ? addSubProjectCardService.currentCardInfo?.old_task_status
+                          : addSubProjectCardService.currentCardInfo?.task_status
+                      "
                       [identifier]="validateForm.value.difficulty_level_no"
                       (changeSubcomponents)="callDifficultyLevelForm($event)"
                     >
@@ -230,7 +261,12 @@
                             [formatter]="formatterPercent"
                             [parser]="parserPercent"
                             [step]="1"
-                            [disabled]="wbsService.projectInfo?.project_status > 20"
+                            [disabled]="
+                              source === Entry.projectChange
+                                ? wbsService.projectInfo?.old_project_status > 20
+                                : wbsService.projectInfo?.project_status > 20 &&
+                                  source !== Entry.maintain
+                            "
                             [innerLabel]="true"
                             [label]="translateWordPcc('任务比重')"
                           ></ath-input-number>
@@ -269,6 +305,7 @@
                         <nz-form-control>
                           <!-- 任务模板开窗 -->
                           <app-task-template
+                            [source]="source"
                             [openWindowDefine]="openWindowDefine"
                             (taskTemplateChange)="callChooseTaskTemplate($event)"
                             (taskTemplateDelete)="callDeleteTaskTemplate()"
@@ -299,7 +336,11 @@
                 </div>
                 <div
                   class="checkbox"
-                  *ngIf="source !== Entry.card && wbsService.hasGroundEnd === 'Y'"
+                  *ngIf="
+                    source !== Entry.card &&
+                    source !== Entry.projectChange &&
+                    wbsService.hasGroundEnd === 'Y'
+                  "
                 >
                   <label ath-checkbox formControlName="is_equipment_list_unfold">
                     <span>{{ 'dj-default-依设备清单展开WBS' | translate }}</span>
@@ -313,11 +354,16 @@
                   </label>
                   <nz-form-item *ngIf="validateForm.value.is_milepost">
                     <nz-form-control>
-                      <ath-input-group [label]="translateWord('备注')" [innerLabel]="true">
+                      <ath-input-group
+                        class="special_custom_height"
+                        [label]="translateWordPcc('里程碑说明')"
+                        [innerLabel]="true"
+                      >
                         <textarea
                           athInput
                           [autosize]="{ minRows: 3 }"
-                          [placeholder]="translateWordPcc('里程碑备注说明')"
+                          [maxlength]="255"
+                          [placeholder]="translateWordPcc('里程碑说明')"
                           formControlName="milepost_desc"
                         ></textarea>
                       </ath-input-group>
@@ -340,7 +386,11 @@
 
                 <div class="checkboxList">
                   <div class="checkbox">
-                    <label ath-checkbox formControlName="is_approve">
+                    <label
+                      ath-checkbox
+                      formControlName="is_approve"
+                      [nzDisabled]="isApproveStatus"
+                    >
                       <span>{{ 'dj-default-需要签核' | translate }}</span>
                     </label>
                   </div>
@@ -354,7 +404,7 @@
                 <nz-form-item>
                   <nz-form-control nzSpan="24">
                     <ath-input-group
-                      class="remark"
+                      class="special_custom_height"
                       [label]="translateWord('任务说明')"
                       [innerLabel]="true"
                     >
@@ -362,6 +412,7 @@
                         athInput
                         id="attachmentRemark"
                         [autosize]="{ minRows: 3 }"
+                        [maxlength]="255"
                         [placeholder]="translateWord('任务说明')"
                         formControlName="attachment_remark"
                       ></textarea>
@@ -372,7 +423,7 @@
                 <nz-form-item>
                   <nz-form-control nzSpan="24">
                     <ath-input-group
-                      class="remark"
+                      class="special_custom_height"
                       [label]="translateWord('备注')"
                       [innerLabel]="true"
                     >
@@ -380,6 +431,7 @@
                         athInput
                         id="remark"
                         [autosize]="{ minRows: 3 }"
+                        [maxlength]="500"
                         [placeholder]="translateWord('备注')"
                         formControlName="remark"
                       ></textarea>
@@ -391,6 +443,7 @@
                 <app-more-control
                   #childMoreControl
                   [validateForm]="this.validateForm"
+                  [taskTemplateInfo]="taskTemplateInfo"
                   (changStatus)="callChangStatus($event)"
                   (onEocChange)="callMoreControlOnEocChange($event)"
                 ></app-more-control>
@@ -406,7 +459,12 @@
               <button class="btn cancel" type="button" (click)="cancel()">
                 {{ 'dj-default-取消' | translate }}
               </button>
-              <button class="btn determine" [ngClass]="{ active: submitBtnStatus }" type="submit">
+              <button
+                *ngIf="!addSubProjectCardService.isPreview"
+                class="btn determine"
+                [ngClass]="{ active: submitBtnStatus }"
+                type="submit"
+              >
                 {{ 'dj-default-确定' | translate }}
               </button>
             </div>

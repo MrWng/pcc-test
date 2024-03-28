@@ -3,7 +3,7 @@ import {
   DynamicFormValueControlModel,
   serializable,
   DynamicFormControlLayout,
-} from '@ng-dynamic-forms/core';
+} from '@athena/dynamic-core';
 import { DefaultModelConfig, StateCode } from '../model';
 
 export const DYNAMIC_CUSTOM_TASK_PROJECT_CENTER_CONSOLE_FRONT_TASK = 'showPreTaskType';
@@ -16,6 +16,8 @@ export class DynamicFrontTaskModel extends DynamicFormValueControlModel<any> {
   @serializable() finished?: boolean;
   @serializable() extendedFields: any;
   @serializable() attach: any;
+  @serializable() contents: any;
+
 
   constructor(config: DefaultModelConfig, layout?: DynamicFormControlLayout) {
     super(config, layout);
@@ -26,5 +28,6 @@ export class DynamicFrontTaskModel extends DynamicFormValueControlModel<any> {
     this.finished = config?.finished ?? false;
     this.extendedFields = config?.extendedFields ?? null;
     this.attach = config?.attach ?? null;
+    this.contents = config?.contents ?? null;
   }
 }

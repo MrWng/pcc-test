@@ -17,11 +17,12 @@ import {
   convertStrDate,
   isNone,
   CustomHttpService,
-} from '@ng-dynamic-forms/core';
+} from '@athena/dynamic-core';
 import { UUID } from 'angular2-uuid';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { AppErrorHandleService } from './http-error-handle.service';
 import { CookieUtil } from './utils.ts/cookie-util';
+import { DigiMiddlewareAuthApp } from 'app/config/app-auth-token';
 
 @Injectable()
 export class HttpInterceptorService implements HttpInterceptor {
@@ -73,7 +74,14 @@ export class HttpInterceptorService implements HttpInterceptor {
         },
       });
     }
-
+    // 中间件用户token
+    if (this.authToken.token && !req.headers.get('digi-middleware-auth-app')) {
+      req = req.clone({
+        setHeaders: {
+          'digi-middleware-auth-app': DigiMiddlewareAuthApp,
+        },
+      });
+    }
     // atmc和ui_bot场景需要该proxyToken
     if (
       (req.url.includes('/bot/') || req.url.includes('/atmc/') || req.url.includes('/atdm/')) &&

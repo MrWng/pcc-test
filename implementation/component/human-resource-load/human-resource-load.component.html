@@ -17,8 +17,8 @@
     </div>
   </div>
   <div class="loading" *ngIf="loading"></div>
-  <div class="content">
-    <div class="formList">
+  <div class="content" id="humanContent">
+    <div class="formList" id="humanFormList">
       <div class="dateSlect modalSelect">
         {{ 'dj-pcc-起讫日期' | translate }}：
         <div class="date">
@@ -53,6 +53,7 @@
           </span>
         </span>
         <em
+          class="delete-icon"
           nz-icon
           nzType="delete"
           nzTheme="outline"
@@ -69,6 +70,7 @@
           </span>
         </span>
         <em
+          class="delete-icon"
           nz-icon
           nzType="delete"
           nzTheme="outline"
@@ -134,7 +136,7 @@
         <tbody>
           <ng-container *ngFor="let data of expandTable.data">
             <ng-container *ngFor="let item of mapOfExpandedData[data.key]">
-              <tr *ngIf="(item.parent && item.parent.expand) || !item.parent">
+              <tr *ngIf="(item.parent && item.parent.expand) || !item.parent" class="tr-box">
                 <td
                   [nzIndentSize]="item.level! * 20"
                   [nzShowExpand]="item.children && item.children.length > 0"
@@ -143,11 +145,12 @@
                   (nzExpandChange)="collapse(mapOfExpandedData[data.key], item, $event)"
                   nzLeft
                 ></td>
-                <td nzLeft>{{ item.personnel_name }}</td>
-                <td nzLeft>{{ item.task_name }}</td>
-                <td nzLeft class="totalHour" nzAlign="right">{{ item.totalHour }}</td>
+                <td nzLeft class="td-info">{{ item.personnel_name }}</td>
+                <td nzLeft class="td-info">{{ item.task_name }}</td>
+                <td nzLeft class="totalHour td-number" nzAlign="right">{{ item.totalHour }}</td>
                 <td
                   *ngFor="let datas of titleList"
+                  class="td-number"
                   [ngClass]="{
                     active: item.children,
                     redActive: dateType === '1' && item[datas.value] > 8

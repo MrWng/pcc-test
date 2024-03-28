@@ -13,11 +13,11 @@ import {
 import {
   DynamicFormLayoutService,
   DynamicFormValidationService,
-} from '@ng-dynamic-forms/core';
+} from '@athena/dynamic-core';
 import * as moment from 'moment';
 import { inputNewService } from './input-new..service';
 import { TranslateService } from '@ngx-translate/core';
-import { CommonService } from 'app/customization/task-project-center-console/service/common.service';
+import { CommonService } from 'app/implementation/service/common.service';
 import { UploadAndDownloadService } from '../../service/upload.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { id } from 'date-fns/locale';

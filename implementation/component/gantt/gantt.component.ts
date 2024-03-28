@@ -16,9 +16,9 @@ import { Gantt } from 'dhtmlx-gantt';
 import * as moment from 'moment';
 import { TranslateService } from '@ngx-translate/core';
 import { DwSystemConfigService } from '@webdpt/framework/config';
-import { multiple } from '@ng-dynamic-forms/core';
+import { cloneDeep, multiple } from '@athena/dynamic-core';
 import { GanntService } from './gannt.service';
-
+import { Entry } from '../../service/common.service';
 
 @Component({
   encapsulation: ViewEncapsulation.None, // 这里需要设置成None
@@ -26,7 +26,7 @@ import { GanntService } from './gannt.service';
   templateUrl: './gantt.component.html',
   styleUrls: ['./gantt.component.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [GanntService]
+  providers: [GanntService],
 })
 export class DynamicGanttComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   @Input() ganttData: any;
@@ -34,6 +34,7 @@ export class DynamicGanttComponent implements OnInit, OnChanges, AfterViewInit, 
   @Input() type: string;
   @Input() scales: string;
   @Input() criticalPath: Array<any>;
+  @Input() source: Entry = Entry.card;
   @ViewChild('ganttBox', { static: false }) ganttChart: ElementRef;
   data: any;
   gantt: any;
@@ -57,10 +58,10 @@ export class DynamicGanttComponent implements OnInit, OnChanges, AfterViewInit, 
     '30': this.translateService.instant('dj-pcc-已完成'),
     '40': this.translateService.instant('dj-pcc-指定完成'),
     '50': this.translateService.instant('dj-pcc-暂停'),
-    '60': this.translateService.instant('dj-pcc-签核中')
+    '60': this.translateService.instant('dj-pcc-签核中'),
   };
 
-  private ganttChartServiceUrl: string = ''
+  private ganttChartServiceUrl: string = '';
 
   moveTime = {
     start_date: new Date(),
@@ -72,7 +73,7 @@ export class DynamicGanttComponent implements OnInit, OnChanges, AfterViewInit, 
     protected changeRef: ChangeDetectorRef,
     protected elementRef: ElementRef,
     private translateService: TranslateService,
-    private configService: DwSystemConfigService,
+    private configService: DwSystemConfigService
   ) {
     this.gantt = this.ganttService.getGanttInstance();
     this.configService.get('ganttChartServiceUrl').subscribe((url: string) => {
@@ -80,21 +81,30 @@ export class DynamicGanttComponent implements OnInit, OnChanges, AfterViewInit, 
     });
   }
 
-  ngOnInit(): void { }
-
+  ngOnInit(): void {}
 
   /**
    * 处理数据的任务状态和完成率
    */
   handleGanttData(): void {
-    this.ganttData?.forEach(element => {
-      element.new_task_status = this.TaskStatus[element.task_status];
+    this.ganttData?.forEach((element) => {
+      const task_status =
+        this.source === Entry.projectChange ? element?.old_task_status : element?.task_status;
+      element.new_task_status = this.TaskStatus[task_status];
       element.new_complete_rate = Number(element.complete_rate) ? Number(element.complete_rate) : 0;
-      if (element.new_complete_rate > 0 && element.new_complete_rate < 1) {
-        element.new_complete_rate = `${multiple(element.new_complete_rate.toFixed(4), 100)}%`;
+      // s17: 任务状态是未开始，计划维护、进度追踪的项目甘特图内展示的完成率显示空白
+      if (task_status === 10) {
+        element.new_complete_rate = '';
       } else {
-        element.new_complete_rate = element.new_complete_rate + '%';
+        if (element.new_complete_rate > 0 && element.new_complete_rate < 1) {
+          element.new_complete_rate = `${multiple(element.new_complete_rate.toFixed(4), 100)}%`;
+        } else {
+          element.new_complete_rate = element.new_complete_rate + '%';
+        }
       }
+      element.task_member_display = (element.task_member_info || [])
+        .map((item) => item.executor_name)
+        .join(',');
     });
   }
 
@@ -104,8 +114,12 @@ export class DynamicGanttComponent implements OnInit, OnChanges, AfterViewInit, 
     }
     if (changes.ganttData) {
       this.handleGanttData();
-      if (changes.ganttData.currentValue.find(item => { return item.task_no === '0'; })) {
-        changes.ganttData.currentValue.forEach(value => {
+      if (
+        changes.ganttData.currentValue.find((item) => {
+          return item.task_no === '0';
+        })
+      ) {
+        changes.ganttData.currentValue.forEach((value) => {
           value.task_no = Number(value.task_no) + 1;
           value.upper_level_task_no = Number(value.upper_level_task_no) + 1;
         });
@@ -127,6 +141,12 @@ export class DynamicGanttComponent implements OnInit, OnChanges, AfterViewInit, 
     this.initPlugin();
     this.initTemplate();
     this.gantt.init(this.ganttChart.nativeElement);
+    this.gantt.config.grid_width = 1100;
+    this.gantt.config.columns.forEach((column) => {
+      column.width = 80;
+    });
+    this.gantt.config.columns[0].width = 300;
+    this.gantt.render();
     this.linksCriticalPath();
     this.gantt.parse(this.data);
   }
@@ -146,10 +166,16 @@ export class DynamicGanttComponent implements OnInit, OnChanges, AfterViewInit, 
         // 上阶任务编号 = 当前任务编号 表示是第一阶任务
         temp_data['parent'] = cur.upper_level_task_no === cur.task_no ? 0 : cur.upper_level_task_no;
         temp_data['start_date'] = cur.plan_start_date;
-        temp_data['plan_start_date'] = cur.plan_start_date;
+        temp_data['plan_start_date'] = cur.plan_start_date
+          ? moment(cur.plan_start_date).format('YYYY-MM-DD')
+          : '';
         temp_data['end_date'] = plan_finish_date
           ? moment(plan_finish_date).add(1, 'days').format('YYYY-MM-DD')
           : plan_finish_date;
+        if (!cur.plan_start_date || !cur.plan_finish_date) {
+          // 没有开始时间或者结束时间不导出那个时间线
+          temp_data['not_visual'] = true;
+        }
         // temp_data['end_date'] = cur.plan_finish_date;
         temp_data['progress'] = cur.complete_rate_gatter;
         // temp_data['open'] = cur.open === 1; // 修改SonarQube bug：下面有重复赋值，这行代码不生效
@@ -158,12 +184,14 @@ export class DynamicGanttComponent implements OnInit, OnChanges, AfterViewInit, 
         temp_data['plan_finish_date'] = cur.plan_finish_date
           ? moment(cur.plan_finish_date).format('YYYY-MM-DD')
           : '';
-        temp_data['actual_start_date'] = cur.actual_start_date
-          ? moment(cur.actual_start_date).format('YYYY-MM-DD')
-          : '';
-        temp_data['actual_finish_date'] = cur.actual_finish_date
-          ? moment(cur.actual_finish_date).format('YYYY-MM-DD')
-          : '';
+        if (this.source !== Entry.projectChange) {
+          temp_data['actual_start_date'] = cur.actual_start_date
+            ? moment(cur.actual_start_date).format('YYYY-MM-DD')
+            : '';
+          temp_data['actual_finish_date'] = cur.actual_finish_date
+            ? moment(cur.actual_finish_date).format('YYYY-MM-DD')
+            : '';
+        }
         temp_data['plan_work_hours'] = cur.plan_work_hours;
         temp_data['actual_work_hours'] = cur.actual_work_hours;
         temp_data['complete_rate'] = cur.complete_rate
@@ -172,22 +200,30 @@ export class DynamicGanttComponent implements OnInit, OnChanges, AfterViewInit, 
         temp_data['remaining_work_hours'] = cur.remaining_work_hours;
         temp_data['work_hours_difference'] = cur.work_hours_difference;
         temp_data['time_out_status'] = cur.time_out_status;
-        temp_data['overdue_days'] = cur.overdue_days;
         temp_data['schedule_status'] = cur.schedule_status;
         temp_data['liable_person_department_name'] = cur.liable_person_department_name;
         temp_data['liable_person_name'] = cur.liable_person_name;
-        temp_data['total_work_hours'] = cur.total_work_hours + '';
+        temp_data['task_member_display'] = cur.task_member_display;
         temp_data['new_task_status'] = cur.new_task_status + '';
-        temp_data['new_complete_rate'] = cur.new_complete_rate + '';
-        temp_data['remarks'] = cur.remarks;
+        if (this.source !== Entry.projectChange) {
+          temp_data['overdue_days'] = cur.overdue_days;
+          temp_data['total_work_hours'] = cur.total_work_hours + '';
+          temp_data['new_complete_rate'] = cur.new_complete_rate + '';
+          temp_data['remarks'] = cur.remarks;
+        }
         temp_data['owner_id'] = this.getId(cur);
         temp_data['isCriticalPath'] = this.showCriticalPath(cur);
         temp_data['open'] = true;
         temp_data['unscheduled'] = cur.plan_start_date ? false : true;
         // 测试, 效果待定
-        const actualDependency = (cur.task_dependency_info || []).filter(
-          (v) => v.after_task_no === cur.task_no
-        );
+        let actualDependency = [];
+        if (this.source === Entry.projectChange) {
+          actualDependency = cur.project_change_task_dep_info || [];
+        } else {
+          actualDependency = (cur.task_dependency_info || []).filter(
+            (v) => v.after_task_no === cur.task_no
+          );
+        }
         if (actualDependency.length > 0) {
           const arr = [];
           actualDependency.forEach((s, actualIndex) => {
@@ -308,15 +344,15 @@ export class DynamicGanttComponent implements OnInit, OnChanges, AfterViewInit, 
       {
         key: 3,
         label: this.translateService.instant('dj-default-已完成'),
-        backgroundColor: 'rgba(41,156,180,0.3)',
-        backgroundColor1: 'rgba(41,156,180,1)',
-        textColor: '#FFF',
+        backgroundColor: 'rgba(155, 159, 197, 1)',
+        backgroundColor1: 'rgba(155, 159, 197,1)',
+        textColor: '#FF0000',
       },
       {
         key: 4,
         label: this.translateService.instant('dj-default-已完成'),
-        backgroundColor: 'rgba(41,156,180,0.3)',
-        backgroundColor1: 'rgba(41,156,180,1)',
+        backgroundColor: 'rgba(155, 159, 197, 1)',
+        backgroundColor1: 'rgba(155, 159, 197,1)',
         textColor: '#FFF',
       },
     ]);
@@ -413,7 +449,7 @@ export class DynamicGanttComponent implements OnInit, OnChanges, AfterViewInit, 
           label: this.translateService.instant('dj-default-计划开始时间'),
           align: 'center',
           resize: true,
-          hide: true
+          hide: true,
         },
         {
           name: 'plan_start_date',
@@ -456,11 +492,22 @@ export class DynamicGanttComponent implements OnInit, OnChanges, AfterViewInit, 
           resize: true,
         },
         {
+          name: 'task_member_display',
+          label: this.translateService.instant('dj-pcc-执行人'),
+          align: 'center',
+          resize: true,
+          template: function (obj) {
+            return (
+              '<div title="' + obj.task_member_display + '">' + obj.task_member_display + '</div>'
+            );
+          },
+        },
+        {
           name: 'start_date',
           label: this.translateService.instant('dj-default-预计开始日'),
           align: 'center',
           resize: true,
-          hide: true
+          hide: true,
         },
         {
           name: 'plan_start_date',
@@ -473,47 +520,75 @@ export class DynamicGanttComponent implements OnInit, OnChanges, AfterViewInit, 
           label: this.translateService.instant('dj-default-预计完成日'),
           align: 'center',
           resize: true,
-        },
-        {
-          name: 'actual_start_date',
-          label: this.translateService.instant('dj-default-实际开始日'),
-          align: 'center',
-          resize: true,
-        },
-        {
-          name: 'actual_finish_date',
-          label: this.translateService.instant('dj-default-实际完成日'),
-          align: 'center',
-          resize: true,
-        },
-        {
-          name: 'total_work_hours',
-          label: this.translateService.instant('dj-default-耗用总工时'),
-          align: 'center',
-          resize: true,
-        },
-        {
-          name: 'new_task_status',
-          label: this.translateService.instant('dj-default-任务状态'),
-          align: 'center',
-          resize: true,
-        },
-        {
-          name: 'new_complete_rate',
-          label: this.translateService.instant('dj-default-任务完成率'),
-          align: 'center',
-          resize: true,
-        },
-        {
-          name: 'remarks',
-          label: this.translateService.instant('dj-default-报工说明'),
-          align: 'center',
-          resize: false,
         }
       );
+      // 项目变更任务的甘特图，一共有这些字段【实际开始日、实际完成日、耗用总工时、任务完成率、报工说明、逾期天数 】不显示
+      if (this.source !== Entry.projectChange) {
+        this.gantt.config.columns.push(
+          {
+            name: 'actual_start_date',
+            label: this.translateService.instant('dj-default-实际开始日'),
+            align: 'center',
+            resize: true,
+          },
+          {
+            name: 'actual_finish_date',
+            label: this.translateService.instant('dj-default-实际完成日'),
+            align: 'center',
+            resize: true,
+          },
+          {
+            name: 'total_work_hours',
+            label: this.translateService.instant('dj-default-耗用总工时'),
+            align: 'center',
+            resize: true,
+          }
+        );
+      }
+      this.gantt.config.columns.push({
+        name: 'new_task_status',
+        label: this.translateService.instant('dj-default-任务状态'),
+        align: 'center',
+        resize: true,
+      });
+      if (this.source !== Entry.projectChange) {
+        this.gantt.config.columns.push(
+          {
+            name: 'new_complete_rate',
+            label: this.translateService.instant('dj-default-任务完成率'),
+            align: 'center',
+            resize: true,
+          },
+          {
+            name: 'remarks',
+            label: this.translateService.instant('dj-default-报工说明'),
+            align: 'center',
+            resize: true,
+            template: function (obj) {
+              return '<div title="' + obj.remarks + '">' + obj.remarks + '</div>';
+            },
+          },
+          {
+            name: 'overdue_days',
+            label: this.translateService.instant('dj-default-逾期天数'),
+            align: 'center',
+            resize: false,
+            template: function (obj) {
+              return obj.overdue_days !== 0 &&
+                obj.overdue_days !== '0' &&
+                obj.overdue_days !== '0天'
+                ? obj.overdue_days
+                : '';
+            },
+          }
+        );
+      }
     }
     this.gantt.config.columns.forEach((column: any, index: number): void => {
       column.width = 10;
+      if (column.name === 'text') {
+        column.label = this.translateService.instant('dj-default-任务名称');
+      }
       if (column.name === 'duration') {
         this.gantt.config.columns.splice(index, 1);
       }
@@ -527,16 +602,16 @@ export class DynamicGanttComponent implements OnInit, OnChanges, AfterViewInit, 
     this.gantt.templates.grid_row_class =
       this.gantt.templates.task_row_class =
       this.gantt.templates.task_class =
-      function (start, end, task) {
-        const css = [];
-        if (task.owner_id) {
-          css.push('gantt_resource_task gantt_resource_' + task.owner_id);
-        }
-        if (task.isCriticalPath) {
-          css.push('gantt_criticalPath');
-        }
-        return css.join(' ');
-      };
+        function (start, end, task) {
+          const css = [];
+          if (task.owner_id) {
+            css.push('gantt_resource_task gantt_resource_' + task.owner_id);
+          }
+          if (task.isCriticalPath) {
+            css.push('gantt_criticalPath');
+          }
+          return css.join(' ');
+        };
     this.gantt.attachEvent(
       'onParse',
       function () {
@@ -553,22 +628,22 @@ export class DynamicGanttComponent implements OnInit, OnChanges, AfterViewInit, 
         resources.forEach(function (r) {
           html.push(
             '.gantt_task_line.gantt_resource_' +
-            r.key +
-            '{' +
-            'background-color:' +
-            r.backgroundColor +
-            '; ' +
-            'color:' +
-            r.textColor +
-            ';' +
-            'border:1px solid rgba(0,0,0,0)}'
+              r.key +
+              '{' +
+              'background-color:' +
+              r.backgroundColor +
+              '; ' +
+              'color:' +
+              r.textColor +
+              ';' +
+              'border:1px solid rgba(0,0,0,0)}'
           );
           html.push(
             '.gantt_task_line.gantt_resource_' +
-            r.key +
-            ' .gantt_task_progress{background-color:' +
-            r.backgroundColor1 +
-            ';}'
+              r.key +
+              ' .gantt_task_progress{background-color:' +
+              r.backgroundColor1 +
+              ';}'
           );
         });
         html.push('.gantt_task_line.gantt_criticalPath{border:2px solid red;}');
@@ -714,7 +789,7 @@ export class DynamicGanttComponent implements OnInit, OnChanges, AfterViewInit, 
             task.start_date &&
             task.end_date &&
             moment(task.start_date).format('YYYY/MM/DD') !==
-            moment(task.end_date).format('YYYY/MM/DD')
+              moment(task.end_date).format('YYYY/MM/DD')
           ) {
             if (arr.startDate) {
               if (
@@ -782,8 +857,14 @@ export class DynamicGanttComponent implements OnInit, OnChanges, AfterViewInit, 
         scales = [
           { unit: 'year', step: 1, format: '%Y' + this.translateService.instant('dj-default-年Y') },
           {
-            unit: 'day', step: 1,
-            format: '%n' + this.translateService.instant('dj-default-月M') + '%j' + this.translateService.instant('dj-default-日D') + '(%D)'
+            unit: 'day',
+            step: 1,
+            format:
+              '%n' +
+              this.translateService.instant('dj-default-月M') +
+              '%j' +
+              this.translateService.instant('dj-default-日D') +
+              '(%D)',
           },
         ];
       } else {
@@ -838,7 +919,7 @@ export class DynamicGanttComponent implements OnInit, OnChanges, AfterViewInit, 
         '<b>Task:</b> ' +
         task.text +
         '<br/><b>Start:</b> ' +
-        this.tooltip_date_format(start) +
+        (task.plan_start_date ? this.tooltip_date_format(start) : '') +
         '<br/><b>End:</b> ' +
         task.plan_finish_date +
         '<br><b>Duration:</b> ' +
@@ -1009,19 +1090,78 @@ export class DynamicGanttComponent implements OnInit, OnChanges, AfterViewInit, 
     // gantt.destructor();
   }
 
-  export_data(): void {
+  export_data(scales): void {
     const { project_set_name = '', project_name, project_no } = this.projectInfo;
     const backup_scales = this.gantt.config.scales;
-    const columns = this.gantt.config.columns;
-    this.gantt.config.scales = [
-      { unit: 'day', step: 1, format: '%n月%j日(%D)' }
-    ];
+    const columns = cloneDeep(this.gantt.config.columns);
+    const columns2 = cloneDeep(this.gantt.config.columns);
+    const backupsData = this.data;
+    let scalesObj = null;
+    switch (scales) {
+      case 'month': {
+        scalesObj = { unit: 'month', step: 1, format: '%n月, %Y年' };
+        break;
+      }
+      case 'week': {
+        scalesObj = { unit: 'week', step: 1, format: '%w周, %n月%Y年' };
+        break;
+      }
+      case 'day': {
+        scalesObj = { unit: 'day', step: 1, format: '%n月%j日(%D)' };
+        break;
+      }
+      default: {
+        scalesObj = { unit: 'day', step: 1, format: '%n月%j日(%D)' };
+        break;
+      }
+    }
+    // this.gantt.config.scales = [
+    //   { unit: 'day', step: 1, format: '%n月%j日(%D)' }
+    // ];
+    this.gantt.config.scales = [scalesObj];
     this.gantt.config.smart_rendering = false;
-    this.gantt.config.columns = columns.filter(item => item.name !== 'start_date');
+    this.gantt.config.columns = columns.filter((item) => {
+      if (item.name !== 'start_date') {
+        if (['remarks', 'task_member_display'].includes(item.name)) {
+          delete item.template;
+        }
+        return item;
+      }
+    });
+    if (this.scales === 'week') {
+      let newData = cloneDeep(this.data);
+      newData.data = newData?.data?.map((item) => {
+        const { start_date, plan_finish_date } = item;
+        item.start_date = start_date
+          ? moment(item.start_date).startOf('isoWeek').format('YYYY-MM-DD')
+          : '';
+        item.end_date = plan_finish_date
+          ? moment(plan_finish_date).endOf('isoWeek').add(1, 'd').format('YYYY-MM-DD')
+          : '';
+        return item;
+      });
+      this.gantt.parse(newData);
+    }
+    if (this.scales === 'month') {
+      let newData = cloneDeep(this.data);
+      newData.data = newData?.data?.map((item) => {
+        const { start_date, plan_finish_date } = item;
+        item.start_date = start_date
+          ? moment(item.start_date).startOf('month').format('YYYY-MM-DD')
+          : '';
+        item.end_date = plan_finish_date
+          ? moment(plan_finish_date).endOf('month').add(1, 'd').format('YYYY-MM-DD')
+          : '';
+        return item;
+      });
+      this.gantt.parse(newData);
+    }
     this.gantt.resetLayout();
     this.gantt?.exportToExcel({
-      name: project_set_name ?
-        `${project_set_name}-${project_no}(${project_name})-${this.translateService.instant('dj-c-甘特图')}.xlsx`
+      name: project_set_name
+        ? `${project_set_name}-${project_no}(${project_name})-${this.translateService.instant(
+            'dj-c-甘特图'
+          )}.xlsx`
         : `${project_no}(${project_name})-${this.translateService.instant('dj-c-甘特图')}.xlsx`,
       date_format: 'YYYY-MM-DD',
       visual: 'base-colors',
@@ -1029,8 +1169,42 @@ export class DynamicGanttComponent implements OnInit, OnChanges, AfterViewInit, 
     });
     this.gantt.config.smart_rendering = true;
     this.gantt.config.scales = backup_scales;
-    this.gantt.config.columns = columns;
+    this.gantt.config.columns = columns2;
+    if (this.scales === 'week' || this.scales === 'month') {
+      this.gantt.parse(this.data);
+    }
     this.gantt.resetLayout();
   }
-}
 
+  export_data_pdf(): void {
+    const { project_set_name = '', project_name, project_no } = this.projectInfo;
+    const fileName =
+      (project_set_name ? `${project_set_name}-` : '') +
+      `${project_no}(${project_name})-${this.translateService.instant('dj-c-甘特图')}`;
+    this.gantt.plugins({
+      export_api: true,
+    });
+    this.gantt?.exportToPDF({
+      name: fileName + '.pdf',
+      header: `
+      <style>
+        .gantt_task_line.gantt_resource_1{background-color:rgba(41,156,180,0.3);border:1px solid rgba(0,0,0,0);}
+        .gantt_task_line.gantt_resource_2{background-color:rgba(234,61,70,0.4);border:1px solid rgba(0,0,0,0);}
+        .gantt_task_line.gantt_resource_3{background-color:rgba(155, 159, 197,1);border:1px solid rgba(0,0,0,0);}
+        .gantt_task_line.gantt_resource_4{background-color:rgba(155, 159, 197,1);border:1px solid rgba(0,0,0,0);}
+        .gantt_task_line.gantt_resource_1 .gantt_task_progress{background-color:rgba(41,156,180,1);}
+        .gantt_task_line.gantt_resource_2 .gantt_task_progress{background-color:rgba(234,61,70,1);}
+        .gantt_task_line.gantt_resource_3 .gantt_task_progress{background-color:rgba(155, 159, 197,1);}
+        .gantt_task_line.gantt_resource_4 .gantt_task_progress{background-color:rgba(155, 159, 197,1);}
+        .gantt_task_line.gantt_criticalPath{border:2px solid red;}
+      </style>
+      <h3 style='width:100%;height:60px;text-align:center;line-height:60px;'>${fileName}</h3>
+      `,
+      // footer:"<h6 style='color: #ddd;'>Bottom line</h6>",
+      // date_format: 'YYYY-MM-DD',
+      // skin:'terrace',
+      raw: true,
+      server: `${this.ganttChartServiceUrl}/gantt`,
+    });
+  }
+}

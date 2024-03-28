@@ -5,8 +5,8 @@ import {
   DynamicFormControlLayout,
   DynamicFormLayoutService,
   DynamicFormValidationService
-} from '@ng-dynamic-forms/core';
-import { OpenWindowService } from '@ng-dynamic-forms/ui-ant-web';
+} from '@athena/dynamic-core';
+import { OpenWindowService } from '@athena/dynamic-ui';
 import { TranslateService } from '@ngx-translate/core';
 import { DynamicPosumTaskCardModel } from '../../../../../model/posum-task-card/posum-task-card.model';
 import { NzMessageService } from 'ng-zorro-antd/message';

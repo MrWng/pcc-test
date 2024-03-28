@@ -1,0 +1,119 @@
+.manual-work-reporting {
+  width: 100%;
+  color: var(--main-color);
+  padding: 3px 10px 3px 0;
+  span {
+    margin-left: 5px;
+    width: 70px;
+    text-align: center;
+    display: inline-block;
+    color: var(--main-color);
+    cursor: pointer;
+  }
+  .mask {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    background-color: hsla(0, 0%, 80%, 0.4);
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    .maskDetail {
+      width: 50vw;
+      height: 500px;
+
+      .content {
+        width: 100%;
+        height: 100%;
+        background-color: #fff;
+        border-radius: 5px;
+        padding: 10px;
+
+        .table-box {
+          height: 100%;
+          width: 100%;
+          overflow: auto;
+          display: flex;
+          flex-flow: column;
+
+          .add-operator-box {
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: flex-end;
+          }
+
+          .add-operator {
+            font-size: 16px;
+            margin: 10px 5px;
+            text-align: center;
+            cursor: pointer;
+            width: 88px;
+          }
+          .table-content {
+            flex: 1;
+          }
+      
+          .button-box {
+            position: static;
+            width: 100%;
+            margin-top: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            .btn {
+              width: 80px;
+              height: 26px;
+              font-size: 14px;
+              border-radius: 17px;
+              text-align: center;
+              border: 0;
+              outline: none;
+              cursor: pointer;
+            }
+            .cancel {
+              border: 1px solid #dddddd;
+              background: #fafafa;
+              color: #333333;
+            }
+            .determine {
+              color: #fff;
+              margin-left: 24px;
+              background-color: #2012d9;
+            }
+            .disabled {
+              background-color: #bfceff !important;
+            }
+          }
+        }
+      }
+    }
+  }
+  // .spin-box {
+  //   width: 100%;
+  //   height: 100%;
+  //   display: flex;
+  //   align-items: center;
+  //   justify-content: center;
+  // }
+  
+}
+
+// .no-data-box {
+//   width: 100%;
+//   height: 100%;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   div {
+//     width: 100%;
+//     text-align: center;
+//     p {
+//       font-size: 14px;
+//       color: #666;
+//     }
+//   }
+// }

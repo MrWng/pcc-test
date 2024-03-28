@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { DwSystemConfigService } from '@webdpt/framework/config';
-import { CommonService } from '../../../../service/common.service';
+import { CommonService, Entry } from '../../../../service/common.service';
 import { WbsTabsService } from '../../wbs-tabs.service';
 import { DynamicWbsService } from '../../../wbs/wbs.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -30,7 +30,7 @@ export class ProjectCreationService {
     private configService: DwSystemConfigService,
     public commonService: CommonService,
     private wbsTabsService: WbsTabsService,
-    public wbsService: DynamicWbsService,
+    public wbsService: DynamicWbsService
   ) {
     this.configService.get('uibotUrl').subscribe((url: string): void => {
       this.uibotUrl = url;
@@ -43,18 +43,33 @@ export class ProjectCreationService {
     });
   }
 
-
   /**
    * 获取项目信息
    */
-  getProjectInfo(): void {
+  getProjectInfo(source?: string): void {
     const project_info =
       this.commonService.content?.executeContext?.taskWithBacklogData?.bpmData?.project_info;
-    const params = {
-      project_info,
-    };
-    this.commonService.getInvData('bm.pisc.project.get', params).subscribe((res: any): void => {
-      this.wbsService.projectInfo = res.data.project_info[0] ?? [];
+    let params: any = {
+        project_info,
+      },
+      apiName = 'bm.pisc.project.get';
+    if (source === Entry.projectChange) {
+      params = {
+        project_change_doc_info: [
+          {
+            project_no: this.wbsService.project_no,
+            change_version: this.wbsService.change_version,
+          },
+        ],
+      };
+      apiName = 'bm.pisc.project.change.doc.get';
+    }
+
+    this.commonService.getInvData(apiName, params).subscribe((res: any): void => {
+      this.wbsService.projectInfo =
+        source === Entry.projectChange
+          ? res?.data?.project_change_doc_info[0] ?? []
+          : res.data.project_info[0] ?? [];
       this.wbsService.changeWbs$.next();
     });
   }
@@ -111,6 +126,38 @@ export class ProjectCreationService {
         serviceName: serviceName,
         needProxyToken: null,
         attachActions: null,
+        flatData: null,
+      },
+      executeContext: this.commonService.content?.executeContext,
+    };
+
+    const url = `${this.uibotUrl}/api/ai/v1/data/query/action`;
+    return this.http.post(url, params, {
+      headers: this.commonService.getHeader(),
+    });
+  }
+
+  // 开窗获取客户
+  getOpenWindowDefineCustomer(serviceName, paras?, dataKeys?): Observable<any> {
+    paras = paras ? paras : {};
+    const params = {
+      tmAction: {
+        actionId: 'esp_' + serviceName,
+        title: this.translateService.instant('dj-default-选择客户'),
+        actionParams: [],
+        paras: paras,
+        language: {
+          title: {
+            en_US: 'recommend',
+            zh_TW: '推薦',
+          },
+        },
+        type: 'ESP',
+        actionResponse: null,
+        serviceName: serviceName,
+        needProxyToken: null,
+        attachActions: null,
+        dataKeys: dataKeys,
         flatData: null,
       },
       executeContext: this.commonService.content?.executeContext,

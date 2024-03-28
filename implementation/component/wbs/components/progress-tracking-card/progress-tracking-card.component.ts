@@ -7,24 +7,18 @@ import {
   SkipSelf,
   OnChanges,
 } from '@angular/core';
-import {
-  isEmpty,
-  OpenImService,
-  DynamicUserBehaviorCommService,
-} from '@ng-dynamic-forms/core';
-import { MessageTipService } from '@ng-dynamic-forms/ui-ant-web';
+import { isEmpty, OpenImService, DynamicUserBehaviorCommService } from '@athena/dynamic-core';
+import { MessageTipService } from '@athena/dynamic-ui';
 import { TranslateService } from '@ngx-translate/core';
 import { DwUserService } from '@webdpt/framework/user';
-import { CommonService } from 'app/customization/task-project-center-console/service/common.service';
+import { CommonService } from 'app/implementation/service/common.service';
 import * as moment from 'moment';
 import { DynamicWbsService } from '../../wbs.service';
 
 @Component({
   selector: 'app-progress-tracking-card',
   templateUrl: './progress-tracking-card.component.html',
-  styleUrls: [
-    './progress-tracking-card.component.less',
-  ],
+  styleUrls: ['./progress-tracking-card.component.less'],
 })
 export class ProgressTrackingCardComponent implements OnInit, OnChanges {
   @Input() progressTrackingList: any;
@@ -50,9 +44,10 @@ export class ProgressTrackingCardComponent implements OnInit, OnChanges {
     private userService: DwUserService,
     public commonService: CommonService,
     public openImService: OpenImService,
-    private userBehaviorCommService: DynamicUserBehaviorCommService,
+    private userBehaviorCommService: DynamicUserBehaviorCommService
   ) {
-    this.showTaskDetailCode = 'PCC-' + this.userBehaviorCommService.commData.workType + '-PCC_TAB006-PCC_BUTTON004';
+    this.showTaskDetailCode =
+      'PCC-' + this.userBehaviorCommService.commData.workType + '-PCC_TAB006-PCC_BUTTON004';
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -92,14 +87,8 @@ export class ProgressTrackingCardComponent implements OnInit, OnChanges {
 
   searchEmployeeId(performerId: string, item: any): void {
     const task_start = item.plan_start_date.split('/').slice(1, 3).join('/');
-    const pro_start = this.wbsService.projectInfo?.plan_start_date
-      .split('/')
-      .slice(1, 3)
-      .join('/');
-    const pro_end = this.wbsService.projectInfo?.plan_finish_date
-      .split('/')
-      .slice(1, 3)
-      .join('/');
+    const pro_start = this.wbsService.projectInfo?.plan_start_date.split('/').slice(1, 3).join('/');
+    const pro_end = this.wbsService.projectInfo?.plan_finish_date.split('/').slice(1, 3).join('/');
     this.wbsService.searchEmployeeId({ empId: performerId }).subscribe((res: any): void => {
       this.msgUserName = item.liable_person_name;
       this.notifyItemData = {
@@ -119,14 +108,8 @@ export class ProgressTrackingCardComponent implements OnInit, OnChanges {
     taskInfo: any
   ): any {
     const task_start = taskInfo.plan_start_date.split('/').slice(1, 3).join('/');
-    const pro_start = this.wbsService.projectInfo?.plan_start_date
-      .split('/')
-      .slice(1, 3)
-      .join('/');
-    const pro_end = this.wbsService.projectInfo?.plan_finish_date
-      .split('/')
-      .slice(1, 3)
-      .join('/');
+    const pro_start = this.wbsService.projectInfo?.plan_start_date.split('/').slice(1, 3).join('/');
+    const pro_end = this.wbsService.projectInfo?.plan_finish_date.split('/').slice(1, 3).join('/');
     return {
       userId: receive,
       tenantId: this.userService.getUser('tenantId'),
@@ -270,5 +253,17 @@ export class ProgressTrackingCardComponent implements OnInit, OnChanges {
    */
   translatePccWord(val: string): String {
     return this.translateService.instant(`dj-pcc-${val}`);
+  }
+
+  // 返回【任务类型名称：任务类型】
+  getTaskCategoryInfo(item) {
+    let info = '';
+    if (item.task_category === 'ORD') {
+      info = this.translatePccWord('一般') + '：' + this.translatePccWord('手动任务');
+    } else {
+      const category = this.wbsService.TaskType[item.task_category];
+      info = item.task_template_name + '：' + category;
+    }
+    return info;
   }
 }

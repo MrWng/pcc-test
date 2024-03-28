@@ -2,8 +2,8 @@ import { Component, OnInit, Output, EventEmitter, ChangeDetectorRef } from '@ang
 import { FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { CommonService } from '../../../../../service/common.service';
-import { cloneDeep, multiple, subtract } from '@ng-dynamic-forms/core';
-import { OpenWindowService } from '@ng-dynamic-forms/ui-ant-web';
+import { cloneDeep, multiple, subtract } from '@athena/dynamic-core';
+import { OpenWindowService } from '@athena/dynamic-ui';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ProgressAnalysisService } from '../../progress-analysis.service';
 @Component({

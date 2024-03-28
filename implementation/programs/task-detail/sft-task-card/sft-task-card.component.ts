@@ -18,13 +18,13 @@ import {
   DynamicFormService,
   DynamicFormValidationService,
   multiple,
-} from '@ng-dynamic-forms/core';
+} from '@athena/dynamic-core';
 import { TranslateService } from '@ngx-translate/core';
 import { CommonService } from '../../../service/common.service';
-import { cloneDeep } from '@ng-dynamic-forms/core';
+import { cloneDeep } from '@athena/dynamic-core';
 import { DwUserService } from '@webdpt/framework/user';
 import { SftTaskCardService } from './sft-task-card.service';
-import { DynamicSftTaskCardModel } from 'app/customization/task-project-center-console/model/sft-task-card/sft-task-card.model';
+import { DynamicSftTaskCardModel } from 'app/implementation/model/sft-task-card/sft-task-card.model';
 
 
 @Component({
@@ -109,7 +109,7 @@ export class SftTaskCardComponent extends DynamicFormControlComponent implements
     };
     this.commonService.getInvData('task.info.get', params).subscribe(({ data = {} }): void => {
       this.taskInfo = data.project_info[0] ?? {};
-      if (this.taskInfo?.doc_type_no && this.taskInfo?.doc_no && this.taskInfo?.seq) {
+      if (this.taskInfo?.doc_type_no && this.taskInfo?.seq) {
         this.getSftInfoData();
       } else {
         this.loading = false;
@@ -124,7 +124,7 @@ export class SftTaskCardComponent extends DynamicFormControlComponent implements
 
   async getSftInfoData(): Promise<any> {
     this.taskInfo.wo_type_no = this.taskInfo.doc_type_no;
-    this.taskInfo.wo_no = this.taskInfo.doc_no;
+    this.taskInfo.wo_no = this.taskInfo.doc_no ?? '';
     this.taskInfo.op_no = this.taskInfo.seq;
     this.taskInfo.plan_complete_date = this.taskInfo.plan_finish_date;
     const [waitting, completed] = await Promise.all([
@@ -271,9 +271,9 @@ export class SftTaskCardComponent extends DynamicFormControlComponent implements
     }
     this.canSubmit = false;
     const pageData = event.group.getRawValue();
-    if (pageData.doc_type_no && pageData.doc_no && pageData.seq) {
+    if (pageData.doc_type_no && pageData.seq) {
       this.taskInfo.doc_type_no = pageData.doc_type_no;
-      this.taskInfo.doc_no = pageData.doc_no;
+      this.taskInfo.doc_no = pageData.doc_no ?? '';
       this.taskInfo.seq = pageData.seq;
       this.canSubmit = true;
     }

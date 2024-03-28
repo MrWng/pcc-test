@@ -1,5 +1,7 @@
 import { Component, OnInit, Input, SimpleChanges, OnChanges } from '@angular/core';
+import { cloneDeep } from '@athena/dynamic-core';
 import { TranslateService } from '@ngx-translate/core';
+import { Entry } from '../../../../service/common.service';
 
 @Component({
   selector: 'app-pert',
@@ -11,6 +13,7 @@ export class PertComponent implements OnInit, OnChanges {
   @Input() criticalPath: Array<any>;
   @Input() dependencyInfo: Array<any>;
   @Input() fullScreenStatus: Boolean;
+  @Input() source: Entry = Entry.card;
   option: any;
   data = []; // 关系图，实体数据
   link = []; // 关系图，实体与实体直接的指引坐标
@@ -20,10 +23,14 @@ export class PertComponent implements OnInit, OnChanges {
     '3': this.translateService.instant('dj-default-月'),
   };
 
+  // 项目页面的所有任务卡数据
+  pagesData: Array<any> = [];
+
   constructor(private translateService: TranslateService) { }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.ganttData) {
+      this.pagesData = cloneDeep(changes.ganttData.currentValue);
       this.transformData(changes.ganttData.currentValue);
       this.option = this.setOptions(); // 关系图，配置项
     }
@@ -31,17 +38,61 @@ export class PertComponent implements OnInit, OnChanges {
 
   ngOnInit() { }
 
+  getBeforeTaskName(task_no) {
+    return this.pagesData.filter(item => item.task_no === task_no);
+  }
+
+  getDateInterval(beginDate: string, endDate: string):number {
+    if (beginDate && endDate) {
+      const b: any = new Date(beginDate);
+      const e: any = new Date(endDate);
+      return Math.ceil((b - e) / 86400000);
+    }else{
+      return 0;
+    }
+  }
+
   transformData(datas) {
+    const that = this;
     // 获取所有前置任务线条
     datas.forEach((cur, index) => {
-      const actualDependency = (cur.task_dependency_info || []).filter( (v) => v.after_task_no === cur.task_no);
+      let actualDependency = [];
+      if (this.source === Entry.projectChange) {
+        actualDependency = cur.project_change_task_dep_info || [];
+      } else {
+        actualDependency = (cur.task_dependency_info || []).filter((v) => v.after_task_no === cur.task_no);
+      }
+      
       if (actualDependency.length > 0) {
+        actualDependency.forEach(item => {
+          const taskObj = this.getBeforeTaskName(item.before_task_no);
+          if (taskObj && taskObj[0]) {
+            item.plan_finish_date = taskObj[0].plan_finish_date;
+          }
+        });
         const arr = [];
         actualDependency.forEach((s) => {
           // 关系图，实体与实体直接的指引坐标
           arr.push({
             source: s.before_task_no, // 箭头，source，目标起点
             target: cur.task_no, // 箭头，target，目标指向
+            label: {
+              show: true,
+              position: 'middle',
+              formatter: function (v) {
+                // 终端的预计开始日 与 发起的预计结束日，间隔
+                return that.getDateInterval(cur.plan_start_date, s.plan_finish_date) + '天';
+              }
+            },
+            lineStyle: {
+              width: 3,
+              curveness: 0.1
+            },
+            emphasis: {
+              lineStyle: {
+                color: '#1d1d1d'
+              }
+            }
           });
         });
         this.link = [...this.link, ...arr];
@@ -56,7 +107,14 @@ export class PertComponent implements OnInit, OnChanges {
           this.criticalPath[i].target===res.target
         ) {
           res.lineStyle = {
-            color: 'rgb(250,82,75)', // 橘色，高亮
+            width: 3,
+            curveness: 0.2,
+            color: 'rgba(250,82,75,0.7)', // 线条、箭头，红色
+          };
+          res.emphasis = {
+            lineStyle: {
+              color: '#ff0505',
+            }
           };
         }
       }
@@ -77,26 +135,28 @@ export class PertComponent implements OnInit, OnChanges {
     // 每条数据的纵坐标计算
     let y = 0;
     const point = []; // 关系图中每组有关联实体的下标（0是目标起点，1是目标指向）
-    dependencyInfo.forEach((data) => {
-      // console.log('dependencyInfo的data---------', data);
-      // 判断当前行数据是否全部被覆盖 若全部被覆盖为false 无行坐标
-      let hasY = false;
-      data.data.forEach((res) => {
-        if (point.indexOf(res) === -1) {
-          hasY = true;
-          point.push(res);
+    if (dependencyInfo && dependencyInfo.length) {
+      dependencyInfo.forEach((data) => {
+        // console.log('dependencyInfo的data---------', data);
+        // 判断当前行数据是否全部被覆盖 若全部被覆盖为false 无行坐标
+        let hasY = false;
+        data.data.forEach((res) => {
+          if (point.indexOf(res) === -1) {
+            hasY = true;
+            point.push(res);
+          }
+        });
+        if (hasY) {
+          y++;
+          const arr = { y: y };
+          data = Object.assign(data, arr);
         }
+        // console.log('dependencyInfo重新组合后的data---------', data);
       });
-      if (hasY) {
-        y++;
-        const arr = { y: y };
-        data = Object.assign(data, arr);
-      }
-      // console.log('dependencyInfo重新组合后的data---------', data);
-    });
-    dependencyInfo.forEach((item: any): void => {
-      item.pathNum = dependencyInfo.filter((o: any): boolean => o.data[0] === item.data[0] && o.y).length;
-    });
+      dependencyInfo.forEach((item: any): void => {
+        item.pathNum = dependencyInfo.filter((o: any): boolean => o.data[0] === item.data[0] && o.y).length;
+      });
+    }
     // console.log('重新组合后的dependencyInfo---------', dependencyInfo);
     // ---------------dependencyInfo-----这段代码可以考虑后面删掉---------------
 
@@ -107,12 +167,10 @@ export class PertComponent implements OnInit, OnChanges {
         // 关系图中一组有关联的实体对象，所有数据；pointData.data与link中封装的数据相同
         const pointData = dependencyInfo[i];
         // data: [0 : "5", 1 : "6"]
+        let y2;
         pointData.data.forEach((value, index) => {
-          let y2;
           if (index === 0) {
-            y2 = 100 * ((pointData as any).pathNum - 1) / 2 + 100 * ((pointData as any).y- 1);
-          } else {
-            y2 = 100 * ((pointData as any).y - 1);
+            y2 = 80 * ((pointData as any).pathNum - 1) / 2 + 80 * ((pointData as any).y - 1);
           }
           // 封装关系图实体集合，返回true表示已经在points集合中
           if (!this.getPoint(value, points)) {
@@ -145,11 +203,11 @@ export class PertComponent implements OnInit, OnChanges {
           }
           if (this.showCriticalPath(cur)) {
             points[i].itemStyle = {
-              color: 'rgb(250,82,75)',
+              color: 'rgba(250,82,75,0.8)',
             };
           } else {
             points[i].itemStyle = {
-              color: 'rgb(79,182,255)',
+              color: 'rgba(79,182,255,0.8)',
             };
           }
           arr = { ...cur, ...points[i] };
@@ -197,6 +255,7 @@ export class PertComponent implements OnInit, OnChanges {
         {
           type: 'graph', // 关系图
           layout: 'none',
+          circular:{ rotateLabel: true },
           roam: true,
           symbolSize: 55,
           symbol: 'roundRect',
@@ -226,12 +285,15 @@ export class PertComponent implements OnInit, OnChanges {
             },
           },
           edgeSymbol: ['circle', 'arrow'],
-          edgeSymbolSize: [4, 10],
+          edgeSymbolSize: [12, 12],
           edgeLabel: {
-            fontSize: 12,
+            fontSize: 14,
           },
           data: this.data,
           tooltip: {
+            textStyle:{
+              align:'left'
+            },
             formatter: function (res) {
               if (res.data.task_name) {
                 return `${that.translateService.instant('dj-default-任务名称')}：
@@ -251,12 +313,7 @@ export class PertComponent implements OnInit, OnChanges {
               }
             },
           },
-          links: this.link, // 必填项
-          lineStyle: {
-            opacity: 0.9,
-            width: 2,
-            curveness: 0,
-          },
+          links: this.link, // 节点间，连接线，配置项
         },
       ],
     };

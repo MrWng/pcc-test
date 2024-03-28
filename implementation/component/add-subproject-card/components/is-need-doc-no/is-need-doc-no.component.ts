@@ -34,7 +34,7 @@ export class IsNeedDocNoComponent implements OnInit, OnChanges {
   }
 
   get isDisable(): boolean {
-    return this.addSubProjectCardService.currentCardInfo?.someEdit;
+    return this.addSubProjectCardService.isPreview || this.addSubProjectCardService.currentCardInfo?.someEdit;
   }
 
   /**
@@ -50,7 +50,7 @@ export class IsNeedDocNoComponent implements OnInit, OnChanges {
    */
   setSequenceNumber() {
     this.addSubProjectCardService.validateForm.get('seq').disable();
-    if (['MOOP'].includes(this.taskCategory)) {
+    if (['MOOP'].includes(this.taskCategory) && !this.addSubProjectCardService.isPreview) {
       if (this.addSubProjectCardService.validateForm.getRawValue().is_need_doc_no) {
         this.addSubProjectCardService.validateForm.get('seq').enable();
       } else {
@@ -67,7 +67,11 @@ export class IsNeedDocNoComponent implements OnInit, OnChanges {
       const { is_need_doc_no } = this.addSubProjectCardService.validateForm.getRawValue();
       if (is_need_doc_no) {
         ['doc_type_no', 'doc_no'].forEach((key: string) => {
-          this.addSubProjectCardService.validateForm.get(key).enable();
+          if(!this.addSubProjectCardService.isPreview){
+            this.addSubProjectCardService.validateForm.get(key).enable();
+          }else{
+            this.addSubProjectCardService.validateForm.get(key).disable();
+          }
         });
       } else {
         ['doc_type_no', 'doc_no'].forEach((key: string) => {

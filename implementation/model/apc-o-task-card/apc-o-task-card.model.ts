@@ -3,7 +3,7 @@ import {
   DynamicFormValueControlModel,
   serializable,
   DynamicFormControlLayout,
-} from '@ng-dynamic-forms/core';
+} from '@athena/dynamic-core';
 import { DefaultModelConfig, StateCode } from '../model';
 
 export const DYNAMIC_CUSTOM_TASK_PROJECT_CENTER_CONSOLE_APC_O_TASK_CARD = 'apco_DTD_Assignment-task-detail-all';

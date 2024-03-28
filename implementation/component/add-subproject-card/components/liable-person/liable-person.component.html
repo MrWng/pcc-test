@@ -18,7 +18,7 @@
               [nzPlaceHolder]="translateWord('请选择负责人')"
               [nzCustomTemplate]="defaultTemplate"
               [nzDisabled]="
-                addSubProjectCardService.currentCardInfo?.someEdit && designStatus !== 'notStart'
+                (addSubProjectCardService.currentCardInfo?.someEdit && designStatus !== 'notStart') || addSubProjectCardService.isPreview
               "
               [nzAllowClear]="isAllowClear"
               isInsideLabel
@@ -94,7 +94,7 @@
                 [(ngModel)]="addSubProjectCardService.validateForm.value.task_member_info"
                 (ngModelChange)="personChanges($event)"
                 [nzPlaceHolder]="translateWord('请选择执行人')"
-                [nzDisabled]="!liable_person_code_data || isForbidden"
+                [nzDisabled]="!liable_person_code_data || isForbidden || addSubProjectCardService.isPreview"
                 isInsideLabel
                 [label]="translateWordPcc('执行人')"
               >

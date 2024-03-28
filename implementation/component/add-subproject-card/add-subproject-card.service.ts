@@ -8,8 +8,10 @@ import { TranslateService } from '@ngx-translate/core';
 import { WbsTabsService } from '../wbs-tabs/wbs-tabs.service';
 import { ButtonType, TaskBaseInfo } from './add-subproject-card.interface';
 import { DwUserService } from '@webdpt/framework/user';
-import { TaskInfoGet } from 'app/customization/task-project-center-console/service/types/api-task-info-get';
+import { TaskInfoGet } from 'app/implementation/service/types/api-task-info-get';
 import { map } from 'rxjs/operators';
+import { cloneDeep } from '@athena/dynamic-core';
+import { DynamicWbsService } from '../wbs/wbs.service';
 
 // eslint-disable-next-line no-shadow
 export enum NoAuthType {
@@ -29,11 +31,11 @@ export class AddSubProjectCardService {
   /** 是否显示弹窗 */
   showAddTaskCard: boolean = false;
   /** 首阶任务卡信息 */
-  firstLevelTaskCard: any
+  firstLevelTaskCard: any;
   /** 当前编辑的卡片信息 */
   currentCardInfo: TaskInfoGet;
   /** 当前子项开窗的数据备份 */
-  currentCardInfoBackups: object = null
+  currentCardInfoBackups: object = null;
   controlSwitch: any;
   /** 开窗title */
   taskCardTitle: string;
@@ -59,8 +61,17 @@ export class AddSubProjectCardService {
   executeContext: any;
   /** 按钮类型 */
   buttonType: string;
-
+  /** 时期管控 */
+  dateCheck: string;
   validateForm: FormGroup;
+  preTaskNumListBackUp: any[] = [];
+  preTaskNumListChange: any[] = [];
+
+  // PLM任务的状态
+  designStatus: string = '';
+
+  // 判断是否是预览
+  isPreview: boolean = false;
 
   constructor(
     private http: HttpClient,
@@ -70,6 +81,7 @@ export class AddSubProjectCardService {
     public translateService: TranslateService,
     public wbsTabsService: WbsTabsService,
     private userService: DwUserService,
+    public wbsService: DynamicWbsService
   ) {
     this.configService.getConfig().subscribe((urls: any) => {
       this.atdmUrl = urls.atdmUrl;
@@ -95,18 +107,23 @@ export class AddSubProjectCardService {
     status: ButtonType,
     firstLevelTaskCard?: any,
     targetCard?: any,
+    source?: string
   ): void {
     this.showAddTaskCard = true; // 是否显示弹窗
     this.taskCardTitle = title; // 开窗名称
     this.buttonType = ButtonType[status]; // 点击了什么按钮类型
     this.firstLevelTaskCard = firstLevelTaskCard; // 首阶任务卡信息
-    this.currentCardInfo = ['EDIT'].includes(ButtonType[status]) ? targetCard : {}; // 编辑任务卡信息
+    this.designStatus = targetCard?.designStatus;
+    this.currentCardInfo = ['EDIT', 'PREVIEW'].includes(ButtonType[status]) ? targetCard : {}; // 编辑任务卡信息
     // controlSwitch，控制 (+) 打开的子项开窗和子项开窗的显示和隐藏，帮俊替换后，后续不需要这个对象
-    this.controlSwitch = ['PLUS', 'EDIT'].includes(ButtonType[status]) ? targetCard : firstLevelTaskCard;
+    this.controlSwitch = ['PLUS', 'EDIT'].includes(ButtonType[status])
+      ? targetCard
+      : firstLevelTaskCard;
+    this.getDateCheck();
+    this.initValue(source);
     this.initValidateForm(status);
-    this.initValue();
     this.evokeGuidance();
-    this.handelPlmProject();
+    this.controlExecutorField();
   }
 
   initValidateForm(status: ButtonType): void {
@@ -122,6 +139,7 @@ export class AddSubProjectCardService {
       is_milepost: [false],
       /** 里程碑说明 */
       milepost_desc: [''],
+      automatic_re_push: [true], // 自动重推日期及工期
       /** 工作量 */
       workload_qty: [null],
       /** 工作量单位	1.小时 2.日 3.月 */
@@ -160,16 +178,18 @@ export class AddSubProjectCardService {
       plan_work_hours: [null],
       /** 任务依赖信息 */
       task_dependency_info: [
-        [{
-          /** 前置任务编号 */
-          before_task_no: '',
-          /** 依赖关系类型	FS:完成才开始;FF:完成才完成;SS:开始才开始 */
-          dependency_type: 'FS',
-          /** 提前滞后类型	-1:提前;1:滞后 */
-          advance_lag_type: -1,
-          /** 提前滞后天数 */
-          advance_lag_days: 0,
-        }]
+        [
+          {
+            /** 前置任务编号 */
+            before_task_no: '',
+            /** 依赖关系类型	FS:完成才开始;FF:完成才完成;SS:开始才开始 */
+            dependency_type: 'FS',
+            /** 提前滞后类型	-1:提前;1:滞后 */
+            advance_lag_type: -1,
+            /** 提前滞后天数 */
+            advance_lag_days: 0,
+          },
+        ],
       ],
       /** 单别信息 */
       doc_type_info: [{ doc_condition_value: '' }],
@@ -227,9 +247,9 @@ export class AddSubProjectCardService {
       is_confirm_date: '',
       is_project_no: '',
       is_task_no: '',
-      complete_rate_method: ''
+      complete_rate_method: '',
     });
-    if (['EDIT'].includes(ButtonType[status])) {
+    if (['EDIT', 'PREVIEW'].includes(ButtonType[status])) {
       this.isShowAutoSchedule = true;
       // 当前子项开窗的数据备份
       this.currentCardInfoBackups = JSON.parse(JSON.stringify(this.currentCardInfo));
@@ -242,27 +262,64 @@ export class AddSubProjectCardService {
         // liable_person_code_data: personListItem,
         // task_member_info: taskMemberInfo,
         doc_type_info: this.currentCardInfo['doc_condition_value'].split(','),
-        task_proportion: (Number(this.currentCardInfo['task_proportion']) * 100).toFixed(2),
+        // task_proportion: (Number(this.currentCardInfo['task_proportion']) * 100).toFixed(2),
+        task_proportion: this.commonService
+          .accMul(this.currentCardInfo['task_proportion'], 100)
+          .toFixed(2),
         plan_main_unit_value: this.currentCardInfo['plan_main_unit_value'] || '',
         plan_second_unit_value: this.currentCardInfo['plan_second_unit_value'] || '',
         standard_work_hours: this.currentCardInfo['standard_work_hours'] || '',
-        standard_days: this.currentCardInfo['standard_days'] || ''
+        standard_days: this.currentCardInfo['standard_days'] || '',
       };
       this.validateForm.patchValue(formValue);
     } else {
-      this.validateForm.get('upper_level_task_no')?.setValue(ButtonType[status] === 'PLUS' ? this.controlSwitch['task_no'] : null);
+      this.validateForm
+        .get('upper_level_task_no')
+        ?.setValue(ButtonType[status] === 'PLUS' ? this.controlSwitch['task_no'] : null);
     }
   }
 
-  initValue(): void {
+  initValue(source?: string): void {
+    if (source && source === Entry.collaborate) {
+      this.currentCardInfo.task_status = this.currentCardInfo.old_task_status;
+      this.currentCardInfo.liable_person_code = this.currentCardInfo.responsible_person_no;
+      this.currentCardInfo.liable_person_name = this.currentCardInfo.responsible_person_name;
+      this.currentCardInfo.liable_person_department_code =
+        this.currentCardInfo.responsibility_department_no;
+      this.currentCardInfo.liable_person_department_name =
+        this.currentCardInfo.responsibility_department_name;
+      this.currentCardInfo.task_template_no = this.currentCardInfo?.task_template_parameter_no;
+      this.currentCardInfo.task_template_name = this.currentCardInfo?.task_template_parameter_name;
+      this.currentCardInfo.task_dependency_info = this.currentCardInfo.assist_task_dependency_info;
+      this.currentCardInfo.task_member_info = this.currentCardInfo.assist_task_member_info;
+    }
+    if (source && source === Entry.projectChange) {
+      this.currentCardInfo.task_status = this.currentCardInfo.old_task_status;
+      this.currentCardInfo.liable_person_code = this.currentCardInfo.responsible_person_no;
+      this.currentCardInfo.liable_person_name = this.currentCardInfo.responsible_person_name;
+      this.currentCardInfo.liable_person_department_code =
+        this.currentCardInfo.responsibility_department_no;
+      this.currentCardInfo.liable_person_department_name =
+        this.currentCardInfo.responsibility_department_name;
+      this.currentCardInfo.task_template_no = this.currentCardInfo?.task_template_parameter_no;
+      this.currentCardInfo.task_template_name = this.currentCardInfo?.task_template_parameter_name;
+      this.currentCardInfo.task_dependency_info = this.currentCardInfo.project_change_task_dep_info;
+      this.currentCardInfo.task_member_info = this.currentCardInfo.project_change_task_member_info;
+    }
     this.arStageNo = this.currentCardInfo?.ar_stage_no ?? '';
     this.arStageName = this.currentCardInfo?.ar_stage_name ?? '';
     this.taskCategory = this.currentCardInfo?.task_category ?? '';
     this.taskTemplateNo = this.currentCardInfo?.task_template_no ?? null;
     this.taskTemplateName = this.currentCardInfo?.task_template_name ?? '';
-    this.eocSiteId = this.currentCardInfo?.eoc_site_id ? { id: this.currentCardInfo.eoc_site_id } : {};;
-    this.eocRegionId = this.currentCardInfo?.eoc_region_id ? { id: this.currentCardInfo.eoc_region_id } : {};
-    this.eocCompanyId = this.currentCardInfo?.eoc_company_id ? { id: this.currentCardInfo.eoc_company_id } : {};
+    this.eocSiteId = this.currentCardInfo?.eoc_site_id
+      ? { id: this.currentCardInfo.eoc_site_id }
+      : {};
+    this.eocRegionId = this.currentCardInfo?.eoc_region_id
+      ? { id: this.currentCardInfo.eoc_region_id }
+      : {};
+    this.eocCompanyId = this.currentCardInfo?.eoc_company_id
+      ? { id: this.currentCardInfo.eoc_company_id }
+      : {};
   }
 
   evokeGuidance(): void {
@@ -273,8 +330,12 @@ export class AddSubProjectCardService {
     }
   }
 
-  handelPlmProject(): void {
-    if (['PLM_PROJECT'].includes(this.taskCategory)) {
+  /*
+   * 管控执行人栏位，数据置空，栏位置灰
+   * PLM_PROJECT、ASSC_ISA_ORDER
+   */
+  controlExecutorField(): void {
+    if (['PLM_PROJECT', 'ASSC_ISA_ORDER', 'PCM'].includes(this.taskCategory)) {
       this.validateForm.get('task_member_info').disable();
       this.validateForm.get('task_member_info').patchValue([]);
     }
@@ -291,7 +352,7 @@ export class AddSubProjectCardService {
     return this.http.get(url, options);
   }
 
-  // 自动排期
+  // 自动排期，推流程改时间
   postProcess(tenantId: any, params: any, content: any): Observable<any> {
     const _params = {
       tenantId,
@@ -363,15 +424,17 @@ export class AddSubProjectCardService {
               key: element.roleNo,
               selectable: false,
               disableCheckbox: true,
-              children: [{
-                deptId: element.deptId,
-                deptName: element.deptName,
-                title: element.deptName,
-                key: element.roleNo +';'+ element.deptId,
-                selectable: false,
-                disableCheckbox: true,
-                children: [element],
-              }],
+              children: [
+                {
+                  deptId: element.deptId,
+                  deptName: element.deptName,
+                  title: element.deptName,
+                  key: element.roleNo + ';' + element.deptId,
+                  selectable: false,
+                  disableCheckbox: true,
+                  children: [element],
+                },
+              ],
             });
             obj2[element.roleNo + element.deptId] = 1;
           }
@@ -384,7 +447,7 @@ export class AddSubProjectCardService {
                   deptId: element.deptId,
                   deptName: element.deptName,
                   title: element.deptName,
-                  key: element.roleNo +';'+ element.deptId,
+                  key: element.roleNo + ';' + element.deptId,
                   selectable: false,
                   disableCheckbox: true,
                   children: [element],
@@ -395,7 +458,7 @@ export class AddSubProjectCardService {
           } else {
             groupData.forEach((data): void => {
               if (data.roleNo === element.roleNo) {
-                data.children.forEach(item2 => {
+                data.children.forEach((item2) => {
                   if (item2.deptId === element.deptId) {
                     item2.children.push(element);
                   }
@@ -409,7 +472,10 @@ export class AddSubProjectCardService {
     return groupData;
   }
 
-  // 开窗获取任务模板
+  /**
+   * 任务类型开窗
+   * 开窗获取任务模板
+   */
   getTaskTemplate(flag: string, source?: string): Observable<any> {
     // spring 3.0 更换api名称：'task.template.parameter.info.get' ==> 'bm.pisc.task.template.parameter.get'
     const params = {
@@ -427,18 +493,18 @@ export class AddSubProjectCardService {
           {
             dataType: 'string',
             name: 'user_defined01',
-            description: this.translateService.instant('dj-pcc-类型栏位代号')
+            description: this.translateService.instant('dj-pcc-类型栏位代号'),
           },
           {
             dataType: 'string',
             name: 'user_defined02',
-            description: this.translateService.instant('dj-pcc-次类型栏位代号')
+            description: this.translateService.instant('dj-pcc-次类型栏位代号'),
           },
           {
             dataType: 'string',
             name: 'user_defined03',
-            description: this.translateService.instant('dj-pcc-托外栏位代号')
-          }
+            description: this.translateService.instant('dj-pcc-托外栏位代号'),
+          },
         ],
         type: 'ESP',
         // url: 'http://esp.digiwincloud.com.cn/CROSS/RESTful',
@@ -457,8 +523,11 @@ export class AddSubProjectCardService {
         eoc_company_id: this.eocCompanyId?.id || '',
         eoc_site_id: this.eocSiteId?.id || '',
         eoc_region_id: this.eocRegionId?.id || '',
-        task_template_parameter_info: [{ manage_status: 'Y' }]
+        task_template_parameter_info: [{ manage_status: 'Y' }],
       };
+    }
+    if (source === Entry.collaborate || this.wbsService?.projectInfo?.wbs_first_budget === false) {
+      params['tmAction']['paras']['task_category_blacklist'] = [{ task_category: 'PCM' }];
     }
     const url = `${this.uibotUrl}/api/ai/v1/data/query/action`;
     return this.http.post(url, params, {
@@ -466,8 +535,9 @@ export class AddSubProjectCardService {
     });
   }
 
-  // 开窗获取款项阶段
+  // 选择款项阶段，开窗
   getPaymentPeriod(company: string, project_no: string, source?: string): Observable<any> {
+    // sprint 4.6 project.order.instalment.data.get => bm.pisc.project.order.detail.instalment.get todo 规格问题暂时不改了
     const params = {
       tmAction: {
         actionId: 'esp_project.order.instalment.data.get', // 取得专案订单账款分期信息
@@ -481,6 +551,7 @@ export class AddSubProjectCardService {
         },
         paras: {
           eoc_company_id: company,
+          // query_condition: '2', // 新增字段
           project_info: [
             {
               project_no: project_no || '',
@@ -564,7 +635,7 @@ export class AddSubProjectCardService {
     return this.http.post(url, _params);
   }
 
-  UseTemplateHandleOk(): void { }
+  UseTemplateHandleOk(): void {}
 
   filterSize(size) {
     return size / this.pow1024(2);
@@ -613,46 +684,103 @@ export class AddSubProjectCardService {
     );
   }
 
-
   /**
-   *更新任务基础信息/ 更新敏态任务基础资料
+   * 更新任务基础信息/ 更新敏态任务基础资料
    * @param params
    * @returns task_info 任务卡信息
    */
-  taskBaseInfoUpdate(params: any): Promise<TaskBaseInfo> {
-    return new Promise((resolve, reject) => {
-      this.commonService.getInvData('task.base.info.update', { task_info: [params] }).subscribe(
-        (res: any): void => {
-          resolve(res.data.task_info[0]);
-        },
-        (err: any): void => {
-          reject(err.description);
-        }
-      );
-    });
+  async taskBaseInfoUpdate(params: any): Promise<TaskBaseInfo> {
+    try {
+      const res: any = await this.commonService
+        .getInvData('task.base.info.update', params)
+        .toPromise();
+      return res.data.task_info[0];
+    } catch (err) {
+      return Promise.reject(err.description);
+    }
   }
 
+  /**
+   * 更新任务基础信息/ 更新敏态任务基础资料 项目变更
+   * @param params
+   * @returns task_info 任务卡信息
+   */
+  async taskBaseInfoChangeUpdate(params: any): Promise<TaskBaseInfo> {
+    try {
+      await this.resetParamChangeData(params);
+      const updateParams = {
+        project_change_task_detail_info: [params],
+        is_update_task_date: true,
+        is_check_task_dependency: true,
+      };
+      const res: any = await this.commonService
+        .getInvData('bm.pisc.project.change.task.detail.update', updateParams)
+        .toPromise();
+      return {};
+    } catch (err) {
+      return Promise.reject(err.description);
+    }
+  }
 
   /**
- * 记录任务卡是否被修改过
- */
+   *  协同排定任务明细更新
+   * @param params
+   * @returns assist_task_detail_info 协同排定任务明细信息
+   */
+  async assistTaskDetailUpdate(param: any, root_task_card: any, project_no): Promise<any> {
+    try {
+      // s17:入参增加交付设计器日期
+      const date_check = await this.getDateCheck();
+      await this.resetParamData(param, root_task_card, project_no);
+      const params = { date_check, assist_task_detail_info: [param] };
+      const res: any = await this.commonService
+        .getInvData('bm.pisc.assist.task.detail.update', params)
+        .toPromise();
+      return res?.data?.assist_task_detail_info?.[0];
+    } catch (err) {
+      return Promise.reject(err.description);
+    }
+  }
+  async getDateCheck(): Promise<any> {
+    if (this.dateCheck) {
+      return this.dateCheck;
+    }
+    // s17:入参增加交付设计器日期
+    return this.commonService
+      .getMechanismVariableList([
+        {
+          variableId: 'assistManageParameter',
+        },
+      ])
+      .toPromise()
+      .then((_res) => {
+        this.dateCheck = _res.data[0].result;
+        return this.dateCheck;
+      });
+  }
+  /**
+   * 记录任务卡是否被修改过
+   */
   recordModified(): void {
     this.currentCardInfo.hasEdit = true;
-    sessionStorage.setItem(
-      'hasEditFromProjectNo',
-      this.currentCardInfo.project_no.toString()
-    );
-    const hasEditFromTaskNoArr: Array<string> = sessionStorage.getItem('hasEditFromTaskNoArr')
-      ? sessionStorage.getItem('hasEditFromTaskNoArr').split(',')
+    const hasEditFromTaskNoArr: Array<string> = sessionStorage.getItem(
+      'hasEditFromTaskNoArr' + this.currentCardInfo.project_no.toString()
+    )
+      ? sessionStorage
+          .getItem('hasEditFromTaskNoArr' + this.currentCardInfo.project_no.toString())
+          .split(',')
       : [];
     hasEditFromTaskNoArr.push(this.currentCardInfo.task_no);
-    sessionStorage.setItem('hasEditFromTaskNoArr', hasEditFromTaskNoArr.toString());
+    sessionStorage.setItem(
+      'hasEditFromTaskNoArr' + this.currentCardInfo.project_no.toString(),
+      hasEditFromTaskNoArr.toString()
+    );
   }
 
   /**
- * 调用服务编排
- * @param params
- */
+   * 调用服务编排
+   * @param params
+   */
   getServiceOrchestration(params: any): void {
     const orchestrationParam = {
       task_plan: [
@@ -661,21 +789,42 @@ export class AddSubProjectCardService {
           task_no: params.task_no,
           liable_person_code: params.liable_person_code,
           liable_person_name: params.liable_person_name,
+          liable_person_role_no: params.liable_person_role_no,
+          liable_person_role_name: params.liable_person_role_name,
+          responsibility_department_no: params.liable_person_department_code, // 负责人部门编号
+          responsibility_department_name: params.liable_person_department_name, // 负责人部门名称
+          task_member_info: params.task_member_info,
         },
       ],
     };
-    this.commonService.getServiceOrchestration(orchestrationParam).subscribe(() => { });
+    this.commonService.getServiceOrchestration(orchestrationParam).subscribe(() => {});
   }
 
   /**
- * 获取项目
- */
+   * 获取项目
+   */
   bmPiscProjectGet(project_no: string): Promise<any> {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this.commonService
         .getInvData('bm.pisc.project.get', { project_info: [{ project_no }] })
         .subscribe((res: any): void => {
           resolve(res.data.project_info[0]);
+        });
+    });
+  }
+
+  /**
+   * 获取变更项目
+   */
+  bmPiscProjectChangeGet(project_no: string, change_version: string): Promise<any> {
+    return new Promise((resolve) => {
+      this.commonService
+        .getInvData('bm.pisc.project.change.task.detail.get', {
+          excluded_already_deleted_task: true,
+          project_change_task_detail_info: [{ project_no, change_version }],
+        })
+        .subscribe((res: any): void => {
+          resolve(res.data.project_change_task_detail_info[0]);
         });
     });
   }
@@ -686,17 +835,25 @@ export class AddSubProjectCardService {
    * @param modelType 是否是DTD流程
    * @param task_no 上阶任务编号
    */
-  addOrDeleteTaskFlow(project_no: string, modelType: string, upper_level_task_no: string, source?: string): void {
+  addOrDeleteTaskFlow(
+    project_no: string,
+    modelType: string,
+    upper_level_task_no: string,
+    source?: string
+  ): void {
     const tenantId = this.userService.getUser('tenantId');
     const userId = this.userService.getUser('userId');
     const param = [{ project_no, task_no: upper_level_task_no }];
-    if ((modelType.indexOf('DTD') !== -1) || (source === Entry.collaborate)) {
+    if (modelType.indexOf('DTD') !== -1 || source === Entry.collaborate) {
       const DwUserInfo = JSON.parse(sessionStorage.DwUserInfo || '{}');
-      this.addOrDeleteTaskCardNew(DwUserInfo.acceptLanguage, userId, param, this.commonService.content)
-        .subscribe(() => { });
+      this.addOrDeleteTaskCardNew(
+        DwUserInfo.acceptLanguage,
+        userId,
+        param,
+        this.commonService.content
+      ).subscribe(() => {});
     } else {
-      this.addOrDeleteTaskCard(tenantId, param, this.commonService.content)
-        .subscribe(() => { });
+      this.addOrDeleteTaskCard(tenantId, param, this.commonService.content).subscribe(() => {});
     }
   }
 
@@ -705,15 +862,17 @@ export class AddSubProjectCardService {
    * @param params 任务信息
    */
   updateTaskFlow(params: any, modelType: string, project_no: string, source?: string): void {
-    if ((modelType.indexOf('DTD') !== -1) || (source === Entry.collaborate)) {
+    if (modelType.indexOf('DTD') !== -1 || source === Entry.collaborate) {
       // 任务卡重推流程优化，应用场景：当非PLM_PROJECT类型的任务下发后，此时任务状态会是未开始，若PM此时调整任务类型为PLM_PROJECT时，重推任务卡时，需同步创建PLM项目
-      if (this.currentCardInfo?.project_status === '30' && this.currentCardInfo.is_issue_task_card) {
+      if (
+        this.currentCardInfo?.project_status === '30' &&
+        this.currentCardInfo.is_issue_task_card
+      ) {
         this.updateTaskMainProject(params, project_no);
       }
     } else {
       this.projectCenterConsoleUpdateTask(params, project_no);
     }
-
   }
 
   updateTaskMainProject(params: any, project_no: string, isBatchProcess?: boolean): void {
@@ -721,14 +880,13 @@ export class AddSubProjectCardService {
     const id = this.userService.getUser('userId');
     let param = [];
     if (!isBatchProcess) {
-      param =
-        [
-          {
-            project_no,
-            task_no: params.task_no,
-            needToReset: true,
-          },
-        ];
+      param = [
+        {
+          project_no,
+          task_no: params.task_no,
+          needToReset: true,
+        },
+      ];
     } else {
       param = params;
     }
@@ -737,8 +895,7 @@ export class AddSubProjectCardService {
       id,
       param,
       this.commonService.content
-    ).subscribe(() => { });
-
+    ).subscribe(() => {});
   }
 
   projectCenterConsoleUpdateTask(params: any, project_no: string): void {
@@ -750,9 +907,7 @@ export class AddSubProjectCardService {
         needToReset: true,
       },
     ];
-    this.editTaskCard(tenantId, param, this.commonService.content)
-      .subscribe(() => { });
-
+    this.editTaskCard(tenantId, param, this.commonService.content).subscribe(() => {});
   }
 
   taskDependencyCheck(params: any, taskProperty?: any): Promise<any> {
@@ -761,24 +916,188 @@ export class AddSubProjectCardService {
       this.commonService
         .getInvData('bm.pisc.task.dependency.check', {
           task_property: taskProperty,
-          project_info: [{ project_no: params.project_no }]
+          project_info: [{ project_no: params.project_no }],
         })
-        .subscribe((res: any): void => {
-          resolve(res.data);
-        }, (err) => {
-          reject(err.description);
-        });
+        .subscribe(
+          (res: any): void => {
+            resolve(res.data);
+          },
+          (err) => {
+            reject(err.description);
+          }
+        );
     });
   }
 
-  taskInfoCreate(params: any): Promise<any> {
-    return new Promise((resolve) => {
-      this.commonService
-        .getInvData('task.info.create', { task_info: [params] })
-        .subscribe((res: any): void => {
-          resolve(res.data.task_info[0]);
+  // 项目变更创建
+  async taskInfoChangeCreate(params: any): Promise<any> {
+    try {
+      await this.resetParamChangeData(params);
+      const updateParams = {
+        project_change_task_detail_info: [params],
+        is_update_task_date: true,
+        is_check_task_dependency: true,
+      };
+      const res: any = await this.commonService
+        .getInvData('bm.pisc.project.change.task.detail.create', updateParams)
+        .toPromise();
+      return {};
+    } catch (err) {
+      return Promise.reject(err.description);
+    }
+  }
+
+  async taskInfoCreate(params: any): Promise<any> {
+    try {
+      const res: any = await this.commonService.getInvData('task.info.create', params).toPromise();
+      return res?.data?.task_info[0];
+    } catch (err) {
+      return Promise.reject(err.description);
+    }
+  }
+
+  /**
+   * 协同排定任务明细新增
+   * */
+  async taskInfoCreateForCollaborate(param: any, root_task_card, project_no): Promise<any> {
+    await this.resetParamData(param, root_task_card, project_no);
+    // s17:入参增加交付设计器日期
+    const date_check = await this.getDateCheck();
+    const params = {
+      date_check,
+      is_update_task_date: true, // 更新任务日期
+      assist_task_detail_info: [param],
+    };
+    const res: any = await this.commonService
+      .getInvData('bm.pisc.assist.task.detail.create', params)
+      .toPromise();
+    return res?.data?.task_info?.[0];
+  }
+
+  async resetParamData(param, root_task_card, project_no = ''): Promise<void> {
+    param.liable_person_role_name = param.liable_person_role_no
+      ? param.liable_person_role_name
+      : ''; // 负责人角色名称
+    param.assist_schedule_seq = root_task_card.assist_schedule_seq; // 协助排定计划序号
+    param.root_task_no = root_task_card.root_task_no; // 前置任务编号
+    param.old_task_status = param.task_status; // 原任务状态
+    param.responsible_person_no = param.liable_person_code; // 负责人编号
+    param.responsible_person_name = param.liable_person_name; // 负责人名称
+    param.responsibility_department_no = param.liable_person_department_code; // 负责人部门编号
+    param.responsibility_department_name = param.liable_person_department_name; // 负责人部门名称
+    param.liable_person_role_name = param.liable_person_role_no
+      ? param.liable_person_role_name
+      : '';
+    param.task_template_parameter_no = param.task_template_no; // 任务模板类型编号
+    param.task_template_parameter_name = param.task_template_name; // 任务模板类型名称
+    param.is_project_code = param.is_project_no; // 项目编号条件
+    param.user_defined01 = param.type_field_code; // 类型栏位代号
+    param.user_defined01_value = param.type_condition_value; // 类型条件值
+    param.user_defined02 = param.sub_type_field_code; // 次类型栏位代号
+    param.user_defined02_value = param.sub_type_condition_value; // 次类型条件值
+    param.user_defined03 = param.outsourcing_field_code; // 托外栏位代号
+    param.user_defined03_value = param.outsourcing_condition_value; // 托外条件值
+    param.report_description = param.report_work_description; // 报工说明
+    param.doc_seq = param.seq; // 单据序號
+    const doc_condition_value_list = param.doc_type_info?.filter(
+      (item) => item.doc_condition_value !== ''
+    ); // 单别条件值
+    param.doc_condition_value =
+      doc_condition_value_list?.map((item) => item.doc_condition_value).join(',') ?? '';
+    // param.assist_task_dependency_info = param.task_dependency_info; // 协同排定任务依赖关系信息
+    // await Promise.all(param.assist_task_dependency_info.map(async o => {
+    //   const root_task_no = await this.getRootTaskInfo(o.before_task_no, project_no); // 前置根任务编号 传入 前置根任务编号
+    //   o.before_root_task_no = root_task_no?.before_root_task_no;
+    // }));
+    param['assist_task_dependency_info'] = [];
+    if (param.task_dependency_info?.length && this.preTaskNumListBackUp?.length) {
+      param['assist_task_dependency_info'] = cloneDeep(param.task_dependency_info);
+      param.assist_task_dependency_info.forEach((info) => {
+        Reflect.deleteProperty(info, 'project_no');
+        this.preTaskNumListBackUp.forEach((item) => {
+          if (item.task_no === info.before_task_no) {
+            info['before_root_task_no'] = item.root_task_no;
+          }
         });
+      });
+    }
+    param.assist_task_member_info = cloneDeep(param.task_member_info); // 协同排定任务执行人信息
+    param.assist_task_member_info.forEach((item) => {
+      item.executor_role_name = item.executor_role_no ? item.executor_role_name : '';
     });
   }
 
+  /**
+   * 项目变更数据转换
+   */
+  async resetParamChangeData(param): Promise<void> {
+    param.liable_person_role_name = param.liable_person_role_no
+      ? param.liable_person_role_name
+      : ''; // 负责人角色名称
+    param.old_task_status = param.task_status; // 原任务状态
+    param.responsible_person_no = param.liable_person_code; // 负责人编号
+    param.responsible_person_name = param.liable_person_name; // 负责人名称
+    param.responsibility_department_no = param.liable_person_department_code; // 负责人部门编号
+    param.responsibility_department_name = param.liable_person_department_name; // 负责人部门名称
+    param.liable_person_role_name = param.liable_person_role_no
+      ? param.liable_person_role_name
+      : '';
+    param.task_template_parameter_no = param.task_template_no; // 任务模板类型编号
+    param.task_template_parameter_name = param.task_template_name; // 任务模板类型名称
+    param.user_defined01 = param.type_field_code; // 类型栏位代号
+    param.user_defined01_value = param.type_condition_value; // 类型条件值
+    param.user_defined02 = param.sub_type_field_code; // 次类型栏位代号
+    param.user_defined02_value = param.sub_type_condition_value; // 次类型条件值
+    param.user_defined03 = param.outsourcing_field_code; // 托外栏位代号
+    param.user_defined03_value = param.outsourcing_condition_value; // 托外条件值
+    param.report_description = param.report_work_description; // 报工说明
+    param.doc_seq = param.seq; // 单据序號
+    param.plan_work_hours = param.plan_work_hours === '' ? 0 : param.plan_work_hours;
+    const doc_condition_value_list = param.doc_type_info?.filter(
+      (item) => item.doc_condition_value !== ''
+    ); // 单别条件值
+    param.doc_condition_value =
+      doc_condition_value_list?.map((item) => item.doc_condition_value).join(',') ?? '';
+    // param.assist_task_dependency_info = param.task_dependency_info; // 协同排定任务依赖关系信息
+    // await Promise.all(param.assist_task_dependency_info.map(async o => {
+    //   const root_task_no = await this.getRootTaskInfo(o.before_task_no, project_no); // 前置根任务编号 传入 前置根任务编号
+    //   o.before_root_task_no = root_task_no?.before_root_task_no;
+    // }));
+    param['project_change_task_dep_info'] = [];
+    if (param.task_dependency_info?.length && this.preTaskNumListChange?.length) {
+      param['project_change_task_dep_info'] = cloneDeep(param.task_dependency_info);
+      param.project_change_task_dep_info?.forEach((info) => {
+        Reflect.deleteProperty(info, 'project_no');
+        this.preTaskNumListChange.forEach((item) => {
+          if (item.task_no === info.before_task_no) {
+            info['before_root_task_no'] = item.root_task_no;
+          }
+        });
+      });
+    }
+    param.project_change_task_member_info = cloneDeep(param.task_member_info); // 协同排定任务执行人信息
+    param.project_change_task_member_info?.forEach((item) => {
+      item.executor_role_name = item.executor_role_no ? item.executor_role_name : '';
+    });
+  }
+
+  /**
+   * 校验当前登录员工必是否是当前协同排定的一级计划的负责人
+   * 获取前置根任务编号：入参：项目编号、查询范围=M1、阶层类型=1.全部、任务属性=1.项目、任务编号=前置任务编号
+   */
+  async getRootTaskInfo(task_no: string, project_no): Promise<any> {
+    const params = {
+      query_condition: 'M1', // 查询范围 = M1
+      level_type: '1', // 阶层类型 = 1.全部
+      task_info: [
+        {
+          project_no, //  项目编号 = 项目编号
+          task_property: '1', // 任务属性 = 1.项目
+          task_no, // 任务编号 = 一级计划的任务编号
+        },
+      ],
+    };
+    const res: any = await this.commonService.getInvData('bm.pisc.task.get', params).toPromise();
+    return { before_root_task_no: res?.data?.task_info?.[0]?.root_task_no };
+  }
 }

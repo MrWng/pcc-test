@@ -18,7 +18,6 @@
               (ngModelChange)="personInCharge($event, false)"
               (nzOnSearch)="searchPersonList($event, '1')"
               [nzDisplayWith]="displayWith"
-              [nzDisabled]="addSubProjectCardService.currentCardInfo?.someEdit && designStatus !== 'notStart'"
               [nzTreeTemplate]="nzTreeTemplate"
               >
               <ng-template #nzTreeTemplate let-node let-origin="origin">
@@ -81,8 +80,8 @@
                 nzServerSearch
                 [nzMaxTagCount]="1"
                 [nzMaxTagPlaceholder]="tagPlaceHolder"
-                [nzDropdownClassName]="!isAllowClearForExecutor ? 'not-allow-clear' : 'executor'"
-                [nzDisabled]="!liable_person_code_data || isForbidden"
+                [nzDropdownClassName]="!isAllowClearForExecutor ? 'cus-pcc-add-role not-allow-clear' : 'cus-pcc-add-role executor'"
+                [nzDisabled]="!liable_person_code_data || isForbidden || (source === Entry.card && designStatus === 'completed')"
                 [nzDisplayWith]="displayWith"
                 [(ngModel)]="addSubProjectCardService.validateForm.value.task_member_info"
                 (nzOnSearch)="searchPersonList($event, '2')"
@@ -101,14 +100,14 @@
                 </ng-template>
               </ath-tree-select>
               <ng-template #tagPlaceHolder>
-                {{ 'dj-default-其他n人' | translate : { n: addSubProjectCardService.validateForm.value.task_member_info?.length - 1 } }}
+                {{ 'dj-default-其他n人' | translate : { n: task_member_infoList?.length - 1 } }}
               </ng-template>
             </div>
             <div
               [ngClass]="[
-                'btn-event', 
+                'btn-event',
                 isDisable ? 'dis-btn-event' : '',
-                (addSubProjectCardService.currentCardInfo?.task_status === '10') && (addSubProjectCardService.buttonType === 'EDIT') ? '' : 'dis-btn'
+                (addSubProjectCardService.currentCardInfo?.task_status === '10' || addSubProjectCardService.currentCardInfo?.old_task_status === '10') && (addSubProjectCardService.buttonType === 'EDIT') ? '' : 'dis-btn'
               ]"
               (click)="setSameValue('personnel', $event)"
             >

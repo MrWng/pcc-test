@@ -1,4 +1,5 @@
 <div class="task-wbs">
+  <nz-alert class='errorInfo' *ngIf="wbsService.taskProportionCheck?.projectInfoTip" nzType="error" [nzMessage]="taskTipInfo" nzShowIcon></nz-alert>
   <!--  协同计划排定 -->
   <nz-tabset
     nzType="card"
@@ -7,6 +8,33 @@
     (nzSelectedIndexChange)="changeIndex($event)"
   >
     <nz-tab nzTitle="{{ 'dj-default-计划维护' | translate }}">
+      <div class='optionButtons'>
+        <div *ngIf="isApproveStatus" class="baseButtonStyle" (click)="lookSignOffProgress()">
+          {{ 'dj-c-查看签核进度' | translate }}
+        </div>
+        <div class='typeChangeBox'>
+          <div
+            class='baseButtonStyle'
+            [ngClass]="{ 'typeChange': wbsService.typeChange === 'card'}"
+            (click)="changeType('card')"
+          >
+            <em class="icon">
+              <i athIcon [iconfont]="'iconyou2'"></i>
+            </em>
+            {{ 'dj-pcc-卡片' | translate }}
+          </div>
+          <div
+            class='baseButtonStyle'
+            [ngClass]="{ 'typeChange': wbsService.typeChange === 'table'}"
+            (click)="changeType('table')"
+          >
+            <em class="icon">
+              <i athIcon [iconfont]="'iconbiaogebeifen'"></i>
+            </em>
+            {{ 'dj-pcc-表格' | translate }}
+          </div>
+        </div>
+      </div>
       <app-dynamic-task-wbs-list
         [model]="model"
         [group]="group"
@@ -18,10 +46,8 @@
         [source]="Entry.collaborate"
         [executeContext]="model.content?.executeContext"
         [tabIndex]="tabIndex + 2"
+        [tabName]="'app-list-of-deliverable'"
       ></app-list-of-deliverable>
     </nz-tab>
   </nz-tabset>
-  <div *ngIf="isApproveStatus" class="approve-progress" (click)="lookSignOffProgress()">
-    {{ 'dj-c-查看签核进度' | translate }}
-  </div>
 </div>

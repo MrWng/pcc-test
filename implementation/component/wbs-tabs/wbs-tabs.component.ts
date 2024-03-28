@@ -1,17 +1,17 @@
 import {
-  Component,
-  OnInit,
-  Input,
-  Output,
-  EventEmitter,
-  ChangeDetectorRef,
-  ElementRef,
-  OnDestroy,
-  ViewChild,
   AfterViewInit,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
 } from '@angular/core';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import {
   DynamicFormControlComponent,
   DynamicFormControlLayout,
@@ -22,19 +22,20 @@ import {
   PluginLanguageStoreService,
   reportedUserBehavior,
   UserBehaviorOperation,
-} from '@ng-dynamic-forms/core';
+} from '@athena/dynamic-core';
 import { DynamicProjectPlanManageModel } from '../../model/project-plan-manage/project-plan-manage.model';
 import { WbsTabsService } from './wbs-tabs.service';
 import { CommonService, Entry } from '../../service/common.service';
-import { OpenWindowService } from '@ng-dynamic-forms/ui-ant-web';
+import { OpenWindowService } from '@athena/dynamic-ui';
 import { TranslateService } from '@ngx-translate/core';
 import { DwUserService } from '@webdpt/framework/user';
 import { forkJoin, Subject } from 'rxjs';
 import { DynamicWbsService } from '../wbs/wbs.service';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { DynamicWbsComponent } from '../wbs/wbs.component';
-import { debounceTime, map } from 'rxjs/operators';
+import { debounceTime, map, takeUntil } from 'rxjs/operators';
 import { DynamicCustomizedService } from '../../service/dynamic-customized.service';
+import { AddSubProjectCardService } from '../add-subproject-card/add-subproject-card.service';
 
 @Component({
   selector: 'app-dynamic-wbs-tabs',
@@ -44,7 +45,8 @@ import { DynamicCustomizedService } from '../../service/dynamic-customized.servi
 })
 export class DynamicWbsTabsComponent
   extends DynamicFormControlComponent
-  implements OnInit, OnDestroy, AfterViewInit {
+  implements OnInit, OnDestroy, AfterViewInit
+{
   @Input() formLayout: DynamicFormLayout;
   @Input() group: FormGroup;
   @Input() layout: DynamicFormControlLayout;
@@ -57,8 +59,11 @@ export class DynamicWbsTabsComponent
   @Output() blur: EventEmitter<any> = new EventEmitter();
   @Output() change: EventEmitter<any> = new EventEmitter();
   @Output() focus: EventEmitter<any> = new EventEmitter();
+  @Output() parentChangeFn: EventEmitter<any> = new EventEmitter();
   @ViewChild('wbsComponent')
   private dynamicWbsComponent!: DynamicWbsComponent;
+  // loading蒙层组件
+  @ViewChild('loadingModal') loadingModal: any;
 
   // wbs 入口
   Entry = Entry;
@@ -67,8 +72,17 @@ export class DynamicWbsTabsComponent
   tabIndex: number = 0;
   changeConfigData = null;
   hasGroundEnd: string;
-
+  enableInstalment: boolean;
   isCanDelete: boolean = false;
+  tabName: string = '';
+  tabLoading: boolean = false;
+  isShowInitiateProjectChangesBtn: boolean = false;
+  startTipInfo = this.translateService.instant(
+    'dj-default-请维护项目类型，项目类型为空，不可进行计划维护/启动项目！'
+  );
+  taskTipInfo = this.translateService.instant(
+    'dj-pcc-存在一级任务的任务比重 < 100%，则所有一级任务的任务比重累计必须等于100%！'
+  );
 
   /** 光斯奥项目计划维护其他信息 */
   gongsiaoProjPlanOthInfoDynamicModel: any;
@@ -87,10 +101,18 @@ export class DynamicWbsTabsComponent
     private pluginLanguageStoreService: PluginLanguageStoreService,
     public wbsService: DynamicWbsService,
     private modal: NzModalService,
-    private dynamicCustomizedService: DynamicCustomizedService
+    private dynamicCustomizedService: DynamicCustomizedService,
+    private addSubProjectCardService: AddSubProjectCardService
   ) {
     super(layoutService, validationService, changeRef, elementRef);
     this.wbsTabsService.isShowStart = true;
+  }
+
+  changeFn() {
+    this.parentChangeFn.emit({
+      type: 'close-project',
+    });
+    this.changeRef.markForCheck();
   }
 
   ngOnDestroy(): void {
@@ -101,6 +123,8 @@ export class DynamicWbsTabsComponent
     this.commonService.content = this.model?.content ?? {};
     this.wbsService.group = this.group ?? {};
     this.wbsService.modelType = this.model.type ?? '';
+    this.enableInstalment =
+      this.model.content?.executeContext?.taskWithBacklogData?.bpmData?.enableInstalment;
     this.wbsService.project_no =
       this.model.content?.executeContext?.taskWithBacklogData?.bpmData?.project_info[0]
         ?.project_no ?? '';
@@ -108,13 +132,36 @@ export class DynamicWbsTabsComponent
       this.model.content?.executeContext?.taskWithBacklogData?.bpmData?.isNewProcess ?? '';
     this.hasGroundEnd = await this.getHasGroundEnd();
     this.wbsTabsService.hasGroundEnd = this.hasGroundEnd;
-    this.checkpTaskProportion();
+    if (this.source === Entry.collaborate) {
+      this.addSubProjectCardService.getDateCheck();
+    }
+    this.checkTaskProportion();
     this.getProjectData();
     this.queryChargePersonList();
     this.monitorStart();
     this.monitorNeedChangeWbs();
     this.initIndividualCaseComp();
   }
+  refreshPageChange() {
+    this.checkTaskProportion();
+    this.getProjectData();
+  }
+  /**
+   * 项目变更记录
+   */
+  // getProjectChangeStatus(project_no) {
+  //   if ((this.source === Entry.card) && project_no) {
+  //     // 【项⽬基础信息维护】⻚签头部信息，增加显⽰信息：项⽬变更中
+  //     this.commonService.getProjectChangeStatus(project_no, ['1'], '2').subscribe((res: any): void => {
+  //       this.wbsService.projectChangeStatus['check_type_init'] = res.data?.project_info[0]?.check_result;
+  //       this.changeRef.markForCheck();
+  //     },(error) => {
+  //       this.wbsService.projectChangeStatus['check_type_init'] = true;
+  //       this.changeRef.markForCheck();
+  //     });
+  //   }
+  // }
+
   /**
    * 初始化个案
    */
@@ -155,27 +202,49 @@ export class DynamicWbsTabsComponent
 
   /**
    * 任务比重检查
+   * 1、项目基础维护，页面初始化
+   * 2、项目基础维护，启动项目
    * 检查项目下任务占比是否符合100%的规则(敏态)
    */
-  checkpTaskProportion(): void {
-    this.commonService
-      .getInvData('task.proportion.check', {
-        project_info: [{ project_no: this.wbsService.project_no }],
-        check_all_task: '2',
-      })
-      .subscribe((res: any): void => {
-        if (res.data) {
-          const { project_info, task_info } = res.data ?? {};
+  checkTaskProportion(goSchedule?: string): void {
+    this.commonService.getTaskProportionInfo(this.source, this.wbsService.project_no).subscribe(
+      (res: any): void => {
+        if (res.data && res.data?.project_info) {
+          const project_info = res.data?.project_info;
+          const task_no = [];
+          project_info.forEach((item) => {
+            if (item.upper_level_task_no) {
+              task_no.push(item.upper_level_task_no);
+            }
+          });
           this.wbsService.taskProportionCheck = {
             project_info,
-            task_info,
-            taskInfoTip: !!task_info.length,
-            projectInfoTip: !!project_info.length,
-            tip: !!task_info.length || !!project_info.length,
+            task_no: task_no,
+            taskInfoTip: !!task_no.length,
+            projectInfoTip: task_no.length < project_info.length && project_info.length,
+            tip: !!task_no.length || !!project_info.length,
           };
-          this.changeRef.markForCheck();
+          if (goSchedule === 'schedule_teamwork') {
+            if (this.wbsService.taskProportionCheck.tip) {
+              this.setIsShowStart();
+              return;
+            }
+            const { bpmData } =
+              this.commonService.content.executeContext?.taskWithBacklogData || {};
+            // 任务比重校验: 任务比重校验不通过，不允许启动
+            bpmData?.checkPlanCompleteness
+              ? this.checkWorkloadAndDependencies()
+              : this.pushProcessOrUpdate();
+          }
         }
-      });
+        this.changeRef.markForCheck();
+      },
+      (err: any): void => {
+        if (goSchedule === 'schedule_teamwork') {
+          this.setIsShowStart();
+        }
+      }
+    );
   }
 
   /**
@@ -187,6 +256,7 @@ export class DynamicWbsTabsComponent
       .getProjectInfo(this.wbsService.project_no)
       .then(async (res: any): Promise<any> => {
         this.wbsService.projectInfo = res;
+        this.initiateProjectChangesBtn();
         const { data } = await this.wbsService.getInfoCheck(this.wbsService.project_no).toPromise();
         this.wbsService.needRefresh = data.check_result;
         this.changeRef.markForCheck();
@@ -195,19 +265,72 @@ export class DynamicWbsTabsComponent
       });
   }
 
+  initiateProjectChangesBtn() {
+    this.commonService
+      .getTaskInfo(this.wbsService.project_no, this.source)
+      .subscribe((resData: any): void => {
+        // 当项目状态=30.进行中且项目类型不为空且项目下至少有一个任务，调用API-4.bm.pisc.project.type.get，入参：项目类型，取得启用项目变更
+        const { project_status, project_type_no } = this.wbsService.projectInfo;
+        if (
+          project_status === '30' &&
+          project_type_no &&
+          resData.data?.project_info &&
+          resData.data.project_info?.length
+        ) {
+          const params = { project_type_info: [{ project_type_no: project_type_no }] };
+          this.commonService
+            .getInvData('bm.pisc.project.type.get', params)
+            .subscribe((res: any): void => {
+              // 启用项目变更
+              if (res.data?.project_type_info && res.data.project_type_info[0]?.is_project_change) {
+                this.isShowInitiateProjectChangesBtn = true;
+                this.changeRef.markForCheck();
+              }
+            });
+        }
+      });
+  }
+
   /**
    * 判断任务卡是否可编辑
    * @param leader_code
    */
   isEditable(isNeedQueryPermissions: boolean = true): void {
-    if (!isNeedQueryPermissions) {
-      return;
-    }
-    if (this.wbsService.projectInfo?.approve_status === 'N') {
-      this.wbsService.editable = false;
+    this.getUserInfoAndAgentInfo((value) => {
+      // 临时存储,防止后面projectInfo对象被篡改
+      this.wbsService.riskMaintenanceProjectInfo = this.wbsService.projectInfo;
+      // 存储代理人编号
+      this.wbsService.projectInfo['agentId'] = value[1].agentId || '';
+      // 存储当前登陆用户员工编号
+      this.wbsService.projectInfo['curUserId'] = value[0].id || '';
+      if (!isNeedQueryPermissions) {
+        return;
+      }
+      if (this.wbsService.projectInfo?.approve_status === 'N') {
+        this.wbsService.editable = false;
+        this.changeRef.markForCheck();
+        return;
+      }
+      if (value[0].id === value[1].agentId) {
+        this.wbsService.editable = true;
+        this.changeRef.markForCheck();
+        return;
+      }
+      const isHistory =
+        this.source !== Entry.plan &&
+        this.wbsService.projectInfo?.project_status !== '40' &&
+        this.wbsService.projectInfo?.project_status !== '60'
+          ? false
+          : true;
+      // project_leader_code 发起项目的人员编号
+      // 登录的人和发起项目的人，是否一致
+      const hasPermission =
+        value[0].id === this.wbsService.projectInfo?.project_leader_code ? true : false;
+      this.wbsService.editable = hasPermission && !isHistory;
       this.changeRef.markForCheck();
-      return;
-    }
+    });
+  }
+  private getUserInfoAndAgentInfo(callback = (value) => {}) {
     const personInCharge =
       this.userBehaviorCommService.commData?.workContent?.personInCharge ?? 'wfgp001';
     forkJoin([
@@ -216,26 +339,9 @@ export class DynamicWbsTabsComponent
     ])
       .pipe(map((responses): any => responses.map((item): any => item.data)))
       .subscribe((value) => {
-        if (value[0].id === value[1].agentId) {
-          this.wbsService.editable = true;
-          this.changeRef.markForCheck();
-          return;
-        }
-        const isHistory =
-          this.source !== Entry.plan &&
-            this.wbsService.projectInfo?.project_status !== '40' &&
-            this.wbsService.projectInfo?.project_status !== '60'
-            ? false
-            : true;
-        // project_leader_code 发起项目的人员编号
-        // 登录的人和发起项目的人，是否一致
-        const hasPermission =
-          value[0].id === this.wbsService.projectInfo?.project_leader_code ? true : false;
-        this.wbsService.editable = hasPermission && !isHistory;
-        this.changeRef.markForCheck();
+        callback(value);
       });
   }
-
   /**
    * 获取EOC(鼎捷云端端组织)符合授权及用户关联之员工信息 (敏态)
    */
@@ -303,7 +409,7 @@ export class DynamicWbsTabsComponent
         const { assist_schedule_info } = res1?.data ?? {};
         assist_schedule_info?.length
           ? this.collaborativeTaskCardNotCompletedTip()
-          : this.checkTaskProportion();
+          : this.checkTaskProportion('schedule_teamwork');
       });
   }
 
@@ -325,47 +431,14 @@ export class DynamicWbsTabsComponent
     });
   }
 
+  /**
+   * 启动专案
+   * 点击按钮后，进行显影管控 --> 显示
+   */
   setIsShowStart(): void {
     this.wbsTabsService.isShowStart = true;
     this.wbsService.projectInfo.project_status = '10';
     this.changeRef.markForCheck();
-  }
-
-  /**
-   * 任务比重校验: 任务比重校验不通过，不允许启动
-   */
-  checkTaskProportion(): void {
-    this.commonService
-      .getInvData('task.proportion.check', {
-        project_info: [{ project_no: this.wbsService.project_no }],
-        check_all_task: '2',
-      })
-      .subscribe(
-        (res: any): void => {
-          if (res.data) {
-            const { project_info, task_info } = res.data ?? {};
-            this.wbsService.taskProportionCheck = {
-              project_info,
-              task_info,
-              taskInfoTip: !!task_info.length,
-              projectInfoTip: !!project_info.length,
-              tip: !!task_info.length || !!project_info.length,
-            };
-            if (this.wbsService.taskProportionCheck.tip) {
-              this.setIsShowStart();
-              return;
-            }
-            const { bpmData } =
-              this.commonService.content.executeContext?.taskWithBacklogData || {};
-            bpmData?.checkPlanCompleteness
-              ? this.checkWorkloadAndDependencies()
-              : this.pushProcessOrUpdate();
-          }
-        },
-        (err: any): void => {
-          this.setIsShowStart();
-        }
-      );
   }
 
   /**
@@ -380,7 +453,7 @@ export class DynamicWbsTabsComponent
         let nameSting = this.getNameString(res[0].data?.project_info);
         nameSting = nameSting
           ? nameSting.slice(0, nameSting.length - 1) +
-          this.translateService.instant('dj-default-的工作量为0！')
+            this.translateService.instant('dj-default-的工作量为0！')
           : nameSting;
         const dependencyInfoData = res[1].data?.task_info?.length
           ? null
@@ -415,19 +488,35 @@ export class DynamicWbsTabsComponent
     });
   }
 
+  /**
+   * 发起项目
+   * 推流程
+   */
   pushProcessOrUpdate(): void {
+    this.loadingModal.createLoadingModal();
     const params = {
       project_type_no: this.wbsService.projectInfo?.project_type_no,
     };
-    this.wbsService.bmPiscProjectTypeGet(params).then((result) => {
-      this.wbsService.projectInfo.project_status = result.project_is_approve ? '20' : '30';
-      if (!result.project_is_approve) {
-        this.wbsService.needRefresh = this.translateService.instant('dj-default-刷新');
-      }
-      this?.dynamicWbsComponent?.markForCheck();
-      // isNewProcess === 'Y' 代表bpm流程
-      this.isNewProcess === 'Y' ? this.pushDtdOrBpmProcess('20') : this.updataProjectStatus();
-    });
+    this.wbsService
+      .bmPiscProjectTypeGet(params)
+      .then((result) => {
+        // this.wbsService.projectInfo.project_status = result.project_is_approve ? '20' : '30';
+        // if (!result.project_is_approve) {
+        //   this.wbsService.needRefresh = this.translateService.instant('dj-default-刷新');
+        // }
+        // this?.dynamicWbsComponent?.markForCheck();
+        // isNewProcess === 'Y' 代表DTD流程，bpm流程已取消
+        this.isNewProcess === 'Y'
+          ? this.pushDtdOrBpmProcess('20', result?.project_is_approve)
+          : this.updataProjectStatus();
+      })
+      .catch((err) => {
+        // 启动专案，失败，关闭loading，重新显示按钮
+        this.setIsShowStart();
+        this.changeRef.markForCheck();
+        this?.dynamicWbsComponent?.markForCheck();
+        this.loadingModal.closeLoadingModal();
+      });
   }
 
   /**
@@ -439,6 +528,7 @@ export class DynamicWbsTabsComponent
         ? 'N'
         : this.wbsTabsService.hasGroundEnd;
     const params = {
+      is_sync_document: this.wbsService.is_sync_document,
       project_info: [
         {
           project_no: this.wbsService.project_no,
@@ -462,24 +552,71 @@ export class DynamicWbsTabsComponent
   /**
    * 推DTD或BPM流程:场景--启动项目
    */
-  pushDtdOrBpmProcess(status: string) {
+  pushDtdOrBpmProcess(status: string, project_is_approve?: boolean) {
     if (this.model.type.indexOf('DTD') !== -1) {
-      this.commonService.pushDTDProcess(this.wbsService.project_no);
-      const DwUserInfo = JSON.parse(sessionStorage.DwUserInfo || '{}');
-      const id = this.userService.getUser('userId');
-      const param = [
-        {
-          project_no: this.wbsService.project_no,
-        },
-      ];
+      const params_info = {
+        is_sync_document: this.wbsService.is_sync_document,
+        project_info: [
+          {
+            project_no: this.wbsService.project_no,
+            project_status: project_is_approve ? '20' : '30',
+            sync_steady_state: this.wbsService.hasGroundEnd, // 同步稳态	Y.同步；N.不同步 不传或传null，默认N
+          },
+        ],
+      };
+      this.commonService
+        .getInvData(
+          'project.status.info.update',
+          params_info,
+          this.wbsService.projectInfo.eoc_company_id
+        )
+        .subscribe(
+          (res: any): void => {
+            if (project_is_approve === false) {
+              this.wbsService.needRefresh = this.translateService.instant('dj-default-刷新');
+            }
+            this.wbsService.projectInfo.project_status = project_is_approve ? '20' : '30';
+            const DwUserInfo = JSON.parse(sessionStorage.DwUserInfo || '{}');
+            const id = this.userService.getUser('userId');
+            const param = [{ project_no: this.wbsService.project_no }];
 
-      this.wbsTabsService
-        .createProject(DwUserInfo.acceptLanguage, id, param, this.model.content)
-        .subscribe((res) => {
-          this.change.emit({
-            type: 'application-submit',
-          });
-        });
+            // console.log('启动项目，开始调用流程：', new Date().toTimeString());
+            forkJoin([
+              this.wbsTabsService.createProject(
+                DwUserInfo.acceptLanguage,
+                id,
+                param,
+                this.model.content
+              ),
+              this.commonService.pushDTDProcessForStartProject(this.wbsService.project_no),
+            ])
+              .pipe(takeUntil(this.destroy$))
+              .subscribe(
+                (res) => {
+                  // console.log('启动项目，调用流程结束：', new Date().toTimeString());
+                  setTimeout(() => {
+                    this.changeRef.markForCheck();
+                    this.wbsService.changeWbs$.next();
+                    this.loadingModal.closeLoadingModal();
+                  }, 500);
+                },
+                (err) => {
+                  // 启动专案，失败，关闭loading，重新显示按钮
+                  this.setIsShowStart();
+                  this.changeRef.markForCheck();
+                  this.dynamicWbsComponent?.markForCheck();
+                  this.loadingModal.closeLoadingModal();
+                }
+              );
+          },
+          (err: any): void => {
+            // 启动专案，失败，关闭loading，重新显示按钮
+            this.setIsShowStart();
+            this.changeRef.markForCheck();
+            this?.dynamicWbsComponent?.markForCheck();
+            this.loadingModal.closeLoadingModal();
+          }
+        );
     } else {
       this.pushBpmProcess();
       const tenantId = this.userService.getUser('tenantId');
@@ -510,7 +647,49 @@ export class DynamicWbsTabsComponent
       workitemId: workitemListItem?.workitemId,
       processSerialNumber: taskWithBacklogData?.processSerialNumber,
     };
-    this.commonService.submit(submit_params).subscribe((res: any): void => { });
+    this.commonService.submit(submit_params).subscribe((res: any): void => {});
+  }
+
+  tabClickHandle(type) {
+    if (
+      type &&
+      this.wbsService?.project_no &&
+      (this.source === Entry.card ||
+        this.source === Entry.collaborate ||
+        this.source === Entry.plan)
+    ) {
+      switch (type) {
+        case 'app-dynamic-wbs': {
+          this.queryChargePersonList();
+          this.tabName = 'app-dynamic-wbs';
+          break;
+        }
+        case 'app-project-creation': {
+          // 【项⽬基础信息维护】页面栏位管控
+          this.tabName = 'app-project-creation';
+          break;
+        }
+        case 'app-list-of-department': {
+          // 【参与部⻔与⼈员】
+          this.tabName = 'app-list-of-department';
+          break;
+        }
+        case 'app-pcc-risk-maintenance': {
+          // 【⻛险维护】⻚签按钮管控
+          this.tabName = 'app-pcc-risk-maintenance';
+          break;
+        }
+        case 'app-list-of-deliverable': {
+          // 【⻛险维护】⻚签按钮管控
+          this.tabName = 'app-list-of-deliverable';
+          break;
+        }
+        default: {
+          this.tabName = '';
+          break;
+        }
+      }
+    }
   }
 
   changeIndex($event: any): void {
@@ -518,7 +697,7 @@ export class DynamicWbsTabsComponent
     const tabMenu = new Map([
       [0, 'dj-default-计划维护'],
       [1, 'dj-pcc-专案基础信息维护'],
-      [2, 'dj-default-账款分期信息'],
+      [2, 'dj-pcc-账款分期信息'],
       [3, 'dj-default-交付物清单'],
       [4, 'dj-default-参与部门人员'],
       [5, 'dj-default-其他信息'],
@@ -568,5 +747,11 @@ export class DynamicWbsTabsComponent
         }
         this.changeRef.markForCheck();
       });
+  }
+
+  callTabLoadingFun(event: any): void {
+    if (event.type === 'loading') {
+      this.tabLoading = event.value;
+    }
   }
 }

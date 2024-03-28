@@ -1,17 +1,10 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 import { SharedModule } from '../shared/shared.module';
 import { LoginRoutingModule } from './login-routing.module';
 import { LoginComponent } from './login/login.component';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NzModalModule } from 'ng-zorro-antd/modal';
-import { NzI18nModule } from 'ng-zorro-antd/i18n';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzDividerModule } from 'ng-zorro-antd/divider';
-import { NzFormModule } from 'ng-zorro-antd/form';
-import { NzTabsModule } from 'ng-zorro-antd/tabs';
-import { NzInputModule } from 'ng-zorro-antd/input';
+import { DwLoginModule } from '@webdpt/components/login';
+import { NzGridModule } from 'ng-zorro-antd/grid';
 import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
@@ -19,17 +12,12 @@ import { TranslateModule } from '@ngx-translate/core';
     CommonModule,
     LoginRoutingModule,
     SharedModule,
-    ReactiveFormsModule,
-    FormsModule,
-    NzModalModule,
-    NzI18nModule,
-    NzButtonModule,
-    NzDividerModule,
-    NzFormModule,
-    NzTabsModule,
-    NzInputModule,
-    TranslateModule,
+    DwLoginModule,
+    NzGridModule,
+    TranslateModule
   ],
-  declarations: [LoginComponent],
+  declarations: [
+    LoginComponent
+  ]
 })
-export class LoginModule {}
+export class LoginModule { }    

@@ -4,6 +4,46 @@
   height: calc(100vh - 194px);
   // height: 100vh;
   flex-direction: column;
+  .optionButtons{
+    padding: 10px 0;
+    overflow: hidden;
+    background-color: #ffffff;
+    > div{
+      float: right;
+    }
+  }
+  .baseButtonStyle{
+    padding: 4px 8px;
+    color: #333333;
+    border: 1px solid #dddddd;
+    border-radius: 2px 0 0 2px;
+    font-size: 12px;
+    line-height: 16px;
+    cursor: pointer;
+    float: left;
+  }
+  .baseButtonStyle:hover{
+    color: #6167cc;
+    border: 1px solid #6167cc;
+    position: relative;
+    z-index: 10;
+  }
+  .typeChange{
+    color: #6167cc;
+    border: 1px solid #6167cc;
+    position: relative;
+    z-index: 10;
+  }
+  .typeChangeBox{
+    float: left;
+    margin-right: 8px;
+    div{
+      margin-left: -1px;
+    }
+    :after{
+      clear: both;
+    }
+  }
   .approve-progress {
     position: absolute;
     right: 0px;
@@ -53,6 +93,37 @@
           color: #2012d9;
           border-bottom: 0px;
         }
+      }
+    }
+  }
+  ::ng-deep .errorInfo{
+    text-align: left;
+    margin-bottom: 12px;
+    .ant-alert-error{
+      padding: 2px 15px !important;
+    }
+  }
+  ::ng-deep .ant-tabs-top .ant-tabs-nav{
+    margin: 0px;
+  }
+  ::ng-deep .ant-tabs-content{
+    height: calc(100% - 16px);
+  }
+  ::ng-deep .ant-tabs-content .ant-tabs-tabpane{
+    height: 100%;
+    background: linear-gradient(180deg,#f0f3f8, #f0f3f8);
+    position: relative;
+    &.ant-tabs-tabpane-inactive{
+      display: none;
+    }
+  }
+  ::ng-deep .ant-tabs{
+    height: 100%;
+    .ant-tabs-tab{
+      padding: 4px 16px;
+      margin-right: 4px;
+      &.ant-tabs-tab-active{
+        color: #6667AB !important;
       }
     }
   }

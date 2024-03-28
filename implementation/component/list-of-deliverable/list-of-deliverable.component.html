@@ -1,6 +1,14 @@
 <div
   class="table-content"
-  *ngIf="dynamicGroup && (attachmentList.length || sampleAttachmentList.length)"
+  *ngIf="
+    dynamicGroup &&
+    (attachmentList.length ||
+      sampleAttachmentList.length ||
+      planChanges.length ||
+      projectChangeTask.length ||
+      plmList?.length ||
+      projectStatusChange.length)
+  "
 >
   <div class="table_tree">
     <nz-tree
@@ -11,7 +19,9 @@
     ></nz-tree>
   </div>
   <div class="table_container deliverable_table" *ngIf="[2, 3].includes(tabIndex)">
-    <div class="downLoad" (click)="downLoadAll()">{{ 'dj-pcc-批量下载' | translate }}</div>
+    <div class="downLoad-box">
+      <span class="downLoad" (click)="downLoadAll()">{{ 'dj-pcc-批量下载' | translate }}</span>
+    </div>
     <div
       dynamic-ant-form
       [group]="dynamicGroup"
@@ -22,7 +32,13 @@
 </div>
 <div
   class="no-data-box"
-  *ngIf="dynamicGroup && !attachmentList.length && !sampleAttachmentList.length"
+  *ngIf="
+    dynamicGroup &&
+    !attachmentList.length &&
+    !sampleAttachmentList.length &&
+    !planChanges.length &&
+    !projectStatusChange.length
+  "
 >
   <div>
     <app-svg-file [type]="'noData'"></app-svg-file>

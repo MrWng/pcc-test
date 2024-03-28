@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { OpenWindowService } from '@ng-dynamic-forms/ui-ant-web';
+import { OpenWindowService } from '@athena/dynamic-ui';
 import { CommonService } from '../../../../service/common.service';
 import { AddSubProjectCardService } from '../../add-subproject-card.service';
 
@@ -54,7 +54,7 @@ export class TaskClassificationComponent implements OnInit, OnChanges {
  * 不禁用状态
  */
   get isForbidden() {
-    return this.addSubProjectCardService.currentCardInfo?.isCollaborationCard;
+    return this.addSubProjectCardService.isPreview || this.addSubProjectCardService.currentCardInfo?.isCollaborationCard;
   }
 
   // 获取任务分类列表
@@ -74,11 +74,11 @@ export class TaskClassificationComponent implements OnInit, OnChanges {
   }
   // 设置回显
   setEcho(identifier): void {
-    console.log(identifier, 'identifier');
+    console.log(identifier, 'identifier', 12);
     this.classificationList.forEach((o) => {
       if (o.task_classification_no === identifier) {
         this.form.patchValue({
-          classificationType: o,
+          classificationType: JSON.stringify(o),
         });
         return true;
       }
@@ -91,5 +91,9 @@ export class TaskClassificationComponent implements OnInit, OnChanges {
    */
   translateWord(val: string): String {
     return this.translateService.instant(`dj-default-${val}`);
+  }
+
+  translateItem(item){
+    return JSON.stringify(item)
   }
 }

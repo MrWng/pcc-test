@@ -1,8 +1,8 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { Entry } from 'app/customization/task-project-center-console/service/common.service';
-import { DynamicCustomizedService } from 'app/customization/task-project-center-console/service/dynamic-customized.service';
+import { Entry } from 'app/implementation/service/common.service';
+import { DynamicCustomizedService } from 'app/implementation/service/dynamic-customized.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { AddSubProjectCardService } from '../../add-subproject-card.service';
 import { AdvancedOptionService } from '../../services/advanced-option.service';
@@ -53,7 +53,7 @@ export class AdvancedOptionComponent implements OnInit {
 
   ngOnInit(): void {
     this.initIndividualCaseComp();
-    this.unitDisabled = this.source === Entry.card && this.taskStatus > 10;
+    this.unitDisabled = ((this.source === Entry.card) || (this.source === Entry.collaborate) || (this.source === Entry.projectChange)) && this.taskStatus > 10;
   }
 
   /**

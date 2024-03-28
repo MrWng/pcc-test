@@ -11,7 +11,7 @@
       >
         <ath-option
           *ngFor="let item of dataList"
-          [nzValue]="item"
+          [nzValue]="translateItem(item)"
           [nzLabel]="item.difficulty_level_name"
         >
         </ath-option>

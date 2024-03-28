@@ -11,7 +11,7 @@
       >
         <ath-option
           *ngFor="let item of classificationList"
-          [nzValue]="item"
+          [nzValue]="translateItem(item)"
           [nzLabel]="item.task_classification_name"
         >
         </ath-option>

@@ -23,10 +23,13 @@ export class APCTaskCardService {
   ) {
   }
 
+  operations = [];
+
   // 取得当前专案制令制程完工进度资料
   setTemplateJson(
     editable: boolean,
     responseData: Array<any>,
+    contents: any
   ): any {
     let columns;
     if (editable) {
@@ -58,13 +61,13 @@ export class APCTaskCardService {
           columns: [
             {
               schema: 'item_name_spec',
-              headerName: '品名',
+              headerName: this.translateService.instant('dj-default-品名'),
               level: 0,
               path: 'item_name_spec',
             },
             {
               schema: 'item_spec',
-              headerName: '规格',
+              headerName: this.translateService.instant('dj-default-规格'),
               level: 0,
               path: 'item_spec',
             }
@@ -81,12 +84,28 @@ export class APCTaskCardService {
         { headerName: this.translateService.instant('dj-default-完成率'), schema: 'complete_rate' }
       ];
     }
+    this.operations = [
+      {
+        title: this.translateService.instant('dj-default-问题反馈'),
+        type: 'showProblemFeedback',
+        description: '',
+        pcontent: contents[0],
+        contents: contents[0],
+        attach: {
+          target: 'project_info',
+          mode: 'all',
+        },
+        isCustomize: true,
+      },
+    ];
+
     const taskCategoryLayout = [
       {
         id: 'inquiry',
         type: 'GRID_TABLE',
         schema: 'inquiry',
         editable: true,
+        operations: this.operations,
         columnDefs: this.commonService.getLayout(columns),
         allFields: this.commonService.getAllFields(columns),
         details: [],

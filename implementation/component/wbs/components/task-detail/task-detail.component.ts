@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, ElementRef, Input, OnInit, SkipSelf } from '@angular/core';
+import _ from 'lodash';
 import { DynamicWbsService } from '../../wbs.service';
 import { APIService } from '../../../../service/api.service';
 
@@ -9,19 +10,21 @@ import {
   DynamicFormValidationService,
   DynamicTableModel,
   multiple,
-} from '@ng-dynamic-forms/core';
+} from '@athena/dynamic-core';
 import { TaskDetailService } from './task-detail.service';
 import { FormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { CommonService } from 'app/customization/task-project-center-console/service/common.service';
+import { CommonService } from 'app/implementation/service/common.service';
 import * as moment from 'moment';
-import { cloneDeep } from '@ng-dynamic-forms/core';
+import { cloneDeep } from '@athena/dynamic-core';
 import { DwUserService } from '@webdpt/framework/user';
 import { DwSystemConfigService } from '@webdpt/framework/config';
-import { AthModalService } from 'ngx-ui-athena/src/components/modal';
+import { AthModalService } from '@athena/design-ui/src/components/modal';
 import { ApprovalProgressComponent } from './components/approval-progress/approval-progress.component';
 import { forkJoin, of } from 'rxjs';
 import { PosumService } from '../../../add-subproject-card/services/posum.service';
+import ExportExcelForXLSX from '../../../../utils/ExportExcelForXLSX';
+import { NzMessageService } from 'ng-zorro-antd/message';
 
 @Component({
   selector: 'app-task-detail',
@@ -30,7 +33,6 @@ import { PosumService } from '../../../add-subproject-card/services/posum.servic
   providers: [TaskDetailService, PosumService],
 })
 export class TaskDetailComponent implements OnInit {
-
   state: string = '1';
   baseData: Array<any> = [];
   list: Array<any>;
@@ -42,7 +44,7 @@ export class TaskDetailComponent implements OnInit {
     '3': this.translateService.instant('dj-default-张数'),
     '4': this.translateService.instant('dj-default-数量'),
     '5': this.translateService.instant('dj-default-项数'),
-  }
+  };
 
   tabList: Array<any> = [
     {
@@ -77,7 +79,6 @@ export class TaskDetailComponent implements OnInit {
     },
   ];
 
-
   isShowSpin: boolean = true;
   fullScreenStatus = false;
 
@@ -90,6 +91,7 @@ export class TaskDetailComponent implements OnInit {
   taskId: any;
   waittingData = { isCalculated: false, data: [] };
   completedData = { isCalculated: false, data: [] };
+  timer: number = 0;
 
   constructor(
     @SkipSelf()
@@ -107,6 +109,7 @@ export class TaskDetailComponent implements OnInit {
     private configService: DwSystemConfigService,
     public commonService: CommonService,
     private modalService: AthModalService,
+    private messageService: NzMessageService
   ) {
     this.configService.get('qianyeTenantId').subscribe((url: string) => {
       const id = url || '72007522,72007522_001';
@@ -118,7 +121,6 @@ export class TaskDetailComponent implements OnInit {
     this.getTaskId();
     this.loadData();
   }
-
 
   /**
    * 查询任务卡id
@@ -135,23 +137,35 @@ export class TaskDetailComponent implements OnInit {
           entityName: 'task_d',
           bk: {
             project_no: this.wbsService.taskDetail.project_no,
-            task_no: this.wbsService.taskDetail.task_no
-          }
-        }
+            task_no: this.wbsService.taskDetail.task_no,
+          },
+        },
       ],
       taskStates: [1, 2, 3, 4, 5],
       activityStates: [1, 2, 3, 4, 5, 6],
     };
     this.taskDetailService.getTaskId(params).subscribe((res: any) => {
       const taskInfo = res.data[0]?.subTasks[0]?.activities;
-      taskInfo?.forEach(element => {
-        if (['moh_DTD_AssignmentApproval2', 'manual_DTD_AssignmentApproval2'].includes(element.actTmpId)) {
+      taskInfo?.forEach((element) => {
+        let prefix = '';
+        ['uc', 'uc_', 'Uc', 'Uc_', 'UC', 'UC_'].forEach((s) => {
+          if (element.tenantId.startsWith(s)) {
+            prefix = 'UC_' + element.tenantId.split(s)[1];
+          }
+        });
+        if (
+          [
+            `${prefix}_moh_DTD_AssignmentApproval2`,
+            `${prefix}_manual_DTD_AssignmentApproval2`,
+            'moh_DTD_AssignmentApproval2',
+            'manual_DTD_AssignmentApproval2',
+          ].includes(element.actTmpId)
+        ) {
           this.taskId = element.actId;
         }
       });
     });
   }
-
 
   async loadData(): Promise<any> {
     const taskDetail = cloneDeep(this.wbsService.taskDetail);
@@ -167,45 +181,75 @@ export class TaskDetailComponent implements OnInit {
       Reflect.deleteProperty(taskDetail, 'ar_stage_no');
       const { waitting, completed } = await forkJoin({
         waitting: this.taskDetailService.project_Doc_Data_Get({ taskDetail, process_status: '1' }),
-        completed: this.taskDetailService.project_Doc_Data_Get({ taskDetail, process_status: '2' })
+        completed: this.taskDetailService.project_Doc_Data_Get({ taskDetail, process_status: '2' }),
       }).toPromise();
       this.baseData = waitting.concat(completed);
     } else if (['ORD', 'MO_H'].includes(this.wbsService.taskDetail.task_category)) {
-
       const apiName =
-        ['ORD'].includes(this.wbsService.taskDetail.task_category)
-          && this.qianyeTenantId.indexOf(this.userService.getUser('tenantId')) >= 0
-          ? 'uc.task.info.get' : 'task.info.get';
+        ['ORD'].includes(this.wbsService.taskDetail.task_category) &&
+        this.qianyeTenantId.indexOf(this.userService.getUser('tenantId')) >= 0
+          ? 'uc.task.info.get'
+          : 'task.info.get';
 
       const { waitting, completed } = await forkJoin({
         waitting: this.taskDetailService.getTaskInfo({ taskDetail, process_status: '1', apiName }),
-        completed: this.taskDetailService.getTaskInfo({ taskDetail, process_status: '2', apiName })
+        completed: this.taskDetailService.getTaskInfo({ taskDetail, process_status: '2', apiName }),
       }).toPromise();
       this.baseData = waitting.concat(completed);
-
-    } else if (['PR', 'MOOP', 'PO', 'PO_KEY', 'OD', 'MO', 'MOMA',
-      'EXPORT', 'SHIPMENT', 'POPUR'].includes(this.wbsService.taskDetail.task_category)) {
+    } else if (
+      [
+        'PR',
+        'MOOP',
+        'PO',
+        'PO_KEY',
+        'PO_NOT_KEY',
+        'OD',
+        'MO',
+        'MOMA',
+        'EXPORT',
+        'SHIPMENT',
+        'POPUR',
+      ].includes(this.wbsService.taskDetail.task_category)
+    ) {
       const { waitting, completed } = await forkJoin({
         waitting: this.taskDetailService.project_Doc_Data_Get({ taskDetail, process_status: '1' }),
-        completed: this.taskDetailService.project_Doc_Data_Get({ taskDetail, process_status: '2' })
+        completed: this.taskDetailService.project_Doc_Data_Get({ taskDetail, process_status: '2' }),
       }).toPromise();
       this.baseData = waitting.concat(completed);
     } else if (['PLM'].includes(this.wbsService.taskDetail.task_category)) {
       const { waitting, completed } = await forkJoin({
         waitting: this.taskDetailService.work_Item_Data_Get({ taskDetail, process_status: '1' }),
-        completed: this.taskDetailService.work_Item_Data_Get({ taskDetail, process_status: '2' })
+        completed: this.taskDetailService.work_Item_Data_Get({ taskDetail, process_status: '2' }),
       }).toPromise();
       this.baseData = waitting.concat(completed);
     } else if (['MES'].includes(this.wbsService.taskDetail.task_category)) {
       const { waitting, completed } = await forkJoin({
-        waitting: this.taskDetailService.project_Wo_Production_Info_Process({ taskDetail, process_status: '1' }),
-        completed: this.taskDetailService.project_Wo_Production_Info_Process({ taskDetail, process_status: '2' })
+        waitting: this.taskDetailService.project_Wo_Production_Info_Process({
+          taskDetail,
+          process_status: '1',
+        }),
+        completed: this.taskDetailService.project_Wo_Production_Info_Process({
+          taskDetail,
+          process_status: '2',
+        }),
       }).toPromise();
       this.baseData = waitting.concat(completed);
     } else if (['PLM_PROJECT'].includes(this.wbsService.taskDetail.task_category)) {
       const { waitting, completed } = await forkJoin({
-        waitting: this.taskDetailService.project_Task_complete_rate_data_Get({ taskDetail, process_status: '1' }),
-        completed: this.taskDetailService.project_Task_complete_rate_data_Get({ taskDetail, process_status: '2' })
+        waitting: this.taskDetailService.project_Task_complete_rate_data_Get({
+          taskDetail,
+          process_status: '1',
+        }),
+        completed: this.taskDetailService.project_Task_complete_rate_data_Get({
+          taskDetail,
+          process_status: '2',
+        }),
+      }).toPromise();
+      this.baseData = waitting.concat(completed);
+    } else if (['ASSC_ISA_ORDER'].includes(this.wbsService.taskDetail.task_category)) {
+      const { waitting, completed } = await forkJoin({
+        waitting: this.taskDetailService.isa_order_plan_Get({ taskDetail, process_status: '1' }),
+        completed: this.taskDetailService.isa_order_plan_Get({ taskDetail, process_status: '2' }),
       }).toPromise();
       this.baseData = waitting.concat(completed);
     } else if (['REVIEW'].includes(this.wbsService.taskDetail.task_category)) {
@@ -214,49 +258,63 @@ export class TaskDetailComponent implements OnInit {
       const result = await this.getHasGroundEnd();
       const acceptanceOfOverdueDays = result?.acceptanceOfOverdueDays + '';
       bpmData.hasGroundEnd = result.hasGroundEnd;
-      const {
-        specialMaterialNum,
-        materialNumSwitch,
-        commonMaterialNum,
-      } = this.commonService.content?.executeContext?.taskWithBacklogData?.bpmData;
-      const remainingPromise = bpmData?.hasGroundEnd === 'N' ? of([]) : this.taskDetailService.getRemainingResourceData({
-        doc_info: [{
-          ...taskDetail,
-          special_material_times: specialMaterialNum,
-          public_material_times: commonMaterialNum,
-          enable_material_picking_count: materialNumSwitch
-        }],
-        eocMap: taskDetail.eoc_company_id
-      });
+      const { specialMaterialNum, materialNumSwitch, commonMaterialNum } =
+        this.commonService.content?.executeContext?.taskWithBacklogData?.bpmData;
+      const remainingPromise =
+        bpmData?.hasGroundEnd === 'N'
+          ? of([])
+          : this.taskDetailService.getRemainingResourceData({
+              doc_info: [
+                {
+                  ...taskDetail,
+                  special_material_times: specialMaterialNum,
+                  public_material_times: commonMaterialNum,
+                  enable_material_picking_count: materialNumSwitch,
+                },
+              ],
+              eocMap: taskDetail.eoc_company_id,
+            });
       const abnormalPromise = this.taskDetailService.getAbnormalReviewInfo({
-        doc_info: [{
-          project_no: taskDetail.project_no,
-          project_info: [{ project_no: taskDetail.project_no, task_no: taskDetail.task_no }]
-        }],
-        eocMap: taskDetail.eoc_company_id
+        doc_info: [
+          {
+            project_no: taskDetail.project_no,
+            project_info: [{ project_no: taskDetail.project_no, task_no: taskDetail.task_no }],
+          },
+        ],
+        eocMap: taskDetail.eoc_company_id,
       });
       const schedulePromise = this.taskDetailService.getScheduleReviewInfo({
-        doc_info: [{
-          calculation_method: acceptanceOfOverdueDays,
-          ...taskDetail,
-          project_info: [{ project_no: taskDetail.project_no }]
-        }],
-        eocMap: taskDetail.eoc_company_id
+        doc_info: [
+          {
+            calculation_method: acceptanceOfOverdueDays,
+            ...taskDetail,
+            project_info: [{ project_no: taskDetail.project_no }],
+          },
+        ],
+        eocMap: taskDetail.eoc_company_id,
       });
       const { remaining, abnormal, schedule } = await forkJoin({
         remaining: remainingPromise,
         abnormal: abnormalPromise,
-        schedule: schedulePromise
+        schedule: schedulePromise,
       }).toPromise();
-      this.baseData = remaining?.length ? abnormal.concat(remaining).concat(schedule) : abnormal.concat(schedule);
+      this.baseData = remaining?.length
+        ? abnormal.concat(remaining).concat(schedule)
+        : abnormal.concat(schedule);
     } else if (['PRSUM', 'POSUM'].includes(this.wbsService.taskDetail.task_category)) {
       if (
         (taskDetail.is_need_doc_no && taskDetail.doc_type_no && taskDetail.doc_no) ||
         !taskDetail.is_need_doc_no
       ) {
         const { waitting, completed } = await forkJoin({
-          waitting: this.taskDetailService.project_Doc_Data_Get({ taskDetail, process_status: '1' }),
-          completed: this.taskDetailService.project_Doc_Data_Get({ taskDetail, process_status: '2' })
+          waitting: this.taskDetailService.project_Doc_Data_Get({
+            taskDetail,
+            process_status: '1',
+          }),
+          completed: this.taskDetailService.project_Doc_Data_Get({
+            taskDetail,
+            process_status: '2',
+          }),
         }).toPromise();
         this.baseData = waitting.concat(completed);
       } else {
@@ -270,10 +328,9 @@ export class TaskDetailComponent implements OnInit {
 
       const { waitting, completed } = await forkJoin({
         waitting: this.taskDetailService.progress_data_get({ taskDetail, process_status: '1' }),
-        completed: this.taskDetailService.progress_data_get({ taskDetail, process_status: '2' })
+        completed: this.taskDetailService.progress_data_get({ taskDetail, process_status: '2' }),
       }).toPromise();
       this.baseData = waitting.concat(completed);
-
     } else if (['APC', 'APC_O'].includes(this.wbsService.taskDetail.task_category)) {
       taskDetail.wo_type_no = taskDetail.doc_type_no; // 单别
       taskDetail.wo_no = taskDetail.doc_no; // 单号
@@ -284,12 +341,35 @@ export class TaskDetailComponent implements OnInit {
         delete taskDetail.seq;
       }
       taskDetail.plan_complete_date = taskDetail.plan_finish_date;
-
-      const { waitting, completed } = await forkJoin({
-        waitting: this.taskDetailService.project_Doc_Data_Get({ taskDetail, process_status: '1' }),
-        completed: this.taskDetailService.project_Doc_Data_Get({ taskDetail, process_status: '2' })
-      }).toPromise();
-      this.baseData = waitting.concat(completed);
+      let res_flag = false;
+      if (
+        'APC_O' === taskDetail.task_category &&
+        taskDetail.doc_type_no &&
+        taskDetail.doc_no &&
+        taskDetail.seq
+      ) {
+        res_flag = true;
+      }
+      if ('APC' === taskDetail.task_category && taskDetail.doc_type_no && taskDetail.doc_no) {
+        res_flag = true;
+      }
+      if (res_flag) {
+        const { waitting, completed } = await forkJoin({
+          waitting: this.taskDetailService.project_Doc_Data_Get({
+            taskDetail,
+            process_status: '1',
+          }),
+          completed: this.taskDetailService.project_Doc_Data_Get({
+            taskDetail,
+            process_status: '2',
+          }),
+        }).toPromise();
+        this.baseData = waitting.concat(completed);
+      } else {
+        this.baseData = [];
+      }
+    } else if (['PCM'].includes(this.wbsService.taskDetail.task_category)) {
+      this.baseData = await this.taskDetailService.budget_view_get(taskDetail).toPromise();
     }
     this.buildPageInfo();
     this.buildListData();
@@ -297,20 +377,19 @@ export class TaskDetailComponent implements OnInit {
     this.changeRef.markForCheck();
   }
 
-
   // 设置MOOP类型的表格数据是否展示
   setMoopTableStatus() {
     if (!['MOOP'].includes(this.wbsService.taskDetail.task_category)) {
       return false;
     }
-    const { is_need_doc_no, doc_type_no, doc_no, seq } = this.wbsService.taskDetail;
+    const { is_need_doc_no, doc_type_no, seq } = this.wbsService.taskDetail;
     if (!is_need_doc_no) {
       this.changeRef.markForCheck();
       return false;
-    } else if (is_need_doc_no && doc_type_no && doc_no && seq) {
+    } else if (is_need_doc_no && doc_type_no && seq) {
       this.changeRef.markForCheck();
       return false;
-    } else if ((is_need_doc_no && !doc_type_no) || !doc_no || !seq) {
+    } else if (is_need_doc_no && (!doc_type_no || !seq)) {
       // 不展示表格
       this.dynamicGroup = undefined;
       this.tabList.forEach((o) => {
@@ -343,16 +422,21 @@ export class TaskDetailComponent implements OnInit {
   }
 
   /**
- * 针对某些任务类型,数据做特殊处理
- * @param o
- * @param i
- * @returns
- */
+   * 针对某些任务类型,数据做特殊处理
+   * @param o
+   * @param i
+   * @returns
+   */
   specialHandel(o: any, i: number): void {
     // 任务完成率处理
-    o.complete_rate = o.complete_rate <= 1 ? o.complete_rate * 100 : o.complete_rate;
+    // o.complete_rate = o.complete_rate <= 1 ? o.complete_rate * 100 : o.complete_rate;
+    o.complete_rate =
+      o.complete_rate <= 1 ? this.commonService.accMul(o.complete_rate, 100) : o.complete_rate;
     if (!['POSUM', 'PRSUM'].includes(this.wbsService.taskDetail.task_category)) {
-      o.complete_rate = String(o.complete_rate).length > 4 ? Number(o.complete_rate).toFixed(2) : Number(o.complete_rate);
+      o.complete_rate =
+        String(o.complete_rate).length > 4
+          ? Number(o.complete_rate).toFixed(2)
+          : Number(o.complete_rate);
       o.complete_rate = o.complete_rate + '%';
     }
     o.out_plan_time = o.out_plan_time === 'Y' ? '*' : '';
@@ -381,25 +465,24 @@ export class TaskDetailComponent implements OnInit {
     this.changeRef.markForCheck();
   }
 
-
   /**
    * 初始化reviewTabList
    */
   initReviewTabList(): void {
-    this.taskDetailService
-      .getReportslist()
-      .subscribe((resData: any): void => {
-        const { bpmData } = this.commonService.content?.executeContext?.taskWithBacklogData || {};
-        const list = resData?.data.map((resDataItem): void => {
-          return resDataItem.reportCode;
-        });
-        this.reviewTabList.forEach((reviewTabListItem: any): any => {
-          reviewTabListItem.isShow = list.includes(reviewTabListItem.reportCode) ? true : false;
-          if (bpmData?.hasGroundEnd === 'N' && reviewTabListItem.code === '1') {
-            reviewTabListItem.isShow = false;
-          }
-        });
+    this.taskDetailService.getReportslist().subscribe((resData: any): void => {
+      const { bpmData } = this.commonService.content?.executeContext?.taskWithBacklogData || {};
+      const list = resData?.data.map((resDataItem): void => {
+        return resDataItem.reportCode;
       });
+      this.reviewTabList.forEach((reviewTabListItem: any, index: number): any => {
+        reviewTabListItem.isShow = list.includes(reviewTabListItem.reportCode) ? true : false;
+        if (bpmData?.hasGroundEnd === 'N' && reviewTabListItem.code === '1') {
+          reviewTabListItem.isShow = false;
+        }
+      });
+      // 修复bug：67075
+      this.state = this.reviewTabList.findIndex((r) => r.isShow) + 1 + '';
+    });
   }
 
   /**
@@ -407,7 +490,10 @@ export class TaskDetailComponent implements OnInit {
    * hasGroundEnd:是否依赖地端
    */
   getHasGroundEnd(): Promise<any> {
-    return this.commonService.isDependsGround().toPromise().then(res => res.data);
+    return this.commonService
+      .isDependsGround()
+      .toPromise()
+      .then((res) => res.data);
   }
 
   buildListData(): void {
@@ -415,17 +501,35 @@ export class TaskDetailComponent implements OnInit {
       this.list = this.baseData.filter((o) => o.process_status === this.state);
       let str = '';
       this.list.forEach((item, index) => {
-        const temp = item.status + item.production_control_name + item.wo_no + item.production_item_no
-          + item.production_item_spec + item.wo_production_qty + item.plan_date_e;
-        if ((index > 0) && (temp === str)) {
-          item.status = item.production_control_name = item.wo_no = item.production_item_no
-            = item.production_item_spec = item.wo_production_qty = item.plan_date_e = '';
+        const temp =
+          item.status +
+          item.production_control_name +
+          item.wo_no +
+          item.production_item_no +
+          item.production_item_spec +
+          item.wo_production_qty +
+          // item.issue_qty +
+          item.plan_date_e;
+        if (index > 0 && temp === str) {
+          item.status =
+            item.production_control_name =
+            item.wo_no =
+            item.production_item_no =
+            item.production_item_spec =
+            item.wo_production_qty =
+            // item.issue_qty =
+            item.plan_date_e =
+              '';
         } else {
           str = temp;
         }
 
-        if ((typeof item.complete_rate === 'string' && !item.complete_rate.includes('%') && item.complete_rate !== '__')
-          || typeof item.complete_rate === 'number') {
+        if (
+          (typeof item.complete_rate === 'string' &&
+            !item.complete_rate.includes('%') &&
+            item.complete_rate !== '__') ||
+          typeof item.complete_rate === 'number'
+        ) {
           item.complete_rate = Number(item.complete_rate) ? Number(item.complete_rate) : 0;
           if (item.complete_rate === -1) {
             item.complete_rate = '';
@@ -439,16 +543,30 @@ export class TaskDetailComponent implements OnInit {
       if ('REVIEW' === this.wbsService.taskDetail.task_category) {
         this.baseData.forEach((item, index) => {
           switch (item.abnormal_type) {
-            case '1': { item.abnormal_type = this.translateService.instant('dj-default-怠工未回报'); break; }
-            case '2': { item.abnormal_type = this.translateService.instant('dj-default-逾期完成'); break; }
-            case '3': { item.abnormal_type = this.translateService.instant('dj-default-时程异常调整'); break; }
-            case '4': { item.abnormal_type = this.translateService.instant('dj-default-资源配置调整'); break; }
-            default: { break; }
+            case '1': {
+              item.abnormal_type = this.translateService.instant('dj-default-怠工未回报');
+              break;
+            }
+            case '2': {
+              item.abnormal_type = this.translateService.instant('dj-default-逾期完成');
+              break;
+            }
+            case '3': {
+              item.abnormal_type = this.translateService.instant('dj-default-时程异常调整');
+              break;
+            }
+            case '4': {
+              item.abnormal_type = this.translateService.instant('dj-default-资源配置调整');
+              break;
+            }
+            default: {
+              break;
+            }
           }
         });
         this.list = this.baseData.filter((o) => o.process_status === this.state);
       }
-      if ('REVIEW' !== this.wbsService.taskDetail.task_category) {
+      if (!['REVIEW', 'PCM'].includes(this.wbsService.taskDetail.task_category)) {
         const handelData = this.state === '1' ? this.waittingData : this.completedData;
         this.list = handelData.data;
         if (!handelData.isCalculated) {
@@ -456,6 +574,9 @@ export class TaskDetailComponent implements OnInit {
           handelData.isCalculated = true;
           this.setHandelData(handelData);
         }
+      }
+      if ('PCM' === this.wbsService.taskDetail.task_category) {
+        this.list = this.baseData;
       }
     }
     this.initTemplateJson(this.wbsService.taskDetail.task_category, this.list);
@@ -481,7 +602,12 @@ export class TaskDetailComponent implements OnInit {
       case 'MOOP':
       case 'SFT':
       case 'APC':
-        this.posumService.handelPopurPosumAndData(this.list, handelData, this.getMoopSftApcKey, 'MOOP-SFT-APC');
+        this.posumService.handelPopurPosumAndData(
+          this.list,
+          handelData,
+          this.getMoopSftApcKey,
+          'MOOP-SFT-APC'
+        );
         this.list = handelData.data;
         break;
       default:
@@ -491,8 +617,17 @@ export class TaskDetailComponent implements OnInit {
   }
 
   getPopurKey(obj: any) {
-    return obj.close_status + obj.purchaser_name + obj.purchase_no +
-      obj.purchase_seq + obj.purchase_sub_seq + obj.item_no + obj.item_name_spec + obj.purchase_qty + obj.complete_rate;
+    return (
+      obj.close_status +
+      obj.purchaser_name +
+      obj.purchase_no +
+      obj.purchase_seq +
+      obj.purchase_sub_seq +
+      obj.item_no +
+      obj.item_name_spec +
+      obj.purchase_qty +
+      obj.complete_rate
+    );
   }
 
   getPosumKey(obj: any) {
@@ -570,12 +705,82 @@ export class TaskDetailComponent implements OnInit {
       nzCancelText: null,
       nzComponentParams: {
         taskOrProjectId: this.taskId,
+        idType: 'task',
+        project_no: this.wbsService.project_no,
       },
       nzWidth: 550,
       nzClassName: 'signOffProgress-modal-center-sty',
       nzNoAnimation: true,
       nzClosable: true,
-      nzOnOk: (): void => { },
+      nzOnOk: (): void => {},
     });
+  }
+
+  isSHowExport() {
+    return [
+      'MO',
+      'PO',
+      'MOOP',
+      'PR',
+      'PRSUM',
+      'POSUM',
+      'POPUR',
+      'PO_KEY',
+      'PO_NOT_KEY',
+      'MOMA',
+    ].includes(this.wbsService.taskDetail.task_category);
+  }
+
+  export() {
+    if (moment().valueOf() - this.timer < 4000) {
+      this.messageService.warning(this.translateService.instant('dj-pcc-正在导出，请勿频繁点击'));
+      return;
+    }
+    this.timer = moment().valueOf();
+    const columnDefs = this.dynamicModel[0]?.columnDefs;
+    const column = columnDefs.map((item) => {
+      return {
+        title: item.headerName,
+        dataIndex: item.columns[0].schema,
+        render: (text, record, index) => {
+          let value = '';
+          const columnNum = item.columns.length;
+          if (columnNum > 1) {
+            item.columns.forEach((dom, index) => {
+              if (record[dom.schema]) {
+                if (index === 0) {
+                  value += record[dom.schema];
+                } else {
+                  value += ' / ' + record[dom.schema];
+                }
+              }
+            });
+            if (!value) {
+              value = '-';
+            }
+          } else {
+            if (_.isNumber(text)) {
+              value = text;
+            } else {
+              value = text || '-';
+            }
+          }
+          return value;
+        },
+      };
+    });
+    // 76006 【s4.6】WBS点击任务导出的 excel档名 调整优化 要求excel名改成项目名称（项目编号）
+    ExportExcelForXLSX.btn_export(
+      column,
+      this.list,
+      `${this.wbsService.taskDetail?.project_name}（${
+        this.wbsService.taskDetail?.project_no
+      }）-${this.translateService.instant(this.tabList[Number(this.state) - 1].label, {
+        n: this.tabList[Number(this.state) - 1].sum,
+      })}`
+    );
+    // const category = this.wbsService.TaskType[this.wbsService.taskDetail.task_category];
+    // ExportExcelForXLSX.btn_export(column, this.list, `${category}-${this.translateService.instant(this.tabList[Number(this.state) - 1].label,
+    // { n: this.tabList[Number(this.state) - 1].sum })}`);
   }
 }

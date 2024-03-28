@@ -1,4 +1,4 @@
-<div>
+
   <div class="taskDetailBox" *ngIf="!isMaxTable; else table">
     <div class="spin-box" *ngIf="isShowSpin">
       <nz-spin nzSimple></nz-spin>
@@ -39,9 +39,9 @@
     </div>
   </div>
   <ng-template #table>
-    <div>
+    <div class="taskDetailBox">
       <app-task-card-tablle [group]="formLayout" [model]="model" [taskInfo]="taskInfo">
       </app-task-card-tablle>
     </div>
   </ng-template>
-</div>
+

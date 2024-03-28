@@ -4,7 +4,7 @@ import {
   OnDestroy,
   ChangeDetectorRef,
 } from '@angular/core';
-import { isNotEmpty, multiple, isEmpty, isNumber, isString } from '@ng-dynamic-forms/core';
+import { isNotEmpty, multiple, isEmpty, isNumber, isString } from '@athena/dynamic-core';
 import { CommonService } from '../../../../service/common.service';
 import { DynamicWbsService } from '../../../wbs/wbs.service';
 @Component({
@@ -31,12 +31,14 @@ export class AccountsPeriodizationComponent implements OnInit, OnDestroy {
 
   getPageData(): void {
     const params = {
+      // query_condition: '2',// sprint 4.6新增字段
       project_info: [
         {
           project_no: this.wbsService.project_no,
         },
       ],
     };
+    // sprint 4.6 project.order.instalment.info.process => bm.pisc.project.order.detail.instalment.get todo 规格问题暂时不改了
     this.commonService
       .getInvData('project.order.instalment.info.process', params)
       .subscribe((res: any): void => {

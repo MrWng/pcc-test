@@ -48,10 +48,10 @@ export const CONTROL_ITEM_LIST4 = [
 /**
  * 禁用部分栏位的任务类型
  */
-export const TASK_CATEGORY_LIST1 = ['ODAR', 'REVIEW', 'PLM', 'MES', 'PLM_PROJECT'];
+export const TASK_CATEGORY_LIST1 = ['ODAR', 'REVIEW', 'PLM', 'MES', 'PLM_PROJECT', 'ASSC_ISA_ORDER', 'PCM'];
 
 /**
  * 以下任务类型，【类型条件值】和【次类型条件值】可编辑
  */
-export const TASK_CATEGORY_LIST2 = ['MO_H', 'MO', 'MOMA', 'PO', 'PO_KEY', 'OD', 'MOOP',
+export const TASK_CATEGORY_LIST2 = ['MO_H', 'MO', 'MOMA', 'PO', 'PO_KEY', 'PO_NOT_KEY', 'OD', 'MOOP',
   'EXPORT', 'SHIPMENT', 'PR', 'PRSUM', 'POSUM', 'POPUR'];

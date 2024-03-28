@@ -1,0 +1,58 @@
+<!-- 主内容 -->
+<div
+  class="pcc-problem-handling"
+  [style]="{ height: pageHeight ? pageHeight + 'px' : '100%' }"
+  *ngIf="model.useType === 'default'"
+>
+  <app-problem-handling [copModel]="model" (change)="change.emit($event)"></app-problem-handling>
+</div>
+<!-- 附件 -->
+<ng-container *ngIf="model.useType === 'attachment'">
+  <ng-container *ngIf="control?.get('data')?.value?.length; else noFile">
+    <ac-upload
+      [disabled]="true"
+      [editable]="false"
+      [fileList]="control.get('data').value"
+      [dmcSettings]="commonService.uploadDmcSettings"
+      useBy="table"
+    ></ac-upload>
+  </ng-container>
+  <ng-template #noFile>—</ng-template>
+</ng-container>
+<!-- 状态 -->
+<ng-container *ngIf="model.useType === 'status'">
+  <nz-tag class="pcc-status-sucess" *ngIf="control.value === QuestDoStatus.DONE">{{
+    'dj-default-已完成' | translate
+  }}</nz-tag>
+  <nz-tag
+    class="pcc-status-to-be-continued"
+    nzColor="magenta"
+    *ngIf="control.value === QuestDoStatus.INCOMPLETION"
+    >{{ 'dj-pcc-未完成' | translate }}</nz-tag
+  >
+  <nz-tag
+    class="pcc-status-transferred-tasks"
+    nzColor="magenta"
+    *ngIf="control.value === QuestDoStatus.TRANSFERRED_TASKS"
+    >{{ 'dj-pcc-已转任务' | translate }}</nz-tag
+  >
+</ng-container>
+<!-- 操作 -->
+<ng-container *ngIf="model.useType === 'operate'">
+  <button class="pcc-problem-hd-edit" ath-button athType="text" (click)="editTableCell()">
+    {{ 'dj-default-编辑' | translate }}
+  </button>
+  <button
+    class="pcc-problem-hd-del"
+    ath-button
+    athType="text"
+    nz-popconfirm
+    nzPopconfirmTitle="{{ 'dj-pcc-是否删除当前数据' | translate }}"
+    (nzOnConfirm)="delTableCell()"
+  >
+    {{ 'dj-default-删除' | translate }}
+  </button>
+  <!-- <button class="pcc-problem-hd-task" ath-button athType="text">
+    {{ 'dj-pcc-转任务' | translate }}
+  </button> -->
+</ng-container>

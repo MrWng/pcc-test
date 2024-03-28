@@ -7,11 +7,44 @@
   height: 100%;
   background: #fff;
   border: 1px solid #ddd;
+
+  .check-message {
+    width: 100%;
+    height: 28px;
+    margin: 12px 0px;
+    background: rgba(245,139,0,0.10);
+    border: 1px solid rgba(245,139,0,0.40);
+    border-radius: 2px;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: center;
+
+    .item-icon {
+      margin-left: 16px;
+      margin-right: 8px;
+      width: 16px;
+      height: 16px;
+      background: #f58b00;
+      border-radius: 50%;
+    }
+
+    .item-message {
+      height: 20px;
+      font-size: 14px;
+      font-family: "PingFang SC, PingFang SC-Regular";
+      font-weight: 400;
+      text-align: left;
+      color: #333333;
+      line-height: 20px;
+    }
+  }
+
   .department_container {
     flex: 1;
     display: flex;
     width: 100%;
-    height: calc(100% - 60px);
+    height: calc(100% - 95px);
     justify-content: flex-start;
   }
   .departmentBox {
@@ -24,6 +57,13 @@
       border-right: 1px solid #ccc;
       display: flex;
       flex-flow: column;
+      ::ng-deep {
+        .ant-spin-container {
+          height: 100%;
+          display: flex;
+          flex-flow: column;
+        }
+      }
       .content {
         flex: 1;
         overflow: hidden;
@@ -43,13 +83,26 @@
       flex: 1;
       display: flex;
       flex-flow: column;
+      ::ng-deep {
+        .ant-spin-container {
+          height: 100%;
+          display: flex;
+          flex-flow: column;
+        }
+      }
       .title {
         position: relative;
-        .reset {
+        .reset,
+        .save {
           position: absolute;
           display: block;
           right: 12px;
           top: 0;
+        }
+        .save {
+          cursor: pointer;
+          right: 54px;
+          pointer-events: initial;
         }
         .disabled {
           color: #bbb;

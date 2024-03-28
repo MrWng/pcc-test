@@ -1,8 +1,17 @@
 import {
-  Component, OnInit, OnChanges,
-  Input, Output, EventEmitter, ChangeDetectorRef, AfterViewInit, ViewChild, OnDestroy
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
 } from '@angular/core';
-import { Validators, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { AddSubProjectCardService } from './add-subproject-card.service';
 import { WbsTabsService } from '../wbs-tabs/wbs-tabs.service';
@@ -10,14 +19,14 @@ import * as moment from 'moment';
 import { CommonService, Entry } from '../../service/common.service';
 import { UploadAndDownloadService } from '../../service/upload.service';
 import { DynamicWbsService } from '../wbs/wbs.service';
-import { debounceTime, takeUntil } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 
-import { cloneDeep } from '@ng-dynamic-forms/core';
-import { OpenWindowService } from '@ng-dynamic-forms/ui-ant-web';
+import { cloneDeep } from '@athena/dynamic-core';
+import { OpenWindowService } from '@athena/dynamic-ui';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { Subject } from 'rxjs';
-import { APIService } from 'app/customization/task-project-center-console/service/api.service';
-import { DmcService } from 'ngx-ui-athena/src/components/upload';
+import { APIService } from 'app/implementation/service/api.service';
+import { DmcService } from '@athena/design-ui/src/components/upload';
 import { TaskBaseInfo } from './add-subproject-card.interface';
 
 import { LiablePersonService } from './services/liable-person.service';
@@ -32,7 +41,7 @@ import {
   CONTROL_ITEM_LIST3,
   CONTROL_ITEM_LIST4,
   TASK_CATEGORY_LIST1,
-  TASK_CATEGORY_LIST2
+  TASK_CATEGORY_LIST2,
 } from './components/more-control/more-control.service';
 import { LiablePersonComponent } from './components/liable-person/liable-person.component';
 import { LiablePersonAddRoleComponent } from './components/liable-person-add-role/liable-person-add-role.component';
@@ -43,7 +52,11 @@ import { TaskTemplateService } from './services/task-template.service';
 import { WorkLoadService } from './services/work-load.service';
 import { AdvancedOptionService } from './services/advanced-option.service';
 import { PaymentStageService } from './components/payment-stage/payment-stage.service';
-import { AthMessageService } from 'ngx-ui-athena/src/components/message';
+import { AthMessageService } from '@athena/design-ui/src/components/message';
+
+import { scheduleACommitCheck } from '../../decorator/add-subproject-card.decorator';
+import { AthModalService } from '@athena/design-ui';
+
 /**
  * 任务卡片，子项开窗
  */
@@ -59,10 +72,11 @@ import { AthMessageService } from 'ngx-ui-athena/src/components/message';
     LiablePersonAddRoleService,
     SubmitCardService,
     TaskTemplateService,
+    AthModalService,
     AdvancedOptionService,
     WorkLoadService,
-    PaymentStageService
-  ]
+    PaymentStageService,
+  ],
 })
 export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   /** wbs入口来源 */
@@ -72,10 +86,17 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
   @Output() currentTaskInfo = new EventEmitter();
 
   @ViewChild('changeReason') changeReason: any;
+  @ViewChild('taskNameInput', { static: false }) taskNameInput: ElementRef<any>;
   @ViewChild('childMoreControl') childMoreControl: MoreControlComponent;
   @ViewChild('chilLliablePerson') chilLliablePerson: LiablePersonComponent;
   @ViewChild('chilLliablePersonRole') chilLliablePersonRole: LiablePersonAddRoleComponent;
   @ViewChild('advancedOption') advancedOptionComponent;
+  @Input() root_task_card = {
+    // 协同一级计划任务卡信息
+    root_task_no: '', // 根任务卡编号
+    schedule_status: '', // 协助计划排定状态
+    assist_schedule_seq: '', // 协助排定计划序号
+  };
 
   // wbs入口
   public Entry = Entry;
@@ -110,7 +131,10 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
   /**  交付物樣板 */
   public attachmentData: any[] = [];
   /** 记录执行人的授权状态和错误信息 */
-  public executor: { employee_info: any[]; error_msg: string } = { employee_info: [], error_msg: '' };
+  public executor: { employee_info: any[]; error_msg: string } = {
+    employee_info: [],
+    error_msg: '',
+  };
   /**  任务类型 */
   public taskCategoryType: string = '';
   /** 选择的执行人列表 */
@@ -134,7 +158,10 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
   /** 弹窗位置 */
   private maskPosition: any = { top: 100, left: (document.body.clientWidth - 550) / 2, width: 550 };
   /** 记录负责人的授权状态和错误信息 */
-  private personLiable: { employee_info: any[]; error_msg: string } = { employee_info: [], error_msg: '' };
+  private personLiable: { employee_info: any[]; error_msg: string } = {
+    employee_info: [],
+    error_msg: '',
+  };
   /** plm任务类型未开始 */
   private plmNotStart_liablePerson: any = {};
   /** 负责人 */
@@ -143,13 +170,12 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
   /** 任务比重栏位单位显示% */
   formatterPercent = (value: number): string => `${value}%`;
   parserPercent = (value: string): string => value.replace('%', '');
-  openWindowDefine: any = {}
+  openWindowDefine: any = {};
   openPaymentWindowDefine: any;
-
   notTriggerChangs = false;
   upperLevelTaskNoForIssue: boolean = false; // 是否包含已下发任务
   private destroy$ = new Subject();
-
+  taskNameChangeKey: boolean = false;
   constructor(
     private translateService: TranslateService,
     protected changeRef: ChangeDetectorRef,
@@ -166,9 +192,8 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
     private submitCardService: SubmitCardService,
     public advancedOptionService: AdvancedOptionService,
     private levelService: LevelService,
-    private athMessageService: AthMessageService
-  ) {
-  }
+    public athMessageService: AthMessageService
+  ) {}
 
   /** 获取弹窗表单的值 */
   get validateForm(): FormGroup {
@@ -180,11 +205,18 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
     return this.addSubProjectCardService.firstLevelTaskCard;
   }
 
+  get isApproveStatus() {
+    return ['PLM', 'PLM_PROJECT', 'ASSC_ISA_ORDER', 'PCM', 'PO_NOT_KEY'].includes(this.taskTemplateInfo?.task_category);
+  }
+
   /**
    * 是否显示层级
    */
   get isShowTier() {
-    return this.addSubProjectCardService.buttonType !== 'CREATE' && this.addSubProjectCardService.currentCardInfo?.level !== 0;
+    return (
+      this.addSubProjectCardService.buttonType !== 'CREATE' &&
+      this.addSubProjectCardService.currentCardInfo?.level !== 0
+    );
   }
 
   /**
@@ -202,7 +234,12 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
         this.validateForm.get(key).disable();
       });
       /** 预计值（主单位） 预计值（次单位） 标准工时 标准天数 */
-      ['plan_main_unit_value', 'plan_second_unit_value', 'standard_work_hours', 'standard_days'].forEach((key) => {
+      [
+        'plan_main_unit_value',
+        'plan_second_unit_value',
+        'standard_work_hours',
+        'standard_days',
+      ].forEach((key) => {
         this.validateForm.get(key).patchValue(null);
         this.validateForm.get(key).disable();
       });
@@ -220,9 +257,12 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
     if (!this.addSubProjectCardService.showAddTaskCard) {
       return;
     }
+    if (this.source === Entry.projectChange) {
+      this.taskStatus = Number(this.addSubProjectCardService.currentCardInfo?.old_task_status);
+    }
+    this.loading = true;
     this.taskCategoryType = this.addSubProjectCardService.taskCategory;
     this.setMoreControl();
-    this.setDesignStatus();
     this.setMoreControlValueOfSft();
     this.resetDefaultBeforeTaskNo();
     this.setApproveAndAttachment();
@@ -231,30 +271,38 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
     this.setSomeEdit();
     this.getOpenWindowDefine('');
     // 获取款项阶段开窗定义
-    const eocCompanyId = this.addSubProjectCardService.eocCompanyId?.id
-      || this.commonService.content?.executeContext?.businessUnit?.eoc_company_id;
+    const eocCompanyId =
+      this.addSubProjectCardService.eocCompanyId?.id ||
+      this.commonService.content?.executeContext?.businessUnit?.eoc_company_id;
     this.getPaymentOpenDefine(eocCompanyId || '');
-    this.getSelectPersonList();
+    this.getSelectPersonList(); // 负责人、执行人 ==> 该组件数据整理完成后，取消loading效果
     this.formatAttachmentData();
     this.originValidateForm = cloneDeep(this.validateForm.getRawValue());
     if (this.source !== Entry.maintain) {
       this.validateForm.controls['required_task'].disable();
     }
     this.monitorIsMilepost();
+
+    // 预览所有栏位禁止编辑
+    if (this.addSubProjectCardService.isPreview) {
+      this.validateForm.disable();
+    }
+    // s12：任务名称加校验器
+    this.setTaskNameVerifier(this.validateForm.get('task_name') as FormControl);
   }
 
   monitorIsMilepost(): void {
-
-    this.validateForm.controls['is_milepost'].valueChanges.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe((value) => {
-      if (!value) {
-        this.validateForm.controls['milepost_desc'].setValue('');
-      }
-    });
+    this.validateForm.controls['is_milepost'].valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((value) => {
+        if (!value) {
+          this.validateForm.controls['milepost_desc'].setValue('');
+        }
+      });
   }
 
   ngOnDestroy() {
+    this.validateForm.reset({ task_proportion: 100, workload_qty: null, workload_unit: '2' });
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -265,7 +313,7 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
   setMoreControl(): void {
     this.taskTemplateInfo = {
       task_category: this.addSubProjectCardService.taskCategory,
-      complete_rate_method: this.addSubProjectCardService.currentCardInfo?.complete_rate_method
+      complete_rate_method: this.addSubProjectCardService.currentCardInfo?.complete_rate_method,
     };
     if (this.addSubProjectCardService.taskTemplateNo) {
       this.setMoreControlValues(this.addSubProjectCardService.currentCardInfo.task_category);
@@ -277,25 +325,50 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
   /**
    * 控制负责人是否禁用：取得plm工作项数组后，判断是否全部为未启动，如果全部未启动，则禁用负责人
    */
-  async setDesignStatus(): Promise<void> {
-    const { task_status, task_category, project_no, task_no } = this.addSubProjectCardService.currentCardInfo;
-    if (task_status === '20' && task_category === 'PLM') {
-      const plmResult = await this.apiService.work_Item_Data_Get([{ project_no: project_no, task_no: task_no, }]);
+  // async setDesignStatus(): Promise<void> {
+  setDesignStatus() {
+    const { task_status, old_task_status, task_category, project_no, task_no } =
+      this.addSubProjectCardService.currentCardInfo;
+    if (
+      (old_task_status ? old_task_status === '20' : task_status === '20') &&
+      task_category === 'PLM'
+    ) {
+      // const plmResult = await this.apiService.work_Item_Data_Get([{ project_no: project_no, task_no: task_no, }]);
       // // 若PLM状态（其中一笔） = 已完成（completed），子项开窗所有栏位只读
-      const completed = plmResult.filter((item) => item.design_status === 'completed').length > 0 ? 'completed' : '';
-      let notStart = '';
-      if (!completed) {
-        // 若PLM状态（多笔）全部 = 未启动（notStart） 则负责人、执行人可删除/新增；否则只能新增执行人，负责人不可修改
-        notStart = plmResult.filter((item) => item.design_status === 'notStart').length === plmResult.length ? 'notStart' : '';
-      }
-      this.designStatus = completed ? completed : notStart;
-      if ((this.source === Entry.card) && (this.designStatus === 'completed')) {
-        Object.keys(this.validateForm.getRawValue()).forEach(
-          (control: string): void => {
+      // const completed = plmResult.filter((item) => item.design_status === 'completed').length > 0 ? 'completed' : '';
+      // let notStart = '';
+      // if (!completed) {
+      //   // 若PLM状态（多笔）全部 = 未启动（notStart） 则负责人、执行人可删除/新增；否则只能新增执行人，负责人不可修改
+      //   notStart = plmResult.filter((item) => item.design_status === 'notStart').length === plmResult.length ? 'notStart' : '';
+      // }
+      // this.designStatus = completed ? completed : notStart;
+      this.designStatus = this.addSubProjectCardService.designStatus;
+      setTimeout(() => {
+        if (
+          (this.source === Entry.card ||
+            this.source === Entry.collaborate ||
+            this.source === Entry.projectChange) &&
+          this.designStatus === 'completed'
+        ) {
+          // todo 影响工期了,会将工期和单位清空
+          const newValue = { ...this.validateForm.getRawValue() };
+          // Object.keys(newValue).forEach((control: string): void => {
+          //   if (!['workload_qty', 'workload_unit'].includes(control)) {
+          //     this.validateForm.controls[control].disable();
+          //   }
+          // });
+          Object.keys(newValue).forEach((control: string): void => {
             this.validateForm.controls[control].disable();
-          }
-        );
-      }
+          });
+        }
+        this.loading = false;
+        this.changeRef.markForCheck();
+      }, 1000);
+    } else if (this.source === Entry.maintain) {
+      setTimeout(() => {
+        this.loading = false;
+        this.changeRef.markForCheck();
+      }, 1000);
     }
   }
 
@@ -304,7 +377,19 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
    */
   setMoreControlValueOfSft(): void {
     if (['SFT'].includes(this.taskTemplateInfo?.task_category)) {
-      this.validateForm.get('is_need_doc_no').patchValue(true);
+      let is_need_doc_no = false;
+      if (
+        this.addSubProjectCardService.currentCardInfo?.task_no &&
+        !Object.keys(this.taskTemplateInfo).find((item) => item === 'is_need_doc_no')
+      ) {
+        is_need_doc_no = this.addSubProjectCardService.currentCardInfo?.is_need_doc_no;
+      } else if (
+        this.taskTemplateInfo &&
+        Object.keys(this.taskTemplateInfo).find((item) => item === 'is_need_doc_no')
+      ) {
+        is_need_doc_no = this.taskTemplateInfo.is_need_doc_no;
+      }
+      this.validateForm.get('is_need_doc_no').patchValue(is_need_doc_no);
       this.addSubProjectCardService.validateForm.get('is_need_doc_no').disable();
       const disableColumn = [
         'item_type',
@@ -322,7 +407,11 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
         this.validateForm.get(column).patchValue('');
         this.validateForm.get(column).disable();
       });
-      enableColumn.forEach((column) => { this.validateForm.get(column).enable(); });
+      enableColumn.forEach((column) => {
+        if (!this.addSubProjectCardService.isPreview) {
+          this.validateForm.get(column).enable();
+        }
+      });
     }
   }
 
@@ -330,8 +419,9 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
    * 重制taskDependencyInfoList：将taskDependencyInfoList的default_before_task_no设置为before_task_no
    */
   resetDefaultBeforeTaskNo() {
-    this.taskDependencyInfoList = this.validateForm.getRawValue()
-      .task_dependency_info || [{ before_task_no: '', dependency_type: 'FS', advance_lag_type: -1, advance_lag_days: 0 }];
+    this.taskDependencyInfoList = this.validateForm.getRawValue().task_dependency_info || [
+      { before_task_no: '', dependency_type: 'FS', advance_lag_type: -1, advance_lag_days: 0 },
+    ];
     this.taskDependencyInfoList.forEach((item: any): void => {
       item.default_before_task_no = item.before_task_no;
     });
@@ -339,7 +429,12 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
 
   // 设置任务是否是签核任务以及任务有交付物否
   setApproveAndAttachment() {
-    if (this.addSubProjectCardService.buttonType !== 'EDIT' && this.wbsService.projectInfo?.project_type_no) {
+    // 需要判断预览也不请求
+    if (
+      this.addSubProjectCardService.buttonType !== 'PREVIEW' &&
+      this.addSubProjectCardService.buttonType !== 'EDIT' &&
+      this.wbsService.projectInfo?.project_type_no
+    ) {
       const params = {
         project_type_info: [
           {
@@ -375,6 +470,18 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
       this.setMoreControlItem(form);
       this.setDateObject();
       this.changeRef.markForCheck();
+      if (this.chilLliablePerson?.initPerson) {
+        this.chilLliablePerson.initPerson(
+          this.addSubProjectCardService.validateForm.value.task_member_info,
+          this.personList
+        );
+      }
+      if (this.chilLliablePersonRole?.initPerson && this.personList) {
+        this.chilLliablePersonRole.initPerson(
+          this.addSubProjectCardService.validateForm.value.task_member_info,
+          this.personList
+        );
+      }
     });
   }
 
@@ -396,7 +503,7 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
         this.parentTaskSerialNumList = this.levelService.removeLevels(this.parentTaskSerialNumList);
       }
     }
-    if (this.parentTaskSerialNumList && (this.parentTaskSerialNumList.length > 0)) {
+    if (this.parentTaskSerialNumList && this.parentTaskSerialNumList.length > 0) {
       let finder1 = {};
       for (let i = 0; i < this.wbsService.pageDatas.length; i++) {
         if (this.wbsService.pageDatas[i].task_no === this.parentTaskSerialNumList[0].task_no) {
@@ -409,11 +516,15 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
       this.upperLevelTaskNoForIssue = finder2.length > 0;
     }
     const firstLevelTaskCardArr = this.addSubProjectCardService?.firstLevelTaskCard
-      ? [this.addSubProjectCardService.firstLevelTaskCard] : [];
+      ? [this.addSubProjectCardService.firstLevelTaskCard]
+      : [];
     let parentTaskNo = [];
     if (firstLevelTaskCardArr.length) {
       const taskCards = this.levelService.flattenFirstLevelTaskCard(firstLevelTaskCardArr);
-      parentTaskNo = this.levelService.findParentItems(taskCards, this.addSubProjectCardService.validateForm.value);
+      parentTaskNo = this.levelService.findParentItems(
+        taskCards,
+        this.addSubProjectCardService.validateForm.value
+      );
     }
     this.levelService.setToTreeStructure(this.parentTaskSerialNumList, parentTaskNo);
   }
@@ -422,20 +533,67 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
    * 获取任务前后置关系列表树
    */
   setPreTaskNumList(): void {
-    if (this.wbsService.pageDatas) {
-      this.preTaskNumList = cloneDeep(this.wbsService.pageDatas);
-      if (this.addSubProjectCardService.buttonType === 'EDIT') {
-        this.preTaskNumList = this.levelService.removeLevels(this.preTaskNumList);
+    if (this.source === Entry.collaborate) {
+      const bpmData = this.commonService.content?.executeContext?.taskWithBacklogData?.bpmData;
+      const taskInfo = bpmData?.assist_schedule_info
+        ? bpmData?.assist_schedule_info[0]
+        : bpmData?.task_info[0];
+      const params = {
+        assist_schedule_seq: taskInfo['assist_schedule_seq']
+          ? taskInfo['assist_schedule_seq']
+          : taskInfo['teamwork_plan_seq'],
+        project_no: this.addSubProjectCardService.firstLevelTaskCard.project_no,
+        root_task_no: this.addSubProjectCardService.firstLevelTaskCard.task_no,
+      };
+      this.commonService
+        .getInvData('bm.pisc.assist.before.task.select.area.get', params)
+        .subscribe((res: any): void => {
+          if (res && res.data && res.data.task_info && res.data.task_info.length) {
+            this.addSubProjectCardService.preTaskNumListBackUp = cloneDeep(res.data.task_info);
+            this.preTaskNumList = [];
+            const list = cloneDeep(res.data.task_info);
+            this.preTaskNumList = this.wbsService.changeListForTree(list);
+            this.wbsService.changeTreeChildrenSquence(this.preTaskNumList);
+            const firstLevelTaskCardArr = this.addSubProjectCardService?.firstLevelTaskCard
+              ? [this.addSubProjectCardService.firstLevelTaskCard]
+              : [];
+            let parentTaskNos = [];
+            if (firstLevelTaskCardArr.length) {
+              const taskCards = this.levelService.flattenFirstLevelTaskCard(firstLevelTaskCardArr);
+              parentTaskNos = this.levelService.findParentItems(
+                taskCards,
+                this.addSubProjectCardService.validateForm.value
+              );
+            }
+            if (this.addSubProjectCardService.buttonType === 'EDIT') {
+              this.preTaskNumList = this.levelService.removeLevels(this.preTaskNumList);
+            }
+            this.levelService.setToTreeStructure(this.preTaskNumList, parentTaskNos);
+          }
+        });
+    } else {
+      if (this.wbsService.pageDatas) {
+        this.preTaskNumList = cloneDeep(this.wbsService.pageDatas);
+        if (this.source === Entry.projectChange) {
+          this.addSubProjectCardService.preTaskNumListChange = cloneDeep(this.wbsService.pageDatas);
+        }
+        if (this.addSubProjectCardService.buttonType === 'EDIT') {
+          this.preTaskNumList = this.levelService.removeLevels(this.preTaskNumList);
+        }
       }
+      const firstLevelTaskCardArr = this.addSubProjectCardService?.firstLevelTaskCard
+        ? [this.addSubProjectCardService.firstLevelTaskCard]
+        : [];
+      let parentTaskNo = [];
+      if (firstLevelTaskCardArr.length) {
+        const taskCards = this.levelService.flattenFirstLevelTaskCard(firstLevelTaskCardArr);
+        parentTaskNo = this.levelService.findParentItems(
+          taskCards,
+          this.addSubProjectCardService.validateForm.value
+        );
+      }
+      this.levelService.setToTreeStructure(this.preTaskNumList, parentTaskNo);
     }
-    const firstLevelTaskCardArr = this.addSubProjectCardService?.firstLevelTaskCard
-      ? [this.addSubProjectCardService.firstLevelTaskCard] : [];
-    let parentTaskNo = [];
-    if (firstLevelTaskCardArr.length) {
-      const taskCards = this.levelService.flattenFirstLevelTaskCard(firstLevelTaskCardArr);
-      parentTaskNo = this.levelService.findParentItems(taskCards, this.addSubProjectCardService.validateForm.value);
-    }
-    this.levelService.setToTreeStructure(this.preTaskNumList, parentTaskNo);
   }
 
   /**
@@ -461,25 +619,26 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
         'standard_work_hours',
         'standard_days',
       ];
-      Object.keys(this.validateForm.getRawValue()).forEach(
-        (control: string): void => {
-          if (!editList.includes(control)) {
-            this.validateForm.controls[control].disable();
-          }
+      Object.keys(this.validateForm.getRawValue()).forEach((control: string): void => {
+        if (!editList.includes(control)) {
+          this.validateForm.controls[control].disable();
         }
-      );
+      });
+      if (this.designStatus === 'notStart' && !this.addSubProjectCardService.isPreview) {
+        this.validateForm.controls['liable_person_code_data'].enable();
+      }
     }
   }
 
   /**
+   * 任务类型开窗
    * 获取任务模板开窗定义
    * @param flag
    */
   getOpenWindowDefine(flag: string): void {
     this.addSubProjectCardService.getTaskTemplate(flag || '', this.source).subscribe((res) => {
       this.openWindowDefine = res.data;
-      this.openWindowDefine.executeContext =
-        this.commonService.content.executeContext;
+      this.openWindowDefine.executeContext = this.commonService.content.executeContext;
       this.openWindowDefine.executeContext.pattern = 'com';
       this.openWindowDefine.executeContext.pageCode = 'task-detail';
     });
@@ -490,46 +649,94 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
    */
   getSelectPersonList(): void {
     if (this.source === Entry.maintain) {
-      this.liablePersonService.getSelectPersonList(this.wbsService.project_no, this.wbsTabsService.personList).subscribe(res => {
-        this.liable_person_code_data = res.liable_person_code_data;
-        this.liable_person_code_dataList = res.liable_person_code_dataList;
-        this.wbsTabsService.personList = res.list;
-        this.originPersonList = res.originPersonList;
-        this.task_member_infoList = res.task_member_infoList;
-        this.copyPersonList = this.addSubProjectCardService.mergeUserList(res.originPersonList);
-        this.personList = this.addSubProjectCardService.mergeUserList(res.originPersonList);
-        this.personList2 = this.addSubProjectCardService.mergeUserList(res.originPersonList);
-        const bigIds = this.task_member_infoList.map(item => item.bigId);
-        this.validateForm.get('task_member_info').patchValue(bigIds);
-        this.changeRef.markForCheck();
-      });
+      this.liablePersonService
+        .getSelectPersonList(this.wbsService.project_no, this.wbsTabsService.personList)
+        .subscribe(
+          (res) => {
+            if (!res || !res.originPersonList || !res.originPersonList?.length) {
+              this.setDesignStatus();
+              this.changeRef.markForCheck();
+              return;
+            }
+            this.liable_person_code_data = res.liable_person_code_data;
+            this.liable_person_code_dataList = res.liable_person_code_dataList;
+            this.wbsTabsService.personList = res.list;
+            this.originPersonList = res.originPersonList;
+            this.task_member_infoList = res.task_member_infoList;
+            this.copyPersonList = this.addSubProjectCardService.mergeUserList(res.originPersonList);
+            this.personList = this.addSubProjectCardService.mergeUserList(res.originPersonList);
+            this.personList2 = this.addSubProjectCardService.mergeUserList(res.originPersonList);
+            const bigIds = this.task_member_infoList.map((item) => item.bigId);
+            this.validateForm.get('task_member_info').patchValue(bigIds);
+            this.setDesignStatus();
+            this.changeRef.markForCheck();
+          },
+          (err) => {
+            this.setDesignStatus();
+            this.changeRef.markForCheck();
+          }
+        );
     } else {
-      this.liablePersonAddRoleService.getSelectPersonList(this.wbsService.project_no, this.wbsTabsService.personList, this.source)
-        .subscribe(res => {
-          this.liable_person_code_data = res.liable_person_code_data;
-          this.liable_person_code_dataList = res.liable_person_code_dataList;
-          this.wbsTabsService.personList = res.list;
-          this.originPersonList = res.originPersonList;
-          this.task_member_infoList = res.task_member_infoList;
-          this.copyPersonList = this.addSubProjectCardService.formatListToTree(res.originPersonList);
-          this.personList = cloneDeep(this.copyPersonList);
-          if (this.liable_person_code_dataList?.length) {
-            this.personList.push(this.liable_person_code_dataList[0]);
+      this.liablePersonAddRoleService
+        .getSelectPersonList(
+          this.wbsService.project_no,
+          this.wbsTabsService.personList,
+          this.source,
+          this.wbsService.change_version
+        )
+        .subscribe(
+          (res) => {
+            if (!res || !res.originPersonList || !res.originPersonList?.length) {
+              this.setDesignStatus();
+              this.changeRef.markForCheck();
+              return;
+            }
+            this.liable_person_code_data = res.liable_person_code_data;
+            this.liable_person_code_dataList = res.liable_person_code_dataList;
+            this.wbsTabsService.personList = res.list;
+            this.originPersonList = res.originPersonList;
+            this.task_member_infoList = res.task_member_infoList;
+            this.copyPersonList = this.addSubProjectCardService.formatListToTree(
+              res.originPersonList
+            );
+            this.personList = cloneDeep(this.copyPersonList);
+            if (this.liable_person_code_dataList?.length) {
+              this.personList.push(this.liable_person_code_dataList[0]);
+            }
+            this.personList2 = JSON.parse(JSON.stringify(this.copyPersonList));
+            if (res.task_member_infoList_other?.length) {
+              res.task_member_infoList_other.forEach((item) => {
+                this.personList2.push(item);
+              });
+            }
+            //  和【负责人】选项，相同，置灰不可选
+            this.liablePersonAddRoleService.changeTaskMemberInfoByLiable(
+              this.liable_person_code_data?.key,
+              this.personList2
+            );
+            this.validateForm
+              .get('liable_person_code_data')
+              .patchValue(this.liable_person_code_data?.key);
+            this.validateForm.get('task_member_info').patchValue(res.task_member_info);
+            // 进行中的任务不可以删除执行人，清空与清除人员按钮未管控
+            const { old_task_status, task_status } = this.addSubProjectCardService.currentCardInfo;
+            if (
+              (old_task_status ? old_task_status !== '10' : task_status !== '10') &&
+              this.designStatus !== 'notStart'
+            ) {
+              this.liablePersonAddRoleService.noChangeSelectedPersonList(
+                this.task_member_infoList,
+                this.personList2
+              );
+            }
+            this.setDesignStatus();
+            this.changeRef.markForCheck();
+          },
+          (err) => {
+            this.setDesignStatus();
+            this.changeRef.markForCheck();
           }
-          this.personList2 = JSON.parse(JSON.stringify(this.copyPersonList));
-          if (res.task_member_infoList_other?.length) {
-            res.task_member_infoList_other.forEach(item => {
-              this.personList2.push(item);
-            });
-          }
-          this.liablePersonAddRoleService.changeTaskMemberInfoByLiable(this.liable_person_code_data?.key, this.personList2);
-          this.validateForm.get('liable_person_code_data').patchValue(this.liable_person_code_data?.key);
-          this.validateForm.get('task_member_info').patchValue(res.task_member_info);
-          if (this.addSubProjectCardService.currentCardInfo?.task_status !== '10') {
-            this.liablePersonAddRoleService.noChangeSelectedPersonList(this.task_member_infoList, this.personList2);
-          }
-          this.changeRef.markForCheck();
-        });
+        );
     }
   }
 
@@ -538,13 +745,15 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
    */
   formatAttachmentData(): void {
     this.attachmentData = this.validateForm.getRawValue().attachment?.data || [];
-    this.attachmentData.forEach(item => {
-      item.uid = item.id;
-      item.status = 'done';
-      this.uploadService.getFileUrl('Athena', [item.id]).subscribe((res) => {
-        item.url = res[0];
+    if (this.attachmentData && this.attachmentData.length) {
+      this.attachmentData.forEach((item) => {
+        item.uid = item.id;
+        item.status = 'done';
+        this.uploadService.getFileUrl('Athena', [item.id]).subscribe((res) => {
+          item.url = res[0];
+        });
       });
-    });
+    }
   }
 
   /**
@@ -552,7 +761,9 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
    * @param form 弹窗表单
    */
   setSubmitBtnStatus(form: any): void {
-    this.submitBtnStatus = form.taskName !== '' || this.addSubProjectCardService.buttonType === 'EDIT' ? true : false;
+    this.submitBtnStatus =
+      this.addSubProjectCardService.buttonType !== 'PREVIEW' &&
+      (form.taskName !== '' || this.addSubProjectCardService.buttonType === 'EDIT');
   }
 
   /**
@@ -561,10 +772,17 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
    */
   setNzAllowClear(form: any): void {
     const { currentCardInfo } = this.addSubProjectCardService;
-    if (currentCardInfo?.task_status === '20' && currentCardInfo?.task_category === 'PLM') {
+    if (
+      (currentCardInfo?.old_task_status
+        ? currentCardInfo?.old_task_status === '20'
+        : currentCardInfo?.task_status === '20') &&
+      currentCardInfo?.task_category === 'PLM'
+    ) {
       this.nzAllowClear = false; // 已选择负责人不可删除
     } else {
-      this.nzAllowClear = !!(!form.task_member_info?.length && form.hasOwnProperty('task_member_info'));
+      this.nzAllowClear = !!(
+        !form.task_member_info?.length && form.hasOwnProperty('task_member_info')
+      );
     }
   }
 
@@ -576,20 +794,28 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
     const { validateForm, currentCardInfo } = this.addSubProjectCardService;
     if (form.liable_person_code) {
       this.originPersonList?.forEach((person: any): void => {
-        const condition1 = person.id === form.liable_person_code && person.deptId === form.liable_person_department_code;
-        const condition2 = currentCardInfo?.someEdit && this.designStatus !== 'notStart'
-          && validateForm.value.task_member_info?.includes(person.bigId);
+        const condition1 =
+          person.id === form.liable_person_code &&
+          person.deptId === form.liable_person_department_code;
+        const condition2 =
+          currentCardInfo?.someEdit &&
+          this.designStatus !== 'notStart' &&
+          validateForm.value.task_member_info?.includes(person.bigId);
         person.isSelected = condition1 || condition2 ? true : false;
       });
     }
     if (
-      !form.liable_person_code && this.plmNotStart_liablePerson.hasOwnProperty('liable_person_code')
+      !form.liable_person_code &&
+      this.plmNotStart_liablePerson.hasOwnProperty('liable_person_code')
     ) {
       this.originPersonList?.forEach((person: any): void => {
-        const condition1 = person.id === this.plmNotStart_liablePerson?.liable_person_code
-          && person.deptId === this.plmNotStart_liablePerson?.liable_person_department_code;
-        const condition2 = currentCardInfo?.someEdit && this.designStatus !== 'notStart'
-          && validateForm.value.task_member_info?.includes(person.bigId);
+        const condition1 =
+          person.id === this.plmNotStart_liablePerson?.liable_person_code &&
+          person.deptId === this.plmNotStart_liablePerson?.liable_person_department_code;
+        const condition2 =
+          currentCardInfo?.someEdit &&
+          this.designStatus !== 'notStart' &&
+          validateForm.value.task_member_info?.includes(person.bigId);
         person.isSelected = condition1 || condition2 ? true : false;
       });
     }
@@ -621,8 +847,8 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
   }
 
   /**
- * 设置人力资源负荷中日期控件的时间对象：开始时间 & 结束时间 用于人力资源负荷
- */
+   * 设置人力资源负荷中日期控件的时间对象：开始时间 & 结束时间 用于人力资源负荷
+   */
   setDateObject(): void {
     const { validateForm } = this.addSubProjectCardService;
     if (validateForm.getRawValue().plan_start_date && validateForm.getRawValue().plan_finish_date) {
@@ -635,8 +861,8 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
   /** *********** 初始化： 处理弹窗表单的默认值等 ***************** */
 
   /**
-  * 获取款项阶段开窗定义
-  */
+   * 获取款项阶段开窗定义
+   */
   getPaymentOpenDefine(company: string): void {
     this.addSubProjectCardService
       .getPaymentPeriod(company || '', this.wbsService.project_no, this.source)
@@ -644,11 +870,65 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
         this.openPaymentWindowDefine = res.data;
       });
   }
-
-
+  /** 任务名称校验器 */
+  setTaskNameVerifier(formControl: FormControl) {
+    formControl.addValidators((ctr): ValidationErrors => {
+      const r = /[^a-zA-Z0-9\u4E00-\u9FA5_＿－\-（）()[\]［］【】&＆+＋.．、,，\s]/g,
+        spacesAtTheBeginningAndEnd = /^\s+|\s+$/g,
+        value = ctr.value;
+      if (spacesAtTheBeginningAndEnd.test(value)) {
+        return {
+          characterChecking: this.translateWordPcc('存在非法字符'),
+        };
+      } else if (r.test(value)) {
+        return {
+          characterChecking: this.translateWordPcc('存在非法字符'),
+        };
+      }
+      return null;
+    });
+  }
+  /** 任务名称输入校验 */
+  taskNameEnterACheck(e) {
+    const value = this.validateForm.get('task_name').value,
+      r = /[^a-zA-Z0-9\u4E00-\u9FA5_＿－\-（）()[\]［］【】&＆+＋.．、,，\s]/g;
+    // 去除首尾空格和特殊字符
+    this.validateForm
+      .get('task_name')
+      .setValue(value.trim().trimEnd().replace(r, '').trim().trimEnd());
+  }
+  /** s11: 任务名称栏位后面新增说明提示 */
+  translateForTaskNameTip() {
+    const language = window.sessionStorage.getItem('language');
+    switch (language) {
+      case 'zh_cn':
+      case 'zh_CN':
+        return `<p>栏位可允许输入字符说明：</p>
+                <p>1、中文</p>
+                <p>2、大小写英文字母</p>
+                <p>3、英文数字</p>
+                <p>4、中间空格</p>
+                <p class="last-line">5、"["、"]"、"("、")"、"_"、"-"、","、"&"、"+"、"."、"、"</p>`;
+      case 'zh_TW':
+        return `<p>欄位可允許輸入字符說明：</p>
+                <p>1、中文</p>
+                <p>2、大小寫英文字母</p>
+                <p>3、英文數字</p>
+                <p>4、中間空格</p>
+                <p class="last-line">5、"["、"]"、"("、")"、"_"、"-"、","、"&"、"+"、"."、"、"</p>`;
+      case 'en_US':
+        return `<p>The field allows for the input of character descriptions:</p>
+                <p>1、Chinese</p>
+                <p>2、Uppercase and lowercase English letters</p>
+                <p>3、English digit</p>
+                <p>4、Middle Space</p>
+                <p class="last-line">5、"["、"]"、"("、")"、"_"、"-"、","、"&"、"+"、"."、"、"</p>`;
+    }
+  }
   /**  *************************提交任务卡操作*********************** */
   /** 取消 */
   cancel(): void {
+    this.taskTemplateInfo = {};
     this.preTaskNumList = [];
     this.parentTaskSerialNumList = [];
     this.setIsClickSaveButton(false);
@@ -660,12 +940,16 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
         this.wbsService.getTaskForEdit(item, addSubProjectCardService.currentCardInfoBackups);
       });
     }
-    this.validateForm.reset();
+    // this.validateForm.reset({task_proportion: 100, workload_qty: 0, workload_unit: '2'});
     addSubProjectCardService.showAddTaskCard = false;
+    addSubProjectCardService.isPreview = false;
   }
   /**
+   * 保存【子项开窗】表单
    * 点击提交按钮
+   * scheduleACommitCheck: 提交前校验任务名称
    */
+  @scheduleACommitCheck
   async clickSubmit(): Promise<any> {
     if (this.isClickSaveButton) {
       return;
@@ -675,7 +959,7 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
       const { data } = await this.wbsService.getInfoCheck(this.wbsService.project_no).toPromise();
       this.wbsService.needRefresh = data.check_result;
     }
-    if (this.wbsService.needRefresh) {
+    if (this.wbsService.needRefresh && this.source !== Entry.collaborate) {
       this.addSubProjectCardService.showAddTaskCard = false;
       this.athMessageService.error(this.wbsService.needRefresh);
       this.wbsService.changeWbs$.next();
@@ -684,32 +968,19 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
     this.checkValue();
   }
 
-
-
   /**
    * 校验表单值
    * @returns
    */
-
   checkValue(): void {
     if (!this.validateForm.get('task_name').value?.trim()) {
       this.setIsClickSaveButton(false);
       return;
     }
-    const plan_finish_date = this.validateForm.get('plan_finish_date').value;
-    if (
-      plan_finish_date &&
-      [Entry.card, Entry.collaborate].includes(this.source) &&
-      moment(plan_finish_date).format('YYYY-MM-DD') >
-      moment(this.wbsService.projectInfo?.plan_finish_date).format('YYYY-MM-DD')
-    ) {
-      this.setIsClickSaveButton(false);
-      return;
-    }
     // 如果是协同计划排定任务卡并且负责人没有改变，则执行提交操作
     const condition1 =
-      !this.validateForm.get('liable_person_code').dirty
-      && this.addSubProjectCardService.currentCardInfo?.isCollaborationCard;
+      !this.validateForm.get('liable_person_code').dirty &&
+      this.addSubProjectCardService.currentCardInfo?.isCollaborationCard;
     if (condition1) {
       this.cancel();
       return;
@@ -726,7 +997,7 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
       valueNotUnique: this.valueNotUnique,
       changeReason: this.changeReason,
       source: this.source,
-      projectInfo: this.wbsService.projectInfo
+      projectInfo: this.wbsService.projectInfo,
     };
     const res = this.submitCardService.checkValue(enterParams);
     if (res?.status !== 'success') {
@@ -735,7 +1006,7 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
     /** 校验成功 */
     if (res?.status === 'success') {
       const { condition2, status } = res.response;
-      if (this.source === Entry.collaborate) {
+      if (this.source === Entry.collaborate || this.source === Entry.projectChange) {
         this.handelData({ status });
       } else {
         condition2 && this.addSubProjectCardService.buttonType === 'EDIT'
@@ -762,7 +1033,7 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
    * 点击提交：获取入参 提交内容
    * @param changeReason
    */
-  handelData(changeReason: any): void {
+  handelData(changeReason: any, changeReasonUploadFile?: any): void {
     this.valueNotUnique = true;
     const enterParams = {
       taskTemplateInfo: this.taskTemplateInfo,
@@ -777,34 +1048,81 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
       difficultyLevelForm: this.difficultyLevelForm,
       task_member_infoList: this.task_member_infoList,
       pageDatas: this.wbsService.pageDatas,
-      personList: this.personList
+      personList: this.personList,
     };
+    if (changeReasonUploadFile) {
+      enterParams['change_attachment'] = changeReasonUploadFile;
+    }
+    // 验证表单信息
     const { params, temp_doc_condition_value } = this.submitCardService.handelData(enterParams);
     params.task_property = this.source === Entry.maintain ? '2' : '1';
     delete params.liable_person_code_data;
+    params.workload_qty = !params.workload_qty ? 0 : params.workload_qty;
+    params.plan_work_hours = !params.plan_work_hours ? 0 : params.plan_work_hours;
     params.item_type = params.item_type === null ? '' : params.item_type;
     if (this.addSubProjectCardService.buttonType === 'EDIT') {
       this.loading = true;
+      // 校验执行人信息是否改变
       this.setTaskMemberInfoIsChange();
       if (this.source === Entry.collaborate) {
-        params.record_task_change = (Number(this.wbsService.projectInfo?.project_status) < 30) ? false : true;
+        params.record_task_change =
+          Number(this.wbsService.projectInfo?.project_status) < 30 ? false : true;
       }
+      // 修改 -- 保存【子项开窗】表单
       this.saveEditInfo(params, temp_doc_condition_value);
     } else {
+      this.loading = true;
       this.handleUpperLevelTask(params);
+      // 创建 -- 保存【子项开窗】表单
       this.taskInfoCreate(params, temp_doc_condition_value);
-      this.addSubProjectCardService.showAddTaskCard = false;
     }
-
   }
 
   /**
- * 判断执行人是否改改变
- */
+   * 判断执行人是否改改变
+   */
   setTaskMemberInfoIsChange(): void {
-    const task_member_info1 = JSON.stringify(this.addSubProjectCardService.validateForm.get('task_member_info').value);
-    const task_member_info2 = JSON.stringify(this.originValidateForm.task_member_info);
-    this.originValidateForm.TaskMemberInfoChange = task_member_info1 !== task_member_info2;
+    const task_member_key_list =
+      this.addSubProjectCardService.validateForm.get('task_member_info').value;
+    const task_member_info_list = [];
+    if (task_member_key_list && task_member_key_list.length) {
+      task_member_key_list.forEach((element) => {
+        if (element && element.indexOf(':') > 1) {
+          const arr = element.split(';');
+          const item = {};
+          arr.forEach((v) => {
+            const temp = v.split(':');
+            item[temp[0]] = temp[1];
+          });
+
+          task_member_info_list.push({
+            executor_no: item['id'] ? item['id'] : '',
+            // executor_name: item['name'] ? item['name'] : '',
+            executor_department_no: item['deptId'] ? item['deptId'] : '',
+            // executor_department_name: item['deptName'] ? item['deptName'] : '',
+            executor_role_no: item['roleNo'] ? item['roleNo'] : '',
+            // executor_role_name: item['roleNo'] ? item['roleName'] : '',
+            // project_no: this.wbsService.project_no,
+            task_no: this.originValidateForm.task_no,
+          });
+        }
+      });
+    }
+    const task_member_info2 = [];
+    if (
+      this.originValidateForm.task_member_info &&
+      this.originValidateForm.task_member_info.length
+    ) {
+      // task_member_info2 = cloneDeep(this.originValidateForm.task_member_info);
+      this.originValidateForm.task_member_info.filter((el) => {
+        const { executor_role_no, executor_department_no, executor_no, task_no } = el;
+        task_member_info2.push({ executor_role_no, executor_department_no, executor_no, task_no });
+      });
+    }
+    this.originValidateForm.TaskMemberInfoChange = !this.wbsService.equalsObj(
+      task_member_info_list,
+      task_member_info2
+    );
   }
 
   /**
@@ -812,11 +1130,45 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
    * @param params 编辑的任务卡信息
    * @param temp_doc_condition_value 单别条件值
    */
-  saveEditInfo(params: any, temp_doc_condition_value: any): void {
+  async saveEditInfo(params: any, temp_doc_condition_value: any): Promise<void> {
     params.is_update_upper_date = 'Y';
-    this.addSubProjectCardService.taskBaseInfoUpdate(params).then((res) => {
+    params.doc_type_no = params.doc_type_no ? params.doc_type_no : '';
+    params.item_operator = params.item_operator ? params.item_operator : '';
+    params.doc_type_info = params.doc_type_info.map((doc) => {
+      if (Object.getOwnPropertyNames(doc).find((item) => item === 'doc_condition_value')) {
+        return doc;
+      } else {
+        return { doc_condition_value: doc };
+      }
+    });
+    let res;
+    try {
+      if (this.source === Entry.collaborate) {
+        res = await this.addSubProjectCardService.assistTaskDetailUpdate(
+          params,
+          this.root_task_card,
+          this.wbsService.project_no
+        );
+      } else if (this.source === Entry.projectChange) {
+        params.change_version = this.wbsService.change_version;
+        res = await this.addSubProjectCardService.taskBaseInfoChangeUpdate(params);
+      } else {
+        let updateParams;
+        if (this.source === Entry.card) {
+          updateParams = {
+            task_info: [params],
+            is_sync_document: this.wbsService.is_sync_document,
+          };
+        } else {
+          updateParams = { task_info: [params] };
+        }
+        res = await this.addSubProjectCardService.taskBaseInfoUpdate(updateParams);
+      }
       this.addSubProjectCardService.recordModified();
-      if (this.addSubProjectCardService.currentCardInfo?.isCollaborationCard) {
+      if (
+        this.addSubProjectCardService.currentCardInfo?.isCollaborationCard &&
+        this.source !== Entry.collaborate
+      ) {
         this.addSubProjectCardService.getServiceOrchestration(params);
       }
       if (this.mistakeMessage(res)) {
@@ -829,10 +1181,12 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
       }
       this.setIsClickSaveButton(false);
       this.addSubProjectCardService.showAddTaskCard = false;
-    }, (err: any): void => {
+    } catch (err) {
       this.cancel();
-      this.messageService.error(err);
-    });
+      if (err) {
+        this.messageService.error(err);
+      }
+    }
   }
 
   /**
@@ -848,18 +1202,21 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
   }
 
   /**
-  * 更改OriginValidateForm
-  * @param params 当前任务卡
-  */
+   * 更改OriginValidateForm
+   * @param params 当前任务卡
+   */
   changeOriginValidateForm(params: any): void {
-    if (this.originValidateForm.task_member_info && this.originValidateForm.task_member_info?.length) {
-      this.originValidateForm.task_member_info =
-        this.originValidateForm.task_member_info.map((number) => {
-          if (number && (typeof number === 'string')) {
+    if (
+      this.originValidateForm.task_member_info &&
+      this.originValidateForm.task_member_info?.length
+    ) {
+      this.originValidateForm.task_member_info = this.originValidateForm.task_member_info.map(
+        (number) => {
+          if (number && typeof number === 'string') {
             if (number.indexOf(':') > 1) {
               const arr = number.split(';');
               const item = {};
-              arr.forEach(v => {
+              arr.forEach((v) => {
                 const temp = v.split(':');
                 item[temp[0]] = temp[1];
               });
@@ -869,7 +1226,7 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
                 task_no: this.originValidateForm.task_no,
                 executor_no: item['id'] ? item['id'] : '',
                 executor_department_no: item['deptId'] ? item['deptId'] : '',
-                executor_role_no: item['roleNo'] ? item['roleNo'] : ''
+                executor_role_no: item['roleNo'] ? item['roleNo'] : '',
               };
             } else {
               const arr = number.split(';');
@@ -878,7 +1235,7 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
                 task_no: this.originValidateForm.task_no,
                 executor_no: arr[1],
                 executor_department_no: arr[0],
-                executor_role_no: arr[2] ? arr[2] : ''
+                executor_role_no: arr[2] ? arr[2] : '',
               };
             }
           } else {
@@ -886,11 +1243,14 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
               project_no: params.project_no,
               task_no: this.originValidateForm.task_no,
               executor_no: number['executor_no'] ? number['executor_no'] : '',
-              executor_department_no: number['executor_department_no'] ? number['executor_department_no'] : '',
-              executor_role_no: number['executor_role_no'] ? number['executor_role_no'] : ''
+              executor_department_no: number['executor_department_no']
+                ? number['executor_department_no']
+                : '',
+              executor_role_no: number['executor_role_no'] ? number['executor_role_no'] : '',
             };
           }
-        });
+        }
+      );
     }
     this.originValidateForm.plan_start_date = moment(
       this.originValidateForm.plan_start_date
@@ -910,20 +1270,28 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
   }
 
   /**
-  * 更新任务流程
-  * @param params 任务卡信息
-  */
+   * 更新任务流程
+   * @param params 任务卡信息
+   */
   updateTaskFlow(params: any): void {
-    if ((this.source === Entry.card) || (this.source === Entry.collaborate)) {
-      this.addSubProjectCardService.bmPiscProjectGet(this.wbsService.project_no).then((projectInfo) => {
-        const status = projectInfo.project_status;
-        this.wbsService.projectInfo.project_status = Number(status) > 10 ? status : this.wbsService.projectInfo.project_status;
-        const isSynTaskCard = this.synchronizeTaskCard(params);
-        const isEditNeedBtn = this.editNeedBtn(params);
-        if (isSynTaskCard || isEditNeedBtn) {
-          this.addSubProjectCardService.updateTaskFlow(params, this.wbsService.modelType, this.wbsService.project_no, this.source);
-        }
-      });
+    if (this.source === Entry.card) {
+      this.addSubProjectCardService
+        .bmPiscProjectGet(this.wbsService.project_no)
+        .then((projectInfo) => {
+          const status = projectInfo.project_status;
+          this.wbsService.projectInfo.project_status =
+            Number(status) > 10 ? status : this.wbsService.projectInfo.project_status;
+          const isSynTaskCard = this.synchronizeTaskCard(params);
+          const isEditNeedBtn = this.editNeedBtn(params);
+          if (isSynTaskCard || isEditNeedBtn) {
+            this.addSubProjectCardService.updateTaskFlow(
+              params,
+              this.wbsService.modelType,
+              this.wbsService.project_no,
+              this.source
+            );
+          }
+        });
     }
   }
 
@@ -939,10 +1307,10 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
   }
 
   /**
-  * 判断wbs卡某些字段是否修改：修改任务卡信息，wbs任务卡同步
-  * @param params
-  * @returns
-  */
+   * 判断wbs卡某些字段是否修改：修改任务卡信息，wbs任务卡同步
+   * @param params
+   * @returns
+   */
   synchronizeTaskCard(params: any) {
     let doc_type_info = params.doc_type_info;
     let item_condition_value = params.item_condition_value;
@@ -958,38 +1326,66 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
       doc_no = params.doc_no ? params.doc_no : '';
       doc_type_no = params.doc_type_no ? params.doc_type_no : '';
       type_condition_value = params.type_condition_value ? params.type_condition_value : '';
-      outsourcing_condition_value = params.outsourcing_condition_value ? params.outsourcing_condition_value : '';
-      sub_type_condition_value = params.sub_type_condition_value ? params.sub_type_condition_value : '';
+      outsourcing_condition_value = params.outsourcing_condition_value
+        ? params.outsourcing_condition_value
+        : '';
+      sub_type_condition_value = params.sub_type_condition_value
+        ? params.sub_type_condition_value
+        : '';
     }
-    if (['ODAR', 'REVIEW'].filter(item => { return item === params.task_category; })) {
+    if (
+      ['ODAR', 'REVIEW'].filter((item) => {
+        return item === params.task_category;
+      })
+    ) {
       doc_type_info = params.doc_type_info ? params.doc_type_info : [{ doc_condition_value: '' }];
       item_condition_value = params.item_condition_value ? params.item_condition_value : '';
       item_operator = params.item_operator ? params.item_operator : '';
-      if (!item_type && (this.originValidateForm.item_type === '1')) {
+      if (!item_type && this.originValidateForm.item_type === '1') {
         item_type = '1';
       }
       item_type_value = params.item_type_value ? params.item_type_value : '';
     }
+    const flag1 = params.task_name !== this.originValidateForm.task_name;
+    const flag2 = this.originValidateForm.TaskMemberInfoChange;
+    const flag3 = params.liable_person_code !== this.originValidateForm.liable_person_code;
+    const flag4 = params.plan_start_date !== this.originValidateForm.plan_start_date;
+    const flag5 = params.plan_finish_date !== this.originValidateForm.plan_finish_date;
+    const flag6 = params.task_category !== this.addSubProjectCardService.taskCategory;
+    const flag7 =
+      JSON.stringify(doc_type_info) !== JSON.stringify(this.originValidateForm.doc_type_info);
+    const flag8 = item_type !== this.originValidateForm.item_type;
+    const flag9 = item_type_value !== this.originValidateForm.item_type_value;
+    const flag10 = params.item_type_name !== this.originValidateForm.item_type_name;
+    const flag11 = item_operator !== this.originValidateForm.item_operator;
+    const flag12 = item_condition_value !== this.originValidateForm.item_condition_value;
+    const flag13 = doc_type_no !== this.originValidateForm.doc_type_no;
+    const flag14 = doc_no !== this.originValidateForm.doc_no;
+    const flag15 = type_condition_value !== this.originValidateForm.type_condition_value;
+    const flag16 = sub_type_condition_value !== this.originValidateForm.sub_type_condition_value;
+    const flag17 =
+      outsourcing_condition_value !== this.originValidateForm.outsourcing_condition_value;
+
+    const flags =
+      flag1 ||
+      flag2 ||
+      flag3 ||
+      flag4 ||
+      flag5 ||
+      flag6 ||
+      flag7 ||
+      flag8 ||
+      flag9 ||
+      flag10 ||
+      flag11 ||
+      flag12 ||
+      flag13 ||
+      flag14 ||
+      flag15 ||
+      flag16 ||
+      flag17;
     if (
-      (params.task_name !== this.originValidateForm.task_name ||
-        this.originValidateForm.TaskMemberInfoChange ||
-        params.liable_person_code !== this.originValidateForm.liable_person_code ||
-        params.plan_start_date !== this.originValidateForm.plan_start_date ||
-        params.plan_finish_date !== this.originValidateForm.plan_finish_date ||
-        params.task_category !== this.addSubProjectCardService.taskCategory ||
-        JSON.stringify(doc_type_info) !==
-        JSON.stringify(this.originValidateForm.doc_type_info) ||
-        item_type !== this.originValidateForm.item_type ||
-        item_type_value !== this.originValidateForm.item_type_value ||
-        params.item_type_name !== this.originValidateForm.item_type_name ||
-        item_operator !== this.originValidateForm.item_operator ||
-        item_condition_value !== this.originValidateForm.item_condition_value ||
-        doc_type_no !== this.originValidateForm.doc_type_no ||
-        doc_no !== this.originValidateForm.doc_no ||
-        type_condition_value !== this.originValidateForm.type_condition_value ||
-        sub_type_condition_value !== this.originValidateForm.sub_type_condition_value ||
-        outsourcing_condition_value !==
-        this.originValidateForm.outsourcing_condition_value) &&
+      flags &&
       (this.wbsService.projectInfo?.project_status === '30' ||
         this.wbsService.projectInfo?.project_status === '50')
     ) {
@@ -1000,9 +1396,9 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
   }
 
   /**
-  * 任务比重校验
-  * @param params
-  */
+   * 任务比重校验
+   * @param params
+   */
   taskProportionCheck(): void {
     this.wbsService.$checkProportion.next(true);
   }
@@ -1016,32 +1412,36 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
    */
   taskDependencyCheck(params: any, temp_doc_condition_value: any): void {
     const taskProperty = this.source === Entry.maintain ? '2' : '1';
-    this.addSubProjectCardService.taskDependencyCheck(params, taskProperty).then((res) => {
-      // 经讨论, check是从依赖表做检核的但点确定才会写入依赖表, 无法先做到检核后再确认
-      // 确定后, 调取依赖关系检查所配关系是否可用
-      params.liable_person_name = liablePersonName(this.originPersonList, params);
-      params.doc_condition_value = temp_doc_condition_value;
-      this.validateForm.reset();
-      this.parentTaskSerialNumList = [];
-      this.preTaskNumList = [];
-      this.addSubProjectCardService.isShowAutoSchedule = false;
-    }, (err) => {
-      this.messageService.error(err);
-    });
+    this.addSubProjectCardService.taskDependencyCheck(params, taskProperty).then(
+      (res) => {
+        // 经讨论, check是从依赖表做检核的但点确定才会写入依赖表, 无法先做到检核后再确认
+        // 确定后, 调取依赖关系检查所配关系是否可用
+        params.liable_person_name = liablePersonName(this.originPersonList, params);
+        params.doc_condition_value = temp_doc_condition_value;
+        // 新建一级计划，打开子项开窗，任务比重栏位，默认赋值
+        this.validateForm.reset({ task_proportion: 100, workload_qty: null, workload_unit: '2' });
+        this.parentTaskSerialNumList = [];
+        this.preTaskNumList = [];
+        this.addSubProjectCardService.isShowAutoSchedule = false; // 控制【自动排期】按钮，是否显示
+      },
+      (err) => {
+        this.messageService.error(err);
+      }
+    );
   }
 
   /**
-  * 更新wbs界面任务卡列表
-  * @param params true ｜ taskInfo
-  */
+   * 更新wbs界面任务卡列表
+   * @param params true ｜ taskInfo
+   */
   updateWbsTasks(params): void {
     this.wbsService.pageChange.next(params);
   }
 
   /**
-  * 处理任务卡的上阶任务
-  * @param params 任务卡信息
-  */
+   * 处理任务卡的上阶任务
+   * @param params 任务卡信息
+   */
   handleUpperLevelTask(params: any): void {
     params.upper_level_task_status = '10';
     if (params.upper_level_task_no) {
@@ -1056,14 +1456,18 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
   }
 
   /**
-  * 获取上阶任务状态
-  * @param data
-  * @param upper_level_task_no
-  */
+   * 获取上阶任务状态
+   * @param data
+   * @param upper_level_task_no
+   */
   getUpperLevelStatus(data, upper_level_task_no) {
     for (const i in data) {
       if (data[i].task_no === upper_level_task_no) {
-        this.upper_level_task_status = String(data[i].task_status);
+        if (this.source === Entry.collaborate) {
+          this.upper_level_task_status = data[i].old_task_status;
+        } else {
+          this.upper_level_task_status = String(data[i].task_status);
+        }
       } else {
         if (data[i].children?.length) {
           this.getUpperLevelStatus(data[i].children, upper_level_task_no);
@@ -1073,32 +1477,80 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
   }
 
   /**
-  * 创建任务卡
-  * @param params 任务卡信息
-  * @param temp_doc_condition_value 单别条件值
-  */
-  taskInfoCreate(params: any, temp_doc_condition_value: string): void {
-    this.addSubProjectCardService.taskInfoCreate(params).then((taskInfo) => {
+   * 创建任务卡
+   * @param params 任务卡信息
+   * @param temp_doc_condition_value 单别条件值
+   */
+  async taskInfoCreate(params: any, temp_doc_condition_value: string): Promise<void> {
+    let taskInfo;
+    let upperTaskInfo;
+    try {
+      if (this.source === Entry.collaborate) {
+        taskInfo = await this.addSubProjectCardService.taskInfoCreateForCollaborate(
+          params,
+          this.root_task_card,
+          this.wbsService.project_no
+        );
+      } else if (this.source === Entry.projectChange) {
+        params.change_version = this.wbsService.change_version;
+        const root = this.wbsService.getParentTree(params.upper_level_task_no);
+        if (root) {
+          params.root_task_no = root.task_no;
+        }
+        taskInfo = await this.addSubProjectCardService.taskInfoChangeCreate(params);
+      } else {
+        let createParams;
+        if (this.source === Entry.card) {
+          const paramsGet = {
+            project_info: [
+              {
+                control_mode: '1',
+                task_property: '1',
+                project_no: this.wbsService.project_no,
+                task_no: params?.upper_level_task_no,
+              },
+            ],
+          };
+          upperTaskInfo = await this.commonService
+            .getInvData('task.info.get', paramsGet)
+            .toPromise();
+          createParams = {
+            task_info: [params],
+            is_sync_document: this.wbsService.is_sync_document,
+          };
+        } else {
+          createParams = { task_info: [params] };
+        }
+        taskInfo = await this.addSubProjectCardService.taskInfoCreate(createParams);
+      }
       this.setIsClickSaveButton(false);
       if (taskInfo?.project_no_mistake_message) {
         this.messageService.error(taskInfo.project_no_mistake_message);
         return;
       }
-      // upper_level_task_no 上阶任务编号
-      if (taskInfo?.upper_level_task_no && ((this.source === Entry.card) || (this.source === Entry.collaborate))) {
+      if (
+        taskInfo?.upper_level_task_no &&
+        this.source === Entry.card &&
+        upperTaskInfo &&
+        upperTaskInfo.data?.project_info[0]?.is_issue_task_card
+      ) {
         this.addOrDeleteTaskFlow(taskInfo?.upper_level_task_no);
       }
       this.taskDependencyCheck(params, temp_doc_condition_value);
       this.updateWbsTasks('true');
       this.taskProportionCheck();
+      this.addSubProjectCardService.showAddTaskCard = false;
+      this.cancel();
       this.changeRef.markForCheck();
-    });
+    } catch (err) {
+      this.cancel();
+    }
   }
 
   /**
-  * 添加或删除任务流程
-  * @param taskInfo
-  */
+   * 添加或删除任务流程
+   * @param upper_level_task_no
+   */
   addOrDeleteTaskFlow(upper_level_task_no: string): void {
     this.addSubProjectCardService.addOrDeleteTaskFlow(
       this.wbsService.project_no,
@@ -1109,14 +1561,21 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
   }
 
   /**
-  * 确认录入变更原因
-  * @param value 变更原因
-  */
+   * 确认录入变更原因
+   * @param value 变更原因
+   */
   changeReasonOk(value): void {
-    this.handelData({ value: value, status: true });
+    let changeReason = null;
+    let changeReasonUploadFile = null;
+    if (Object.keys(value).length > 1 && Object.keys(value).includes('fileList')) {
+      changeReason = { value: value.changeReason, status: true };
+      changeReasonUploadFile = value.fileList && value.fileList.length ? value.fileList[0] : {};
+    } else {
+      changeReason = { value: value, status: true };
+    }
+    this.handelData(changeReason, changeReasonUploadFile);
   }
   /**  *************************提交任务卡操作*********************** */
-
 
   /**  *************************回调操作*********************** */
   /**
@@ -1125,14 +1584,19 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
    */
   callDifficultyLevelForm(data: FormGroup) {
     this.difficultyLevelForm = data;
-    const { difficulty_level_name, difficulty_level_no, difficulty_coefficient } = data.value.difficultyLevelObj ?? {};
-    this.validateForm.patchValue({ difficulty_level_name, difficulty_level_no, difficulty_coefficient, });
+    const { difficulty_level_name, difficulty_level_no, difficulty_coefficient } =
+      JSON.parse(data.value.difficultyLevelObj) ?? {};
+    this.validateForm.patchValue({
+      difficulty_level_name,
+      difficulty_level_no,
+      difficulty_coefficient,
+    });
   }
 
   /**
-  * 删除任务模板地方的回调
-  * @param e
-  */
+   * 删除任务模板地方的回调
+   * @param e
+   */
   callDeleteTaskTemplate(e: any): void {
     if (e) {
       e.stopPropagation();
@@ -1158,13 +1622,16 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
       }
       if (this.addSubProjectCardService.validateForm.value.task_member_info) {
         // 删除模板校验执行人
-        this.chilLliablePerson.personChanges(this.addSubProjectCardService.validateForm.value.task_member_info);
+        this.chilLliablePerson.personChanges(
+          this.addSubProjectCardService.validateForm.value.task_member_info
+        );
       }
     } else {
       this.chilLliablePersonRole.taskCategoryType = '';
       // 是否禁用执行人
       this.chilLliablePersonRole.disableExecutorInput(this.taskCategoryType);
-      this.liable_person_code_data = this.chilLliablePersonRole.liable_person_code_data;
+      this.liable_person_code_data =
+        this.chilLliablePersonRole.validateForm.value.liable_person_code_data;
       this.chilLliablePersonRole.taskTemplateInfo = { task_category: 'ORD' };
       if (this.liable_person_code_data) {
         // 删除任务时模板需要校验责任人
@@ -1172,7 +1639,9 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
       }
       if (this.addSubProjectCardService.validateForm.value.task_member_info) {
         // 删除模板校验执行人
-        this.chilLliablePersonRole.personChanges(this.addSubProjectCardService.validateForm.value.task_member_info);
+        this.chilLliablePersonRole.personChanges(
+          this.addSubProjectCardService.validateForm.value.task_member_info
+        );
       }
     }
 
@@ -1189,6 +1658,7 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
   }
 
   /**
+   * 任务类型开窗， 返回信息
    * 选择任务模板开窗回调：切换了任务模板后，任务类型也会跟着变化，需要重新对弹窗逻辑进行初始化
    * @returns
    */
@@ -1196,21 +1666,35 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
     /** 当前选择的模板 */
     this.validateForm.get('is_need_doc_no').patchValue(false);
     this.childMoreControl.setDocTypeInfoList(selectOption);
+    this.childMoreControl.setDocTypeNoList(selectOption);
     this.childMoreControl.setItemType(selectOption);
     this.taskTemplateInfo = selectOption;
     this.taskTemplateInfo.changeTemplateInfo = true;
     this.patchFormValue(this.taskTemplateInfo);
+    if (['PRSUM', 'POSUM', 'MOOP'].includes(selectOption.task_category)) {
+      this.addSubProjectCardService.validateForm
+        .get('is_need_doc_no')
+        .patchValue(selectOption.is_need_doc_no);
+      this.addSubProjectCardService.validateForm.get('is_need_doc_no').enable();
+    }
     this.childMoreControl.resetBRegionValue(selectOption.task_category); // 特定的任务类型时候需要清空
     this.setMoreControlValues(selectOption.task_category); // MO_H
     this.setMoreControlValueOfSft();
     this.taskCategoryForApc(selectOption.task_category); // APC / APC_O.APC
     this.taskCategoryForMOMA(selectOption.task_category); // MOMA
     this.taskCategoryForPO_KEY(selectOption.task_category); // PO_KEY
+    this.taskCategoryForPO_NOT_KEY(selectOption.task_category); // PO_NOT_KEY
     this.addSubProjectCardService.taskTemplateName = selectOption.parameter_name;
     this.addSubProjectCardService.taskTemplateNo = selectOption.parameter_no;
-    this.addSubProjectCardService.eocCompanyId = selectOption.eoc_company_id ? { id: selectOption.eoc_company_id } : '—';
-    this.addSubProjectCardService.eocSiteId = selectOption.eoc_site_id ? { id: selectOption.eoc_site_id } : '—';
-    this.addSubProjectCardService.eocRegionId = selectOption.eoc_region_id ? { id: selectOption.eoc_region_id } : '—';
+    this.addSubProjectCardService.eocCompanyId = selectOption.eoc_company_id
+      ? { id: selectOption.eoc_company_id }
+      : '—';
+    this.addSubProjectCardService.eocSiteId = selectOption.eoc_site_id
+      ? { id: selectOption.eoc_site_id }
+      : '—';
+    this.addSubProjectCardService.eocRegionId = selectOption.eoc_region_id
+      ? { id: selectOption.eoc_region_id }
+      : '—';
     this.taskCategoryType = selectOption.task_category;
     if (this.source === Entry.maintain) {
       this.chilLliablePerson.taskCategoryType = selectOption.task_category;
@@ -1223,67 +1707,76 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
       if (!this.validateForm.get('liable_person_code').value) {
         this.getPaymentOpenDefine(selectOption.eoc_company_id || '');
       }
-      if (this.source === Entry.maintain) {
-        // 负责人回显并检查授权
-        this.personList.forEach(({ list = [] }) => {
-          list.forEach((c) => {
-            if (c.id === salesCode) {
-              this.liable_person_code_data = c;
-              this.validateForm.get('liable_person_code').patchValue(salesCode);
-              this.commonService.getInvData('auth.employee.info.check', {
-                employee_info: [{ employee_no: c.id, employee_name: c.name }],
-              })
-                .subscribe(({ data }: any) => {
-                  const { employee_info } = data;
-                  if (employee_info.length) {
-                    this.liable_person_code_data = '';
-                    this.validateForm.get('liable_person_code').patchValue('');
-                  }
-                  this.changeRef.markForCheck();
-                });
-            }
-          });
-        });
-      } else {
-        this.personList.forEach(person => {
-          person.children?.forEach((child) => {
-            child.children.forEach(c => {
-              if (c.id === salesCode) {
-                this.liable_person_code_data = c;
-                this.validateForm.get('liable_person_code').patchValue(salesCode);
-                this.commonService.getInvData('auth.employee.info.check', {
-                  employee_info: [{ employee_no: c.id, employee_name: c.name }],
-                })
-                  .subscribe(({ data }: any) => {
-                    const { employee_info } = data;
-                    if (employee_info.length) {
-                      this.liable_person_code_data = '';
-                      this.validateForm.get('liable_person_code').patchValue('');
-                    }
-                    this.changeRef.markForCheck();
-                  });
-              }
-            });
-          });
-          if (!person.children || !person.children.length) {
-            if (person.id === salesCode) {
-              this.liable_person_code_data = person;
-              this.validateForm.get('liable_person_code').patchValue(salesCode);
-              this.commonService.getInvData('auth.employee.info.check', {
-                employee_info: [{ employee_no: person.id, employee_name: person.name }],
-              })
-                .subscribe(({ data }: any) => {
-                  const { employee_info } = data;
-                  if (employee_info.length) {
-                    this.liable_person_code_data = '';
-                    this.validateForm.get('liable_person_code').patchValue('');
-                  }
-                  this.changeRef.markForCheck();
-                });
-            }
-          }
-        });
-      }
+      // ------------------因为[业务员]信息，缺少部门信息，无法与组件已有人员匹配，此功能暂时不开放等待SA反馈--------------
+      // 当负责人不存在，且业务员存在的时候，将业务员信息，赋值到负责人
+      // if (salesCode && !this.validateForm.get('liable_person_code_data').value) {
+      //   if (this.source === Entry.maintain) {
+      //     // 负责人回显并检查授权
+      //     this.personList.forEach(({ list = [] }) => {
+      //       list.forEach((c) => {
+      //         if (c.id === salesCode) {
+      //           this.liable_person_code_data = c;
+      //           this.validateForm.get('liable_person_code').patchValue(salesCode);
+      //           this.commonService.getInvData('auth.employee.info.check', {
+      //             employee_info: [{ employee_no: c.id, employee_name: c.name }],
+      //           })
+      //             .subscribe(({ data }: any) => {
+      //               const { employee_info } = data;
+      //               if (employee_info.length) {
+      //                 this.liable_person_code_data = '';
+      //                 this.validateForm.get('liable_person_code').patchValue('');
+      //               }
+      //               this.changeRef.markForCheck();
+      //             });
+      //         }
+      //       });
+      //     });
+      //   } else {
+      //     this.personList.forEach(person => {
+      //       person.children?.forEach((child) => {
+      //         child.children.forEach(c => {
+      //           if (c.id === salesCode) {
+      //             this.liable_person_code_data = c;
+      //             // this.validateForm.get('liable_person_code').patchValue(salesCode);
+      //             this.validateForm.get('liable_person_code_data').patchValue(c.key);
+      //             this.commonService.getInvData('auth.employee.info.check', {
+      //               employee_info: [{ employee_no: c.id, employee_name: c.name }],
+      //             })
+      //               .subscribe(({ data }: any) => {
+      //                 const { employee_info } = data;
+      //                 if (employee_info.length) {
+      //                   this.liable_person_code_data = '';
+      //                   // this.validateForm.get('liable_person_code').patchValue('');
+      //                   this.validateForm.get('liable_person_code_data').patchValue(null);
+      //                 }
+      //                 this.changeRef.markForCheck();
+      //               });
+      //           }
+      //         });
+      //       });
+      //       if (!person.children || !person.children.length) {
+      //         if (person.id === salesCode) {
+      //           this.liable_person_code_data = person;
+      //           // this.validateForm.get('liable_person_code').patchValue(salesCode);
+      //           this.validateForm.get('liable_person_code_data').patchValue(person.key);
+      //           this.commonService.getInvData('auth.employee.info.check', {
+      //             employee_info: [{ employee_no: person.id, employee_name: person.name }],
+      //           })
+      //             .subscribe(({ data }: any) => {
+      //               const { employee_info } = data;
+      //               if (employee_info.length) {
+      //                 this.liable_person_code_data = '';
+      //                 // this.validateForm.get('liable_person_code').patchValue('');
+      //                 this.validateForm.get('liable_person_code_data').patchValue(null);
+      //               }
+      //               this.changeRef.markForCheck();
+      //             });
+      //         }
+      //       }
+      //     });
+      //   }
+      // }
+      // ------------------因为[业务员]信息，缺少部门信息，无法与组件已有人员匹配，此功能暂时不开放等待SA反馈--------------
     }
     if (this.source === Entry.maintain) {
       this.chilLliablePerson.checkLiablePersonCodeData(selectOption.task_category);
@@ -1292,10 +1785,17 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
       this.chilLliablePersonRole.checkLiablePersonCodeData(selectOption.task_category);
       this.chilLliablePersonRole.checkeExecutor(selectOption.task_category);
     }
-
-    this.validateForm.get('task_member_info').enable();
+    // 修复14个月前的历史bug，切换任务类型时，执行人栏位不能直接启用
+    // this.validateForm.get('task_member_info').enable();
+    // [需要签核]管控
+    if (['PLM', 'PLM_PROJECT', 'ASSC_ISA_ORDER', 'PCM', 'PO_NOT_KEY'].includes(this.taskCategoryType)) {
+      this.validateForm.get('is_approve').patchValue(false);
+      this.validateForm.get('is_approve').disable();
+    } else {
+      this.validateForm.get('is_approve').enable();
+    }
     // 取消负责人和执行人的校验
-    if (['PLM', 'PLM_PROJECT'].includes(this.taskCategoryType)) {
+    if (['PLM', 'PLM_PROJECT', 'ASSC_ISA_ORDER'].includes(this.taskCategoryType)) {
       this.executor.employee_info = [];
       this.executor.error_msg = '';
       setTimeout(() => {
@@ -1315,7 +1815,12 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
         this.validateForm.get(key).patchValue('0');
       });
       /** 预计值（主单位） 预计值（次单位） 标准工时 标准天数 */
-      ['plan_main_unit_value', 'plan_second_unit_value', 'standard_work_hours', 'standard_days'].forEach((key) => {
+      [
+        'plan_main_unit_value',
+        'plan_second_unit_value',
+        'standard_work_hours',
+        'standard_days',
+      ].forEach((key) => {
         this.validateForm.get(key).disable();
         this.validateForm.get(key).patchValue(null);
       });
@@ -1323,11 +1828,10 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
     this.changeRef.markForCheck();
   }
 
-
   /**
-  * 选择任务模板开窗回调
-  * @returns
-  */
+   * 选择任务模板开窗回调
+   * @returns
+   */
   callCoosePaymentStage(selectOption): void {
     this.addSubProjectCardService.arStageNo = selectOption.instalment_stage; // 款项阶段编号
     this.addSubProjectCardService.arStageName = selectOption.instalment_stage_name; // 款项阶段名称
@@ -1335,13 +1839,13 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
   }
 
   /**
- * 任务分类组件值变化后回调
- * @param data
- */
+   * 任务分类组件值变化后回调
+   * @param data
+   */
   callTaskClassificationForm(data: FormGroup) {
     this.taskClassificationForm = data;
     const { task_classification_no, task_classification_name } =
-      data.value.classificationType ?? {};
+      JSON.parse(data.value.classificationType) ?? {};
     this.validateForm.patchValue({
       task_classification_no,
       task_classification_name,
@@ -1354,9 +1858,9 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
   }
 
   /**
- * 子组件回调设置父组件的变量
- * @param data 需要设置的数据
- */
+   * 子组件回调设置父组件的变量
+   * @param data 需要设置的数据
+   */
   callSetData(data: { [key: string]: any }) {
     for (const key in data) {
       if (Object.prototype.hasOwnProperty.call(data, key)) {
@@ -1378,24 +1882,30 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
    */
   callChangeMaskData(event) {
     if (this.source === Entry.maintain) {
-      this.wbsService.peopleObject = this.liablePersonService.changeMaskData(event.task_member_infoList, event.personList);
+      this.wbsService.peopleObject = this.liablePersonService.changeMaskData(
+        event.task_member_infoList,
+        event.personList
+      );
     } else {
-      this.wbsService.peopleObject = this.liablePersonAddRoleService.changeMaskData(event.task_member_infoList, event.personList);
+      this.wbsService.peopleObject = this.liablePersonAddRoleService.changeMaskData(
+        event.task_member_infoList,
+        event.personList
+      );
     }
   }
 
   /**
- * more-control组件：公司修改回调
- */
+   * more-control组件：公司修改回调
+   */
   callMoreControlOnEocChange(event): void {
     this.getOpenWindowDefine('1');
   }
 
   /**
- * app-card-header回调
- * @param event
- * @returns
- */
+   * app-card-header回调
+   * @param event
+   * @returns
+   */
   callChangStatus(event: any): void {
     if (event.type === 'loading') {
       this.setLoadingStatus(event);
@@ -1412,25 +1922,25 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
   }
 
   /**
- * 设置当前弹窗是否是加载中
- * @param event
- */
+   * 设置当前弹窗是否是加载中
+   * @param event
+   */
   setLoadingStatus(event: any): void {
     this.loading = event.value;
   }
 
   /**
- * 设置任务类型工单工时下单别、单号、类型条件值、次类型条件值是否唯一
- * @param event
- */
+   * 设置任务类型工单工时下单别、单号、类型条件值、次类型条件值是否唯一
+   * @param event
+   */
   setValueNotUnique(event: any): void {
     this.valueNotUnique = event.value;
   }
 
   /**
- * 取消使用任务模版
- * @param event
- */
+   * 取消使用任务模版
+   * @param event
+   */
   cancleUseTemplate(event: any): void {
     this.preTaskNumList = [];
     this.parentTaskSerialNumList = [];
@@ -1439,11 +1949,10 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
 
   /**  ************************* 回调操作 *********************** */
 
-
   /**  ************************* 页面或ts中调用的的方法 *********************** */
   /**
-  * 重置taskDependencyInfoList
-  */
+   * 重置taskDependencyInfoList
+   */
   resetTaskDependencyInfoList(): void {
     this.taskDependencyInfoList?.forEach((item: any) => {
       item.before_task_no = item.default_before_task_no;
@@ -1451,18 +1960,18 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
   }
 
   /**
-  * 上传文件
-  * @param data
-  */
+   * 上传文件
+   * @param data
+   */
   getAttachmentDataForm(data: any) {
     this.attachmentData = data;
   }
 
   /**
-  * 设置表单值
-  * @param target
-  * @param key
-  */
+   * 设置表单值
+   * @param target
+   * @param key
+   */
   setValidatorsManual(target: any, key: string): void {
     target.controls[key].setValidators([Validators.required]);
   }
@@ -1476,19 +1985,25 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
     target.controls[key]?.clearValidators();
   }
   /**
-  * 【更多】内容的组件管控：设置更多选项中控件的值或者禁用状态
-  * @param taskCategory 任务
-  * @returns 组件管控
-  */
+   * 【更多】内容的组件管控：设置更多选项中控件的值或者禁用状态
+   * @param taskCategory 任务
+   * @returns 组件管控
+   */
   patchFormValue(taskCategory: any): void {
-    const taskCategoryList = ['ODAR', 'REVIEW', 'PLM', 'MES', 'PLM_PROJECT'];
+    const taskCategoryList = ['ODAR', 'REVIEW', 'PLM', 'MES', 'PLM_PROJECT', 'ASSC_ISA_ORDER'];
     if (taskCategoryList.includes(taskCategory.task_category)) {
       return;
     }
-    taskCategory.doc_type_info = taskCategory.doc_condition_value.split(',');
+    // taskCategory.doc_type_info = taskCategory.doc_condition_value.split(',');
+    // s12 任务模板参数的单别条件值改成选择多个，新增了对象数组字段doc_condition_value_info
+    taskCategory.doc_type_info = taskCategory.doc_condition_value_info.map((value) => {
+      return value.doc_condition_value1;
+    });
     CONTROL_ITEM_LIST4.forEach((key: any): void => {
       if (key === 'doc_type_info') {
-        this.validateForm.get(key).setValue(taskCategory[key] ? taskCategory[key] : [{ doc_condition_value: '' }]);
+        this.validateForm
+          .get(key)
+          .setValue(taskCategory[key] ? taskCategory[key] : [{ doc_condition_value: '' }]);
       } else {
         this.validateForm.get(key).setValue(taskCategory[key] ? taskCategory[key] : '');
       }
@@ -1498,9 +2013,13 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
 
   /**
    * 根据不同任务类型设置更多选项控件值的禁用状态、默认值等
+   * 单别、单号、序号，等置灰管控
    * @param taskCategory 任务类型
    */
   setMoreControlValues(taskCategory: string): any {
+    if (this.addSubProjectCardService.isPreview) {
+      return false;
+    }
     if (taskCategory === 'MO_H') {
       this.validateForm.get('doc_type_info').patchValue([{ doc_condition_value: '' }]);
       this.validateForm.get('doc_type_info').disable();
@@ -1519,11 +2038,31 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
       }
       CONTROL_ITEM_LIST2.forEach((key: string): void => {
         const { task_category } = this.taskTemplateInfo ?? '';
-        if (['MOOP', 'SFT', 'APC', 'APC_O', 'PLM', 'PLM_PROJECT', 'REVIEW'].includes(taskCategory)) {
+        if (
+          [
+            'MOOP',
+            'SFT',
+            'APC',
+            'APC_O',
+            'PLM',
+            'PLM_PROJECT',
+            'ASSC_ISA_ORDER',
+            'REVIEW',
+            'PCM',
+          ].includes(taskCategory)
+        ) {
           return;
         }
-        if (!(CONTROL_ITEM_LIST3.includes(key) && (task_category === 'PRSUM' || task_category === 'POSUM'))) {
-          if (['doc_type_no', 'doc_no'].includes(key) && ['MOOP', 'SFT', 'APC', 'APC_O'].includes(taskCategory)) {
+        if (
+          !(
+            CONTROL_ITEM_LIST3.includes(key) &&
+            (task_category === 'PRSUM' || task_category === 'POSUM')
+          )
+        ) {
+          if (
+            ['doc_type_no', 'doc_no'].includes(key) &&
+            ['MOOP', 'SFT', 'APC', 'APC_O'].includes(taskCategory)
+          ) {
             this.validateForm.get(key).enable();
           } else {
             if (!TASK_CATEGORY_LIST2.includes(taskCategory)) {
@@ -1532,7 +2071,10 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
             }
             // 【类型条件值】和【次类型条件值】可编辑
             this.validateForm.get(key).enable();
-            if (TASK_CATEGORY_LIST2.includes(taskCategory) && !['type_condition_value', 'sub_type_condition_value'].includes(key)) {
+            if (
+              TASK_CATEGORY_LIST2.includes(taskCategory) &&
+              !['type_condition_value', 'sub_type_condition_value'].includes(key)
+            ) {
               this.validateForm.get(key).patchValue(null);
               this.validateForm.get(key).disable();
             }
@@ -1549,14 +2091,30 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
         this.validateForm.get('doc_type_no').enable();
         this.validateForm.get('doc_no').enable();
       } else {
-        this.validateForm.get('doc_no').patchValue(null);
+        this.validateForm.get('doc_no').patchValue('');
         this.validateForm.get('doc_no').disable();
-        this.validateForm.get('doc_type_no').patchValue(null);
+        this.validateForm.get('doc_type_no').patchValue('');
         this.validateForm.get('doc_type_no').disable();
       }
     }
-    if (!['PRSUM', 'POSUM', 'MOOP', 'MOOP', 'APC', 'APC_O'].includes(this.taskTemplateInfo?.task_category)) {
-      this.validateForm.get('is_need_doc_no').patchValue(false);
+    if (
+      !['PRSUM', 'POSUM', 'MOOP', 'MOOP', 'APC', 'APC_O'].includes(
+        this.taskTemplateInfo?.task_category
+      )
+    ) {
+      let is_need_doc_no = false;
+      if (
+        this.addSubProjectCardService.currentCardInfo?.task_no &&
+        !Object.keys(this.taskTemplateInfo).find((item) => item === 'is_need_doc_no')
+      ) {
+        is_need_doc_no = this.addSubProjectCardService.currentCardInfo?.is_need_doc_no;
+      } else if (
+        this.taskTemplateInfo &&
+        Object.keys(this.taskTemplateInfo).find((item) => item === 'is_need_doc_no')
+      ) {
+        is_need_doc_no = this.taskTemplateInfo.is_need_doc_no;
+      }
+      this.validateForm.get('is_need_doc_no').patchValue(is_need_doc_no);
     }
     this.validateForm.get('seq').disable();
     const { is_need_doc_no } = this.validateForm.getRawValue();
@@ -1564,7 +2122,7 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
       if (is_need_doc_no) {
         this.validateForm.get('seq').enable();
       } else {
-        this.validateForm.get('seq').patchValue(null);
+        this.validateForm.get('seq').patchValue('');
       }
     }
     if (['PRSUM', 'POSUM', 'MOOP'].includes(this.taskTemplateInfo?.task_category)) {
@@ -1575,12 +2133,13 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
         });
       } else {
         list.forEach((key) => {
-          this.validateForm.get(key).patchValue(null);
+          this.validateForm.get(key).patchValue('');
           this.validateForm.get(key).disable();
         });
       }
     }
-    if (taskCategory === 'PLM_PROJECT') {
+    // 切换任务类型时，以下任务类型清除执行人
+    if (['PLM_PROJECT', 'ASSC_ISA_ORDER', 'PCM'].includes(taskCategory)) {
       this.validateForm.get('task_member_info').patchValue([]);
     }
     if (taskCategory === 'ODAR') {
@@ -1593,15 +2152,17 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
   }
 
   /**
- * [S 3.0]
- * 1) APC.装配进度控制
- * 2) APC_O.APC单一制程
- * @param taskCategory APC / APC_O.APC
- */
+   * [S 3.0]
+   * 1) APC.装配进度控制
+   * 2) APC_O.APC单一制程
+   * @param taskCategory APC / APC_O.APC
+   */
   taskCategoryForApc(taskCategory: string): any {
     // [S 3.0]APC.装配进度控制，【需要单别及单号】默认true且只读
     // [S 3.0]APC_O.APC单一制程，【需要单别及单号及序号】默认true且只读
-    if (!taskCategory || !['APC', 'APC_O'].includes(taskCategory)) { return; }
+    if (!taskCategory || !['APC', 'APC_O'].includes(taskCategory)) {
+      return;
+    }
     const displayList = [
       'item_type', // 品号类别/群组
       'item_type_value', // 品号类别条件值
@@ -1611,39 +2172,70 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
       'sub_type_condition_value', // 次类型条件值
       'outsourcing_condition_value', // 托外条件值
     ];
+    let is_need_doc_no = false;
+    if (
+      this.addSubProjectCardService.currentCardInfo?.task_no &&
+      !Object.keys(this.taskTemplateInfo).find((item) => item === 'is_need_doc_no')
+    ) {
+      is_need_doc_no = this.addSubProjectCardService.currentCardInfo?.is_need_doc_no;
+    } else if (
+      this.taskTemplateInfo &&
+      Object.keys(this.taskTemplateInfo).find((item) => item === 'is_need_doc_no')
+    ) {
+      is_need_doc_no = this.taskTemplateInfo.is_need_doc_no;
+    }
     // is_need_doc_no：[需要单别及单号] 或 [需要单别及单号及序号]
-    this.addSubProjectCardService.validateForm.get('is_need_doc_no').patchValue(true);
+    this.addSubProjectCardService.validateForm.get('is_need_doc_no').patchValue(is_need_doc_no);
     this.addSubProjectCardService.validateForm.get('is_need_doc_no').disable();
     // 'doc_type_info' 单别条件值
-    this.addSubProjectCardService.validateForm.get('doc_type_info').patchValue([{ doc_condition_value: '' }]);
+    this.addSubProjectCardService.validateForm
+      .get('doc_type_info')
+      .patchValue([{ doc_condition_value: '' }]);
     this.addSubProjectCardService.validateForm.get('doc_type_info').disable();
-    displayList.forEach(element => {
+    displayList.forEach((element) => {
       this.addSubProjectCardService.validateForm.get(element).patchValue('');
       this.addSubProjectCardService.validateForm.get(element).disable();
     });
-    ['doc_type_no', 'doc_no'].forEach(element => {
-      this.addSubProjectCardService.validateForm.get(element).enable();
+    ['doc_type_no', 'doc_no'].forEach((element) => {
+      if (!this.addSubProjectCardService.isPreview) {
+        this.addSubProjectCardService.validateForm.get(element).enable();
+      }
     });
     if (taskCategory === 'APC_O') {
-      this.addSubProjectCardService.validateForm.get('seq').enable();
+      if (!this.addSubProjectCardService.isPreview) {
+        this.addSubProjectCardService.validateForm.get('seq').enable();
+      }
     }
   }
 
   /**
    * [S 3.3] MOMA
    * @param taskCategory MOMA
-  */
+   */
   taskCategoryForMOMA(taskCategory: string): any {
-    if (!taskCategory || (taskCategory !== 'MOMA')) { return; }
+    if (!taskCategory || taskCategory !== 'MOMA') {
+      return;
+    }
     this.withTaskCategoryControlForMore();
   }
 
   /**
-   * [S 3.3] MOMA
-   * @param taskCategory MOMA
-  */
+   * @param taskCategory PO_KEY
+   */
   taskCategoryForPO_KEY(taskCategory: string): any {
-    if (!taskCategory || (taskCategory !== 'PO_KEY')) { return; }
+    if (!taskCategory || taskCategory !== 'PO_KEY') {
+      return;
+    }
+    this.withTaskCategoryControlForMore();
+  }
+
+  /**
+   * @param taskCategory PO_NOT_KEY
+   */
+  taskCategoryForPO_NOT_KEY(taskCategory: string): any {
+    if (!taskCategory || taskCategory !== 'PO_NOT_KEY') {
+      return;
+    }
     this.withTaskCategoryControlForMore();
   }
 
@@ -1651,22 +2243,24 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
     // 收合区【更多】内：
     // 可编辑：公司编号、单别条件值、品号类别/群组、品号类别条件值、料号运算符、料号条件值、类型条件值、次类型条件值
     // 不可编辑：单别、单号、序号、托外条件值
-    displayList = displayList ? displayList : [
-      'doc_type_no', // 单别
-      'doc_no', // 单号
-      'seq', // 序号
-      'outsourcing_condition_value', // 托外条件值
-    ];
-    displayList.forEach(element => {
+    displayList = displayList
+      ? displayList
+      : [
+        'doc_type_no', // 单别
+        'doc_no', // 单号
+        'seq', // 序号
+        'outsourcing_condition_value', // 托外条件值
+      ];
+    displayList.forEach((element) => {
       this.addSubProjectCardService.validateForm.get(element).patchValue(null);
       this.addSubProjectCardService.validateForm.get(element).disable();
     });
   }
 
   /**
- * 动态设置弹窗样式
- * @returns
- */
+   * 动态设置弹窗样式
+   * @returns
+   */
   getMaskPosition(): any {
     return {
       top: `${this.maskPosition.top}px`,
@@ -1677,17 +2271,17 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
   }
 
   /**
- * html 中文字翻译
- * @param val
- */
+   * html 中文字翻译
+   * @param val
+   */
   translateWord(val: string): String {
     return this.translateService.instant(`dj-default-${val}`);
   }
 
   /**
-* html 中文字翻译
-* @param val
-*/
+   * html 中文字翻译
+   * @param val
+   */
   translateWordPcc(val: string): String {
     return this.translateService.instant(`dj-pcc-${val}`);
   }
@@ -1698,7 +2292,7 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
     }
   }
 
-  displayWith = (node: NzTreeNode) => node.title
+  displayWith = (node: NzTreeNode) => node.title;
 
   mousemove(ev: MouseEvent, type: string): void {
     if (this.mDown) {
@@ -1728,7 +2322,9 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
 
   changeHeight(): void {
     const activeobj = document.getElementById('attachmentRemark');
-    const height = Number(activeobj?.style?.height?.substring(0, activeobj?.style.height.length - 2));
+    const height = Number(
+      activeobj?.style?.height?.substring(0, activeobj?.style.height.length - 2)
+    );
     if (height > activeobj?.scrollHeight) {
       return;
     }
@@ -1746,5 +2342,3 @@ export class AddSubprojectCardComponent implements OnInit, OnChanges, AfterViewI
     activeobj1.style.height = activeobj1?.scrollHeight + 2 + 'px';
   }
 }
-
-

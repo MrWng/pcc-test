@@ -17,6 +17,7 @@ export class ApcOTaskCardService {
     '2': this.translateService.instant('dj-default-托外制程'),
     '3': this.translateService.instant('dj-default-二者皆有'),
   };
+  operations = [];
   constructor(
     protected translateService: TranslateService,
     protected commonService: CommonService
@@ -27,6 +28,7 @@ export class ApcOTaskCardService {
   setTemplateJson(
     editable: boolean,
     responseData: Array<any>,
+    contents: any
   ): any {
     let columns;
     if (editable) {
@@ -64,13 +66,13 @@ export class ApcOTaskCardService {
           columns: [
             {
               schema: 'item_name_spec',
-              headerName: '品名',
+              headerName: this.translateService.instant('dj-default-品名'),
               level: 0,
               path: 'item_name_spec',
             },
             {
               schema: 'item_spec',
-              headerName: '规格',
+              headerName: this.translateService.instant('dj-default-规格'),
               level: 0,
               path: 'item_spec',
             }
@@ -87,12 +89,28 @@ export class ApcOTaskCardService {
         { headerName: this.translateService.instant('dj-default-完成率'), schema: 'complete_rate' }
       ];
     }
+    this.operations = [
+      {
+        title: this.translateService.instant('dj-default-问题反馈'),
+        type: 'showProblemFeedback',
+        description: '',
+        pcontent: contents[0],
+        contents: contents[0],
+        attach: {
+          target: 'project_info',
+          mode: 'all',
+        },
+        isCustomize: true,
+      },
+    ];
+
     const taskCategoryLayout = [
       {
         id: 'inquiry',
         type: 'GRID_TABLE',
         schema: 'inquiry',
         editable: true,
+        operations: this.operations,
         columnDefs: this.commonService.getLayout(columns),
         allFields: this.commonService.getAllFields(columns),
         details: [],

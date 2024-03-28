@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { OpenWindowService } from '@ng-dynamic-forms/ui-ant-web';
+import { OpenWindowService } from '@athena/dynamic-ui';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 import { AddSubProjectCardService } from '../../add-subproject-card.service';
@@ -28,6 +28,11 @@ export class PaymentStageService {
         : {};
       openPaymentWindowDefine.executeContext.pattern = 'com';
       openPaymentWindowDefine.executeContext.pageCode = 'task-detail';
+      openPaymentWindowDefine.executeContext['openWindow'] = true;
+      const roleAttention = [
+        'project_no','trans_currency','payment_method','is_tax_included','contract_trans_curr_amount',
+        'instalment_stage','instalment_stage_name','instalment_rate','instalment_trans_curr_amount','instalment_description'
+      ];
       const operations = [
         {
           title: this.translateService.instant('dj-default-选择款项阶段'),
@@ -43,6 +48,7 @@ export class PaymentStageService {
               dataSourceSet: openPaymentWindowDefine.dataSourceSet,
               executeContext: openPaymentWindowDefine.executeContext,
             },
+            roleAttention,
             buttons: [
               {
                 title: this.translateService.instant('dj-default-确定'),

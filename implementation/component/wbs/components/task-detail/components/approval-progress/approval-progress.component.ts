@@ -1,21 +1,27 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { isNotNone } from '@ng-dynamic-forms/core';
+import { isNotNone } from '@athena/dynamic-core';
 import { TranslateService } from '@ngx-translate/core';
 import { DwLanguageService } from '@webdpt/framework/language';
 import * as moment from 'moment';
 import { NzModalRef } from 'ng-zorro-antd/modal';
 import { TaskDetailService } from '../../task-detail.service';
+import { DynamicWbsService } from '../../../../wbs.service';
 
 @Component({
   selector: 'app-approval-progress',
   templateUrl: './approval-progress.component.html',
   styleUrls: ['./approval-progress.component.less'],
-  providers: [TaskDetailService]
+  providers: [TaskDetailService, DynamicWbsService]
 })
 export class ApprovalProgressComponent implements OnInit {
   notifySignTypeList: any[] = [81, 82];
   signOffProgressData: any;
-  @Input() taskOrProjectId: string = ''
+  @Input() taskOrProjectId: string = '';
+  @Input() idType: string = 'task';
+  @Input() project_no = '';
+  @Input() isChangeApprove: Boolean = false;
+  @Input() wbsService;
+
   // 退回信息
   approvalInfo: any;
 
@@ -28,6 +34,7 @@ export class ApprovalProgressComponent implements OnInit {
     private translateService: TranslateService,
     private modalRef: NzModalRef,
     public taskDetailService: TaskDetailService,
+    // public wbsService: DynamicWbsService,
   ) { }
 
   ngOnInit(): void {
@@ -38,7 +45,10 @@ export class ApprovalProgressComponent implements OnInit {
   /**
    * 获取签核进度信息
    */
-  getTaskApproval(): void {
+  async getTaskApproval(): Promise<void> {
+    if (this.idType === 'project' && !this.taskOrProjectId) {
+      this.taskOrProjectId = await this.wbsService.getProjectIdForQueryApprove(this.project_no, this.isChangeApprove);
+    }
     if (this.taskOrProjectId) {
       this.taskDetailService.getTaskApproval(this.taskOrProjectId).subscribe(
         (res) => {

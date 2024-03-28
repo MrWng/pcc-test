@@ -1,19 +1,27 @@
 import { Routes } from '@angular/router';
-import { EmailLayoutComponent } from './programs/email-layout/email-layout.component';
-import { PageIndexComponent } from './programs/page-index/page-index.component';
+
+
 import { DwAuthGuardService } from '@webdpt/framework/auth';
+import { DwEmailLayoutComponent, DwPageIndexComponent } from '@webdpt/athena-dev-tools';
+import { programs } from 'app/config/custom-app-config';
 
 export const IMPLEMENTATION_ROUTES: Routes = [
   // 設定應用開發應用模組路由
   {
     path: '', // 首頁
-    component: PageIndexComponent,
+    component: DwPageIndexComponent,
+    data: {
+      programs
+    },
     canActivate: [DwAuthGuardService],
   },
   {
     path: 'dev/:secretkey',
     pathMatch: 'prefix',
-    component: EmailLayoutComponent,
+    component: DwEmailLayoutComponent,
+    data: {
+      programs
+    },
     canActivate: [DwAuthGuardService],
   },
 ];

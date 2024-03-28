@@ -17,19 +17,22 @@ import {
   DynamicFormLayout,
   DynamicFormLayoutService,
   DynamicFormValidationService,
-} from '@ng-dynamic-forms/core';
-import { OpenWindowService } from '@ng-dynamic-forms/ui-ant-web';
+} from '@athena/dynamic-core';
+import { OpenWindowService } from '@athena/dynamic-ui';
 import { TranslateService } from '@ngx-translate/core';
-import { EventBusService, EventBusSpecialChannel } from '@ng-dynamic-forms/core';
+import { EventBusService, EventBusSpecialChannel } from '@athena/dynamic-core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { CommonService, Entry } from 'app/customization/task-project-center-console/service/common.service';
+import { CommonService, Entry } from 'app/implementation/service/common.service';
 import { Subject } from 'rxjs';
-import { DynamicWbsService } from 'app/customization/task-project-center-console/component/wbs/wbs.service';
+import { DynamicWbsService } from 'app/implementation/component/wbs/wbs.service';
 import { BasicDataTemplateManageService } from './basic-data-template-manage.service';
-import { DynamicBasicDataTemplateManageModel } from 'app/customization/task-project-center-console/model/basic-data-template-manage/basic-data-template-manage.model';
-import { AddSubProjectCardService } from 'app/customization/task-project-center-console/component/add-subproject-card/add-subproject-card.service';
-import { WbsTabsService } from 'app/customization/task-project-center-console/component/wbs-tabs/wbs-tabs.service';
+import { DynamicBasicDataTemplateManageModel }
+  from 'app/implementation/model/basic-data-template-manage/basic-data-template-manage.model';
+import { AddSubProjectCardService }
+  from 'app/implementation/component/add-subproject-card/add-subproject-card.service';
+import { WbsTabsService } from 'app/implementation/component/wbs-tabs/wbs-tabs.service';
+import { debounceTime } from 'rxjs/operators';
 
 
 
@@ -68,6 +71,8 @@ export class BasicDataTemplateManageComponent
     project_type_no: [null],
   });
 
+  private callSaveToTemplate$ = new Subject<void>();
+
   constructor(
     protected changeRef: ChangeDetectorRef,
     protected layoutService: DynamicFormLayoutService,
@@ -90,9 +95,9 @@ export class BasicDataTemplateManageComponent
   }
 
   ngOnInit(): void {
-
     this.initData();
     this.changeFormValue();
+    this.initSaveToTemplate();
   }
 
   /**
@@ -231,6 +236,16 @@ export class BasicDataTemplateManageComponent
     });
   }
 
+  initSaveToTemplate() : void {
+    this.callSaveToTemplate$.pipe(debounceTime(200)).subscribe((change: any) => {
+      this.saveToTemplate();
+    });
+  }
+
+  callSaveToTemplate() {
+    this.callSaveToTemplate$.next();
+  }
+
   saveToTemplate() {
     if (!this.validateForm.dirty) {
       return;
@@ -299,7 +314,8 @@ export class BasicDataTemplateManageComponent
           );
           return;
         }
-        if (!url.includes('create') && (project_type_no !== this.validateForm.getRawValue().project_type_no)) {
+        if (!url.includes('create') && (project_type_no !== this.validateForm.getRawValue().project_type_no)
+          && this.validateForm.getRawValue().project_type_no) {
           this.modalService.confirm({
             nzTitle: null,
             nzContent: this.translateService.instant(

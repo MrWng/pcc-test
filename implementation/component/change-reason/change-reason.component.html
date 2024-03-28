@@ -1,22 +1,84 @@
-<nz-modal 
-  [(nzVisible)]="changeReasonVisible" 
-  (nzOnCancel)="cancel()" 
-  (nzOnOk)="confirm()"
->
-<ng-container *nzModalContent>
-    <div *ngIf="title" class="modal-title"> {{ title }} </div>
+<nz-modal [(nzVisible)]="changeReasonVisible" (nzOnCancel)="cancel()" (nzOnOk)="confirm()">
+  <ng-container *nzModalContent>
+    <div *ngIf="title" class="modal-title">{{ title }}</div>
     <div *ngIf="contentInfo" class="content-info">{{ contentInfo }}</div>
     <nz-form-item *ngIf="isTextArea">
       <nz-form-control nzSpan="24">
         <ath-input-group [required]="true" [label]="translateWordPcc('变更原因')">
-        <textarea class="text-area" athInput [autosize]="{ minRows: 1 }" [maxlength]="255" [placeholder]="translateWordPcc('请输入')" [(ngModel)]="changeReason" ></textarea>
+          <textarea
+            class="text-area"
+            athInput
+            [autosize]="{ minRows: 1 }"
+            [maxlength]="255"
+            [placeholder]="translateWordPcc('请输入')"
+            [(ngModel)]="changeReason"
+          ></textarea>
         </ath-input-group>
       </nz-form-control>
     </nz-form-item>
+    <!-- 光斯奥丢单原因个案组件 -->
+    <ath-dynamic-customized
+      *ngIf="reasonForLostOrderDynamicModel && isTextArea && reasonType === 'designated'"
+      [dynamicModel]="reasonForLostOrderDynamicModel"
+    ></ath-dynamic-customized>
+    <!-- 暂停 继续 指定结案 结案 s16 追加上传附件 -->
+    <nz-form-item *ngIf="isTextArea && showUploadFile">
+      <nz-form-control nzSpan="24">
+        <app-pcc-upload-file
+          [(ngModel)]="fileList"
+          [reasonType]="reasonType"
+          [isSpinning]="isSpinning"
+        ></app-pcc-upload-file>
+      </nz-form-control>
+    </nz-form-item>
+
     <nz-form-item *ngIf="!isTextArea">
-      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="email">{{ 'dj-pcc-变更原因' | translate }}</nz-form-label>
-      <nz-form-control [nzSm]="14" [nzXs]="24" [nzErrorTip]="translateWordPcc('输入不是有效的电子邮件')">
-        <input nz-input [placeholder]="translateWordPcc('请输入')" [(ngModel)]="changeReason"/>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="email">{{
+        'dj-pcc-变更原因' | translate
+      }}</nz-form-label>
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        [nzErrorTip]="translateWordPcc('输入不是有效的电子邮件')"
+      >
+        <input nz-input [placeholder]="translateWordPcc('请输入')" [(ngModel)]="changeReason" />
+      </nz-form-control>
+
+      <nz-form-control *ngIf="showUploadFile" nzSpan="24">
+        <div class="uploadItem">
+          <div class="title">{{ 'dj-pcc-附件' | translate }}：</div>
+          <div class="upload">
+            <div class="file-list">
+              <div class="file" *ngFor="let item of fileList; let i = index">
+                <div nz-tooltip [nzTooltipTitle]="item.name" class="file-info">
+                  <div class="name">{{ item.name }}</div>
+                  <div class="size">{{ addSubProjectCardService.renderSize(item.size) }}</div>
+                  <a
+                    class="delete-btn"
+                    nz-popconfirm
+                    [nzPopconfirmTitle]="translateWordPcc('是否确认删除?')"
+                    [nzOkText]="translateWord('确定')"
+                    [nzCancelText]="translateWord('取消')"
+                    (nzOnConfirm)="deleteFile(i)"
+                    nzPopconfirmOverlayClassName="fileButton"
+                  >
+                    <em nz-icon nzType="delete" nzTheme="outline"></em>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="uploadBtn" *ngIf="fileList.length < 1">
+              {{ 'dj-default-请上传50MB以内的附件' | translate }}<br />
+              <em nz-icon nzType="cloud-upload" nzTheme="outline"></em>
+              <input
+                type="file"
+                name="multipartFile"
+                class="upload-file-reset"
+                (change)="importData($event)"
+              />
+            </div>
+          </div>
+        </div>
       </nz-form-control>
     </nz-form-item>
   </ng-container>

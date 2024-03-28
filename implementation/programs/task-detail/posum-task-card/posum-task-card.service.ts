@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { DwSystemConfigService, DW_AUTH_TOKEN } from '@webdpt/framework';
+import { DwSystemConfigService } from '@webdpt/framework/config';
+import { DW_AUTH_TOKEN } from '@webdpt/framework/auth';
 import { CommonService } from '../../../service/common.service';
 
 @Injectable()
@@ -13,6 +14,7 @@ export class PosumTaskCardService {
   group: any;
 
   taskInfo: any = {};
+  operations = [];
 
   constructor(
     @Inject(DW_AUTH_TOKEN) protected authToken: any,
@@ -33,7 +35,6 @@ export class PosumTaskCardService {
       this.aimUrl = url;
     });
   }
-
 
   /**
    * 获取任务卡数据
@@ -116,16 +117,16 @@ export class PosumTaskCardService {
             columns: [
               {
                 schema: 'item_name_spec',
-                headerName: '品名',
+                headerName: this.translateService.instant('dj-default-品名'),
                 level: 0,
                 path: 'item_name_spec',
               },
               {
                 schema: 'item_spec',
-                headerName: '规格',
+                headerName: this.translateService.instant('dj-default-规格'),
                 level: 0,
                 path: 'item_spec',
-              }
+              },
             ],
           },
           {
@@ -164,6 +165,11 @@ export class PosumTaskCardService {
               headerName: this.translateService.instant('dj-default-请购单号'),
               schema: 'requisitions_no',
             },
+            // s10: 新增请购日期栏位
+            {
+              headerName: this.translateService.instant('dj-pcc-请购日期'),
+              schema: 'pr_date',
+            },
             {
               headerName: this.translateService.instant('dj-default-请购数量'),
               schema: 'requisitions_qty',
@@ -176,25 +182,40 @@ export class PosumTaskCardService {
         }
         columns = columns.concat(columsType);
       }
+      this.operations = [
+        {
+          title: this.translateService.instant('dj-default-问题反馈'),
+          type: 'showProblemFeedback',
+          description: '',
+          pcontent: contents[0],
+          contents: contents[0],
+          attach: {
+            target: 'project_info',
+            mode: 'all',
+          },
+          isCustomize: true,
+        },
+        {
+          title: this.translateService.instant('dj-pcc-查看前置任务'),
+          type: 'showPreTaskType',
+          description: '',
+          pcontent: contents[1],
+          contents: contents[1],
+          attach: {
+            target: 'project_info',
+            mode: 'all',
+          },
+          isCustomize: true,
+        },
+      ];
+
       taskCategoryLayout = [
         {
           id: 'inquiry',
           type: 'GRID_TABLE',
           schema: 'inquiry',
           editable: true,
-          operations: ['MOOP'].includes(category) ? [] : [
-            {
-              title: this.translateService.instant('dj-pcc-查看前置任务'),
-              type: 'showPreTaskType',
-              description: '',
-              contents: contents,
-              attach: {
-                target: 'project_info',
-                mode: 'all',
-              },
-              isCustomize: true,
-            },
-          ],
+          operations: this.operations,
           columnDefs: this.commonService.getLayout(columns),
           details: [],
         },

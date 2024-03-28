@@ -1,13 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { DwSystemConfigService } from '@webdpt/framework';
+import { DwSystemConfigService } from '@webdpt/framework/config';
 import { CommonService } from '../../service/common.service';
 import {
   getClueInformationGroupCop,
   getHeadGroupCop,
   getOpportunityInformationGroupCop,
 } from './compParamsConfig';
+import { isNotEmpty } from '@athena/dynamic-core';
 type Parm = {
   type: string;
   schema: string;
@@ -23,6 +24,8 @@ type Parm = {
   important?: boolean;
   isNavigate?: boolean;
   inline?: boolean;
+  options?: any[];
+  dataPrecision?: any;
 };
 
 @Injectable()
@@ -34,6 +37,7 @@ export class ProjPlanOtherInfoService {
   content: any;
   executeContext: any;
   isLoadStatus: boolean = true;
+  projectInfo: any = {};
   constructor(
     private http: HttpClient,
     private configService: DwSystemConfigService,
@@ -79,6 +83,7 @@ export class ProjPlanOtherInfoService {
           this.createHeadGroup(editable),
           this.createClueInformationGroup(editable),
           this.createOpportunityInformationGroup(editable),
+          this.CreateBnusinessOpportunity2POAfter(editable),
         ],
         direction: 'COLUMN',
         allFields: this._createAllFields(),
@@ -114,14 +119,23 @@ export class ProjPlanOtherInfoService {
   }
   // 线索信息
   createClueInformationGroup(editable = true) {
-    const group = [];
-    getClueInformationGroupCop().forEach((parm: Parm) => {
-      parm.editable = editable;
-      parm.disabled = !editable;
-      group.push(this.createUiComp(parm, editable));
-    });
+    // const group = [];
+    // getClueInformationGroupCop().forEach((parm: Parm) => {
+    //   parm.editable = editable;
+    //   parm.disabled = !editable;
+    //   group.push(this.createUiComp(parm, editable));
+    // });
     return {
-      group,
+      group: [
+        {
+          type: 'gaosiao-other-info',
+          source: '1',
+          canEdit: editable,
+          subsidiaryParameters: {
+            project_no: this.projectInfo.project_no,
+          },
+        },
+      ],
       id: '3f1b328b-7b09-4a1d-b76b-7abdffc9aa43',
       type: 'FORM_LIST',
       dataType: 'object',
@@ -135,14 +149,23 @@ export class ProjPlanOtherInfoService {
   }
   // 商机信息
   createOpportunityInformationGroup(editable = true) {
-    const group = [];
-    getOpportunityInformationGroupCop().forEach((parm: Parm) => {
-      parm.editable = editable;
-      parm.disabled = !editable;
-      group.push(this.createUiComp(parm, editable));
-    });
+    // const group = [];
+    // getOpportunityInformationGroupCop().forEach((parm: Parm) => {
+    //   parm.editable = editable;
+    //   parm.disabled = !editable;
+    //   group.push(this.createUiComp(parm, editable));
+    // });
     return {
-      group,
+      group: [
+        {
+          type: 'gaosiao-other-info',
+          source: '2',
+          canEdit: editable,
+          subsidiaryParameters: {
+            project_no: this.projectInfo.project_no,
+          },
+        },
+      ],
       id: '3f1b328b-7b09-4a1d-b76b-7abdffc9aa43',
       type: 'FORM_LIST',
       dataType: 'object',
@@ -155,12 +178,36 @@ export class ProjPlanOtherInfoService {
     };
   }
 
+  CreateBnusinessOpportunity2POAfter(editable = true) {
+    return {
+      group: [
+        {
+          type: 'gaosiao-other-info',
+          source: '3',
+          canEdit: editable,
+          subsidiaryParameters: {
+            project_no: this.projectInfo.project_no,
+          },
+        },
+      ],
+      id: '3f1b328b-7b09-4a1d-b76b-7abdffc9aa43',
+      type: 'FORM_LIST',
+      dataType: 'object',
+      operations: [],
+      important: false,
+      isNavigate: false,
+      collapse: true,
+      scriptFilters: [],
+      title: this.translatePccWord('商机转PO后'),
+    };
+  }
+
   // 创建组件类型
   createUiComp(parm: Parm, editable = true) {
     parm.editable = editable;
     parm.disabled = !editable;
     parm.headerName = this.translatePccWord(parm.headerName);
-    let res = null;
+    let res;
     switch (parm.type) {
       case 'input':
         res = this._creatInputType(parm);
@@ -177,6 +224,9 @@ export class ProjPlanOtherInfoService {
       case 'percentInput':
         res = this._createPercentInputType(parm);
         break;
+      case 'select':
+        res = this._createSelectType(parm);
+        break;
       default:
         break;
     }
@@ -184,7 +234,7 @@ export class ProjPlanOtherInfoService {
   }
 
   _createAllFields() {
-    const res = [];
+    const res = [] as any[];
     getHeadGroupCop().forEach((item: Parm) => {
       res.push({
         name: item.schema,
@@ -204,7 +254,7 @@ export class ProjPlanOtherInfoService {
   }
   // 创建数值类型Input和普通Input
   _creatInputType(parm: Parm) {
-    return {
+    const res = {
       id: parm.schema,
       type: 'INPUT',
       schema: parm.schema,
@@ -220,6 +270,10 @@ export class ProjPlanOtherInfoService {
       important: parm.important || false,
       isNavigate: parm.isNavigate || false,
     };
+    if (isNotEmpty(parm.dataPrecision)) {
+      res['dataPrecision'] = parm.dataPrecision;
+    }
+    return res;
   }
   // 创建日期类型
   _creatDateType(parm: Parm) {
@@ -298,7 +352,25 @@ export class ProjPlanOtherInfoService {
       isNavigate: parm.isNavigate || false,
     };
   }
-
+  // 创建SELECT类型
+  _createSelectType(parm: Parm) {
+    parm.options?.forEach((item) => {
+      item.title = this.translatePccWord(item.title);
+    });
+    return {
+      id: parm.schema,
+      type: 'SELECT',
+      schema: parm.schema,
+      headerName: parm.headerName,
+      path: 'business_info',
+      disabled: parm.disabled || false,
+      editable: parm.editable || true,
+      dataType: 'string',
+      isFocusDisplay: false,
+      important: false,
+      options: parm.options || [],
+    };
+  }
   /**
    * 这是一个请求示例，可以自行修改或删除
    */
@@ -320,7 +392,7 @@ export class ProjPlanOtherInfoService {
   async getOpportunity(params: any): Promise<any> {
     return await new Promise((resolve, reject): void => {
       this.commonService
-        .getInvData('uc.project.business.opportunity.info.get', {
+        .getInvData('uc.project.business.opportunity.new.info.get', {
           business_info: [params],
         })
         .subscribe(
@@ -339,7 +411,7 @@ export class ProjPlanOtherInfoService {
   async updateOpportunity(params: any): Promise<any> {
     return await new Promise((resolve, reject): void => {
       this.commonService
-        .getInvData('uc.project.business.opportunity.info.update', {
+        .getInvData('uc.project.business.opportunity.new.info.update', {
           business_info: [params],
         })
         .subscribe(
@@ -359,7 +431,7 @@ export class ProjPlanOtherInfoService {
   async deleteOpportunity(params: any): Promise<any> {
     return await new Promise((resolve, reject): void => {
       this.commonService
-        .getInvData('uc.project.business.opportunity.info.delete', {
+        .getInvData('uc.project.business.opportunity.new.info.delete', {
           business_info: [params],
         })
         .subscribe(

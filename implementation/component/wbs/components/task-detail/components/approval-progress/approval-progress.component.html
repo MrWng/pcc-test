@@ -7,7 +7,7 @@
         <div class="return-info-content">{{row.content}}</div>
       </div>
     </div>
-    <ul class="progress">
+    <ul class="progress" *ngIf='progressData.length > 0'>
       <li *ngFor="let progress of progressData">
         <!-- 外层状态 0未开始 1进行中 2已暂停 3已完成 4已撤销 5已终止 6进行中但已开始 -->
         <div
@@ -35,5 +35,6 @@
         </div>
       </li>
     </ul>
+    <div class='noData' *ngIf='progressData.length === 0'>{{ 'dj-c-暂无数据' | translate }}</div>
   </div>
 </ath-spin>

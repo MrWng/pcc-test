@@ -71,10 +71,11 @@ export class APIService {
   }
 
   /** work.item.data.get 取得工作项资料 */
+  // sprint4.6 99658 work.item.data.get => plm.work.item.status.process
   work_Item_Data_Get(params: any): Promise<any> {
     return new Promise((resolve, reject): void => {
       this.commonService
-        .getInvData('work.item.data.get', {
+        .getInvData('plm.work.item.status.process', {
           doc_info: params,
         })
         .subscribe((res): void => {

@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { DwSystemConfigService } from '@webdpt/framework';
+import { DwSystemConfigService } from '@webdpt/framework/config';
 import { CommonService } from '../../../service/common.service';
 
 @Injectable()

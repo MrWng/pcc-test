@@ -8,15 +8,15 @@ import {
   DynamicFormValidationService,
   DynamicTableModel,
   isEmpty,
-} from '@ng-dynamic-forms/core';
+} from '@athena/dynamic-core';
 import { CommonService } from '../../service/common.service';
-import { OpenWindowService } from '@ng-dynamic-forms/ui-ant-web';
+import { OpenWindowService } from '@athena/dynamic-ui';
 import { TranslateService } from '@ngx-translate/core';
 import { APIService } from '../../service/api.service';
 import { Subscription } from 'rxjs';
 import { ProjPlanOtherInfoService } from './proj-plan-other-info.service';
-import { AthModalService } from 'ngx-ui-athena/src/components/modal';
-import { AthMessageService } from 'ngx-ui-athena/src/components/message';
+import { AthModalService } from '@athena/design-ui/src/components/modal';
+import { AthMessageService } from '@athena/design-ui/src/components/message';
 @Component({
   selector: 'app-dynamic-proj-plan-other-info',
   templateUrl: './proj-plan-other-info.component.html',
@@ -48,6 +48,7 @@ export class ProjPlanOtherInfoComponent implements OnInit {
   ) {}
   @Input() data: any;
   ngOnInit() {
+    this.projPlanOtherInfoService.projectInfo = this.projectInfo;
     this.buildDynamicComp();
     this.projPlanOtherInfoService
       .getOpportunity({
@@ -57,7 +58,7 @@ export class ProjPlanOtherInfoComponent implements OnInit {
         if (isEmpty(res)) {
           this.delBtnDisabled = true;
         } else {
-          this.curFormGroup.get('business_info').patchValue(res[0]);
+          this.curFormGroup.get('business_info')?.patchValue(res[0]);
           this.delBtnDisabled = false;
           this.changeRef.markForCheck();
         }
@@ -91,14 +92,21 @@ export class ProjPlanOtherInfoComponent implements OnInit {
   }
   async submit(): Promise<any> {
     try {
+      const { customer_contact_info = [], ...rest } = (
+        this.curFormGroup.get('business_info') as DwFormGroup
+      ).getRawValue();
       await this.projPlanOtherInfoService.updateOpportunity({
-        ...(this.curFormGroup.get('business_info') as DwFormGroup).getRawValue(),
+        ...rest,
+        customer_contact_info: customer_contact_info.filter(
+          (item) => item.customer_name || item.contact_rank || item.contact_info
+        ),
         project_no: this.projectInfo.project_no,
       });
       this.athMessageService.success(
         this.projPlanOtherInfoService.translatedDefaultWord('保存成功')
       );
       this.delBtnDisabled = false;
+      // this.curFormGroup.markAsPristine();
       this.changeRef.markForCheck();
     } catch (error) {}
   }
@@ -116,10 +124,15 @@ export class ProjPlanOtherInfoComponent implements OnInit {
           this.athMessageService.success(
             this.projPlanOtherInfoService.translatedDefaultWord('删除成功')
           );
-          this.curFormGroup.reset();
+          // this.curFormGroup.reset({});
+          this.isSpinning = true;
+          this.buildDynamicComp();
           this.delBtnDisabled = true;
           this.changeRef.markForCheck();
-        } catch (error) {}
+        } catch (error) {
+        } finally {
+          this.isSpinning = false;
+        }
       },
       nzOnCancel: () => {},
     });

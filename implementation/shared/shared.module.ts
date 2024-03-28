@@ -2,11 +2,9 @@ import { ModuleWithProviders, NgModule } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Provider } from '@angular/compiler/src/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { DynamicFormsAntUIModule } from '@ng-dynamic-forms/ui-ant-web';
+import { DynamicFormsAntUIModule } from '@athena/dynamic-ui';
 import { TranslateModule } from '@ngx-translate/core';
-import { TaskContentComponent } from '../layout/drawer/task-content/task-content.component';
-import { EmailLayoutComponent } from '../programs/email-layout/email-layout.component';
-import { MenuBarComponent } from '../layout/menu-bar/menu-bar.component';
+
 import { DwExceptionModule } from '@webdpt/components/exception';
 import { NzMessageModule } from 'ng-zorro-antd/message';
 import { NzNotificationModule } from 'ng-zorro-antd/notification';
@@ -17,7 +15,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 
 /* 共享组件 */
-const sharedComponents = [EmailLayoutComponent, TaskContentComponent, MenuBarComponent];
+const sharedComponents = [];
 
 /**
  * 共享模組

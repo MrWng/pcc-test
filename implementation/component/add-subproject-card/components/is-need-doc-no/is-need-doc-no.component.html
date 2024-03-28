@@ -15,15 +15,15 @@
             formControlName="is_need_doc_no"
             (ngModelChange)="needDocNoChange()"
           >
-            <span
-              *ngIf="
-                ['APC_O', 'MOOP', 'SFT'].includes(taskTemplateInfo?.task_category);
-                else otherBlock
-              "
-            >
-              {{ 'dj-pcc-需要单别及单号及序号' | translate }}
+            <span *ngIf="['APC_O', 'MOOP', 'SFT'].includes(taskTemplateInfo?.task_category)">
+              {{ 'dj-pcc-需要工单单别及单号及序号' | translate }}
             </span>
-            <ng-template #otherBlock>{{ 'dj-pcc-需要单别及单号' | translate }}</ng-template>
+            <span *ngIf="['POSUM', 'PRSUM', 'APC'].includes(taskTemplateInfo?.task_category)">
+              {{ 'dj-pcc-需要工单单别及单号' | translate }}
+            </span>
+            <span *ngIf="!['APC_O', 'MOOP', 'SFT', 'POSUM', 'PRSUM', 'APC'].includes(taskTemplateInfo?.task_category)">
+              {{ 'dj-pcc-需要单别及单号' | translate }}
+            </span>
           </label>
         </div>
       </nz-form-control>

@@ -7,10 +7,10 @@ import {
   DynamicFormModel,
   cloneDeep,
   multiple
-} from '@ng-dynamic-forms/core';
-import { OpenWindowService } from '@ng-dynamic-forms/ui-ant-web';
+} from '@athena/dynamic-core';
+import { OpenWindowService } from '@athena/dynamic-ui';
 import { TranslateService } from '@ngx-translate/core';
-import { UploadAndDownloadService } from 'app/customization/task-project-center-console/service/upload.service';
+import { UploadAndDownloadService } from 'app/implementation/service/upload.service';
 import { WbsTabsService } from '../../../../../component/wbs-tabs/wbs-tabs.service';
 import { PosumTaskCardService } from '../../posum-task-card.service';
 
@@ -68,6 +68,7 @@ export class TableDetailComponent implements OnInit {
         'item_name_spec',
         'item_spec',
         'production_qty',
+        // 'issue_set_qty'
       ];
     }
 
@@ -123,7 +124,7 @@ export class TableDetailComponent implements OnInit {
           checkbox: false,
           scriptFilters: [],
           columnDefs: list,
-          operations: [],
+          operations: this.posumTaskCardService.operations,
           details: [],
         },
       ],
@@ -205,11 +206,11 @@ export class TableDetailComponent implements OnInit {
         columns: [
           {
             schema: 'item_name_spec',
-            headerName: '品名',
+            headerName: ts.instant('dj-default-品名'),
           },
           {
             schema: 'item_spec',
-            headerName: '规格',
+            headerName: ts.instant('dj-default-规格'),
           }
         ],
       },
@@ -222,6 +223,16 @@ export class TableDetailComponent implements OnInit {
           },
         ],
       },
+
+      // {
+      //   headerName: ts.instant('dj-default-已发料套数'),
+      //   columns: [
+      //     {
+      //       schema: 'issue_set_qty',
+      //       headerName: ts.instant('dj-default-已发料套数'),
+      //     },
+      //   ]
+      // },
       {
         headerName: ts.instant('dj-default-加工顺序'),
         columns: [
@@ -327,6 +338,15 @@ export class TableDetailComponent implements OnInit {
           {
             schema: 'complete_rate',
             headerName: ts.instant('dj-default-完成率'),
+          },
+        ],
+      },
+      {
+        headerName: ts.instant('dj-default-差异天数'),
+        columns: [
+          {
+            schema: 'diff_days',
+            headerName: ts.instant('dj-default-差异天数'),
           },
         ],
       },

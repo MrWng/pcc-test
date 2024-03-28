@@ -9,7 +9,9 @@
   >
     <div
       class="card-wrapper"
-      [draggable]="!item.disabled && !wbsService.hasTaskProportionForThisTree(item.task_no)"
+      [draggable]="
+        hasAuth && !item.disabled && !wbsService.hasTaskProportionForThisTree(item.task_no)
+      "
     >
       <div
         class="project-top"
@@ -22,66 +24,84 @@
             {{ wbsService.getPjPeriod(item.plan_start_date, item.plan_finish_date) }}
           </p>
           <div class="work-number">
-            {{ wbsService.durationCalculation(item) }}{{ 'dj-default-n天工期' | translate }}
+            <p>
+              {{ item.workload_qty
+              }}{{
+                (item.workload_unit === '1'
+                  ? 'dj-default-时'
+                  : item.workload_unit === '2'
+                  ? 'dj-default-日'
+                  : 'dj-default-月'
+                ) | translate
+              }}{{ 'dj-default-工期' | translate }}
+            </p>
+            <p
+              class="is-issue"
+              *ngIf="
+                ['1', '2'].includes(item.change_type) && sourceRealy === Entry.projectChangeSignOff
+              "
+            >
+              {{
+                (item.change_type === '1' ? 'New' : item.change_type === '2' ? 'dj-pcc-已变更' : '')
+                  | translate
+              }}
+            </p>
           </div>
         </div>
-
+        <!-- wbs卡片，预览模式 -->
+        <div class="icon-eye-open">
+          <em class="icon" (click)="preview(item, $event)">
+            <svg class="iconfont" aria-hidden="true">
+              <use xlink:href="#icon_eye_open"></use>
+            </svg>
+          </em>
+        </div>
         <!-- 三个点：更多操作 -->
-        <ul
-          class="more"
-          *ngIf="
-            (!(item.level === 0 && source === Entry.collaborate) &&
-              hiddenAdd(item, 1) &&
-              wbsService.editable &&
-              !wbsService.needRefresh) ||
-            source === Entry.maintain
-          "
-          (click)="editOrDelete(item, $event)"
-          [ngStyle]="{
-            background: item.isOperationsShow
-              ? item.children && item.children.length
-                ? '#2736ce'
-                : '#000'
-              : ''
-          }"
-          nz-popover
-          nzPopoverTrigger="click"
-          nzPopoverPlacement="bottom"
-          [nzPopoverContent]="contentTemplate"
-          nzPopoverOverlayClassName="popoverTemplateBox"
-        >
-          <li></li>
-          <li></li>
-          <li></li>
-        </ul>
+        <ng-container *custAuthBtnByShare="hasAuth">
+          <ul
+            class="more"
+            *ngIf="mainOperateConditionAggregation(item)"
+            (click)="editOrDelete(item, $event)"
+            [ngStyle]="{
+              background: item.isOperationsShow
+                ? item.children && item.children.length
+                  ? '#2736ce'
+                  : '#000'
+                : ''
+            }"
+            nz-popover
+            nzPopoverTrigger="click"
+            nzPopoverPlacement="bottom"
+            [nzPopoverContent]="contentTemplate"
+            nzPopoverOverlayClassName="popoverTemplateBox"
+          >
+            <li></li>
+            <li></li>
+            <li></li>
+          </ul>
 
-        <ng-template #contentTemplate>
-          <div class="operations" [hidden]="!item.isOperationsShow">
-            <div
-              class="edit"
-              [ngClass]="{ disable: item.unEdit }"
-              (click)="edit(item, $event)"
-              [userBehavior]="{ name: 'dj-default-编辑一级计划', code: editCode }"
-            >
-              {{ 'dj-default-编辑' | translate }}
+          <ng-template #contentTemplate>
+            <div class="operations" [hidden]="!item.isOperationsShow">
+              <div
+                class="edit"
+                [ngClass]="{ disable: !item.canEdit }"
+                (click)="edit(item, $event)"
+                [userBehavior]="{ name: 'dj-default-编辑一级计划', code: editCode }"
+              >
+                {{ 'dj-default-编辑' | translate }}
+              </div>
+              <div
+                class="delete"
+                [ngClass]="{
+                  disable: isDisableDeleteButton(item)
+                }"
+                (click)="delete(item, $event)"
+              >
+                {{ 'dj-default-删除' | translate }}
+              </div>
             </div>
-            <div
-              class="delete"
-              [ngClass]="{
-                disable:
-                  item.complete_rate !== 0 ||
-                  item.isCollaborationCard ||
-                  item.unDelete ||
-                  item.unEdit ||
-                  getTaskProportionCheck() ||
-                  hasTaskProportionCheck(item)
-              }"
-              (click)="delete(item, $event)"
-            >
-              {{ 'dj-default-删除' | translate }}
-            </div>
-          </div>
-        </ng-template>
+          </ng-template>
+        </ng-container>
 
         <!-- 任务卡片右上角的操作区 -- end -->
       </div>
@@ -89,17 +109,17 @@
       <div class="info" [ngClass]="{ 'info-style': item.level !== 0 }">
         <div class="plan-card-left">
           <div class="title">
-            <em class="icon" *ngIf="item.is_milepost">
+            <em class="icon titleIcon" *ngIf="item.is_milepost">
               <svg class="iconfont" aria-hidden="true">
                 <use xlink:href="#iconlichengbei"></use>
               </svg>
             </em>
-            <em class="icon" *ngIf="item.is_attachment">
+            <em class="icon titleIcon" *ngIf="item.is_attachment">
               <svg class="iconfont" aria-hidden="true">
                 <use xlink:href="#iconjiaofuwu"></use>
               </svg>
             </em>
-            <em class="icon" *ngIf="item?.is_approve">
+            <em class="icon titleIcon" *ngIf="item?.is_approve">
               <svg class="iconfont" aria-hidden="true">
                 <use xlink:href="#iconqianhe"></use>
               </svg>
@@ -111,25 +131,59 @@
               nzTooltipPlacement="topLeft"
             >
               <p class="task-name-box">
-                {{ item.task_name }}
-                <span *ngIf="hasEdit(item)" class="card-edit">*</span>
-                <span
-                  class="collaboration-card"
-                  *ngIf="item.isCollaborationCard && source === Entry.card"
-                >
-                  {{ 'dj-pcc-协同中' | translate }}
+                <span class="task_name">
+                  {{ item.task_name }}
                 </span>
+                <span
+                  *ngIf="hasEdit(item)"
+                  class="card-edit"
+                  [class]="{ 'cancel-collaboration-flag': !inCollaboration }"
+                  >*</span
+                >
+                <ng-container *ngIf="!canCancelCollaboration; else canCollaborationCard"
+                  ><span
+                    class="collaboration-card"
+                    *ngIf="item.isCollaborationCard && source === Entry.card"
+                  >
+                    {{ 'dj-pcc-协同中' | translate }}
+                  </span></ng-container
+                >
+                <ng-template #canCollaborationCard>
+                  <span
+                    class="collaboration-card"
+                    [ngClass]="{
+                      'has-cancel-collaboration':
+                        $cancelCollaboration && $cancelCollaboration.confirmVisible,
+                      'cancel-collaboration-no-loading':
+                        $cancelCollaboration && !$cancelCollaboration.loading
+                    }"
+                    (mouseenter)="CollaborationEnterHandler($cancelCollaboration)"
+                    (mouseleave)="CollaborationLeaveHandler($cancelCollaboration)"
+                    *ngIf="item.isCollaborationCard && source === Entry.card"
+                  >
+                    <span [hidden]="!inCollaboration" class="in-collaboration">{{
+                      'dj-pcc-协同中' | translate
+                    }}</span>
+                    <app-cancel-collaboration
+                      #$cancelCollaboration
+                      [sourceData]="item"
+                      [hidden]="inCollaboration"
+                      (confirmVisibleChange)="cancelCollaborationVisibleChange($event)"
+                      (cancelSuccess)="cancelCollaborationSuccess()"
+                      (cancelFullFail)="cancelCollaborationFullFail()"
+                    ></app-cancel-collaboration>
+                  </span>
+                </ng-template>
               </p>
             </div>
           </div>
           <div
-            class="text"
+            class="text task_category"
             nz-tooltip
-            [nzTooltipTitle]="item.task_category"
+            [nzTooltipTitle]="getTaskCategoryInfo(item)"
             nzTooltipPlacement="topLeft"
           >
-            {{ 'dj-pcc-任务类型' | translate }}
-            {{ wbsService.TaskType[item.task_category] | translate }}
+            {{ getTaskCategoryInfo(item) }}
           </div>
           <div>
             <span class="person" *ngIf="item.children && !item.children.length">
@@ -140,11 +194,7 @@
         <!-- 任务比重提示信息 -->
         <div
           class="error_card"
-          *ngIf="
-            ((taskProportionCheck && taskProportionCheck.task_info?.length > 0) ||
-              wbsService.taskProportionCheck?.taskInfoTip) &&
-            hasTaskProportion(item.task_no)
-          "
+          *ngIf="wbsService.taskProportionCheck?.taskInfoTip && hasTaskProportion(item.task_no)"
         >
           <div
             class="text"
@@ -163,11 +213,13 @@
           </div>
         </div>
         <!-- 任务卡片，左下角(+) -->
-        <div *ngIf="showAddIcon && !wbsService.needRefresh" class="add-child-box">
-          <div class="add-next-child" (click)="addSubProjectCard(item)" *ngIf="isHiddenAdd(item)">
-            <em nz-icon nzType="plus" nzTheme="outline"></em>
+        <ng-container *custAuthBtnByShare="hasAuth">
+          <div *ngIf="addChildConditionAggregation(item)" class="add-child-box">
+            <div class="add-next-child" (click)="addSubProjectCard(item)" *ngIf="isHiddenAdd(item)">
+              <em nz-icon nzType="plus" nzTheme="outline"></em>
+            </div>
           </div>
-        </div>
+        </ng-container>
 
         <div
           class="next-level-num"
@@ -190,7 +242,9 @@
 
     <ul
       tDroppable
-      [disableDrop]="item.disabled || isIssueTaskCard(item)"
+      [disableDrop]="
+        item.disabled || isIssueTaskCard(item) || isCollaborationCardNoMove(item.task_no)
+      "
       *ngIf="item.children?.length && item.isChildrenshow"
       [allowDropOnItem]="true"
       [nestingTargetRect]="{ height: 108, marginBottom: 20 }"
@@ -201,7 +255,12 @@
       <app-project-plan-card
         *ngIf="item.children?.length && item.isChildrenshow"
         [source]="source"
+        [sourceRealy]="sourceRealy"
+        [signOff]="signOff"
+        [root_task_card]="root_task_card"
+        [taskChildrenNos]="taskChildrenNos?.length ? taskChildrenNos : []"
         [planCardList]="item.children"
+        [hasAuth]="hasAuth"
         recursive-root
         (changeWbsTaskCardProportion)="changeTaskCardProportion()"
       ></app-project-plan-card>

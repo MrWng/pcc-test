@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { inputNewComponent } from './input-new.component';
-import { CustSharedModule } from '../../shared.module';
+import { CustSharedModule } from '../../shared/cust-shared.module';
 
 
 
