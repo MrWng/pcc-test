@@ -1,0 +1,133 @@
+.masks {
+  position: fixed;
+  box-shadow: 0px 2px 13px 0px rgba(191, 191, 191, 0.5), 0px 0px 2px 0px #dde4ff;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 16px 0;
+  box-sizing: border-box;
+  resize: both;
+  overflow: auto;
+  z-index: 22;
+  flex-flow: column;
+  display: flex;
+  .title {
+    color: rgba(0, 0, 0, 0.85);
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 22px;
+    text-align: center;
+    margin: 0 16px 15px 16px;
+    position: relative;
+    .close {
+      position: absolute;
+      height: 24px;
+      width: 24px;
+      border-radius: 12px;
+      background-color: #dfdfdf;
+      top: 0;
+      right: 0;
+      text-align: center;
+      line-height: 24px;
+      font-size: 16px;
+      color: #34404b;
+      cursor: pointer;
+    }
+  }
+  .content {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    flex-flow: column;
+    padding: 0 16px;
+  }
+  .formList {
+    display: flex;
+    flex-wrap: wrap;
+    padding-bottom: 12px;
+    align-items: center;
+    padding-top: 5px;
+    .dateSlect {
+      display: flex;
+      align-items: center;
+      .date {
+        width: 125px;
+        height: 34px;
+      }
+    }
+    .modalSelect {
+      margin-right: 20px;
+      margin-bottom: 8px;
+      span {
+        color: #2012d9;
+        cursor: pointer;
+      }
+      i {
+        margin-right: 4px;
+        color: #2012d9;
+        cursor: pointer;
+      }
+    }
+  }
+  .loading {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+  }
+}
+
+.no-data-box {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  div {
+    width: 100%;
+    text-align: center;
+    p {
+      font-size: 14px;
+      color: #666;
+    }
+  }
+}
+
+.masks .formList .modalSelect:last-child {
+  margin-right: 0;
+}
+::ng-deep .masks .loading {
+  .ant-spin-nested-loading {
+    top: 50%;
+  }
+}
+
+::ng-deep.mask_table {
+  width: 100%;
+  flex: 1;
+  .totalHour {
+    color: rgb(105, 97, 246);
+  }
+  .active {
+    color: rgb(34, 198, 52);
+  }
+  .redActive {
+    color: red;
+  }
+  .ant-table-tbody > tr > td {
+    white-space: pre-wrap !important;
+  }
+  .ant-table-thead > tr > th {
+    white-space: pre-wrap !important;
+    border-right: 1px solid #0000000f !important;
+    border-bottom: 1px solid #0000000f !important;
+  }
+  .dateTh {
+    padding: 12px 0 !important;
+  }
+}
+
+::ng-deep .maskcardEnd {
+  z-index: 1002;
+}

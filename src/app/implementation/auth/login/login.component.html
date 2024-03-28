@@ -1,0 +1,194 @@
+<div class="login-bg">
+  <div class="info-container">
+    <img class="bg" src="/assets/img/mock/u007.png" alt="" />
+    <div class="slogan">
+      <div class="title">Athena</div>
+      <div class="sub-title">
+        {{ 'dj-login-跟我一起探索智能办公吧' | translate }}
+      </div>
+    </div>
+  </div>
+  <form class="login-container" nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
+    <h1 class="login-title"><img src="/assets/img/mock/u009.png" alt="" /></h1>
+    <div class="server-login-error" *ngIf="serverErrorMessage">
+      {{ serverErrorMessage }}
+    </div>
+    <nz-tabset (nzSelectChange)="selectChange($event)" [nzSelectedIndex]="currentSelectedIndex">
+      <nz-tab [nzTitle]="'dj-login-账号登入' | translate">
+        <nz-form-item>
+          <nz-form-control>
+            <div class="input-icon">
+              <div class="icon">
+                <img src="/assets/img/mock/u001.png" alt="" />
+              </div>
+              <input
+                type="text"
+                class="login-input"
+                nz-input
+                formControlName="userId"
+                [placeholder]="translateWord('请输入Athena账号')"
+              />
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-control>
+            <div class="input-icon">
+              <div class="icon">
+                <img src="/assets/img/mock/u002.png" alt="" />
+              </div>
+              <input
+                [type]="passowrdVisible ? 'text' : 'password'"
+                class="login-input"
+                nz-input
+                formControlName="password"
+                [placeholder]="translateWord('请输入密码')"
+              />
+              <div class="icon-end">
+                <img
+                  [src]="
+                    passowrdVisible ? '/assets/img/mock/u004.png' : '/assets/img/mock/u003.png'
+                  "
+                  alt=""
+                  (click)="passowrdVisibleChange()"
+                />
+              </div>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-tab>
+      <nz-tab [nzTitle]="'dj-login-企业用户登入' | translate">
+        <nz-form-item>
+          <nz-form-control>
+            <div class="input-icon">
+              <div class="icon">
+                <img src="/assets/img/mock/u001.png" alt="" />
+              </div>
+              <input
+                type="text"
+                class="login-input"
+                nz-input
+                formControlName="tenantId"
+                [placeholder]="translateWord('请输入租户账号ID')"
+              />
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-control>
+            <div class="input-icon">
+              <div class="icon">
+                <img src="/assets/img/mock/u001.png" alt="" />
+              </div>
+              <input
+                type="text"
+                class="login-input"
+                nz-input
+                formControlName="userId"
+                [placeholder]="translateWord('请输入企业用户账号')"
+              />
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-control>
+            <div class="input-icon">
+              <div class="icon">
+                <img src="/assets/img/mock/u002.png" alt="" />
+              </div>
+              <input
+                [type]="passowrdVisible ? 'text' : 'password'"
+                class="login-input"
+                nz-input
+                formControlName="password"
+                [placeholder]="translateWord('请输入密码')"
+              />
+              <div class="icon-end">
+                <img
+                  [src]="
+                    passowrdVisible ? '/assets/img/mock/u004.png' : '/assets/img/mock/u003.png'
+                  "
+                  alt=""
+                  (click)="passowrdVisibleChange()"
+                />
+              </div>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+      </nz-tab>
+    </nz-tabset>
+    <!-- <nz-form-item>
+      <nz-form-control>
+        <div class="input-icon">
+          <div class="icon">
+            <img src="/assets/img/mock/u001.png" alt="" />
+          </div>
+          <input
+            type="text"
+            class="login-input"
+            nz-input
+            formControlName="userId"
+            [placeholder]="translateWord('请输入Athena账号')"
+          />
+        </div>
+      </nz-form-control>
+    </nz-form-item> -->
+    <!-- <nz-form-item>
+      <nz-form-control>
+        <div class="input-icon">
+          <div class="icon">
+            <img src="/assets/img/mock/u002.png" alt="" />
+          </div>
+          <input
+            [type]="passowrdVisible ? 'text' : 'password'"
+            class="login-input"
+            nz-input
+            formControlName="password"
+            [placeholder]="translateWord('请输入密码')"
+          />
+          <div class="icon-end">
+            <img
+              [src]="
+                passowrdVisible
+                  ? '/assets/img/mock/u004.png'
+                  : '/assets/img/mock/u003.png'
+              "
+              alt=""
+              (click)="passowrdVisibleChange()"
+            />
+          </div>
+        </div>
+      </nz-form-control>
+    </nz-form-item> -->
+    <nz-form-item>
+      <nz-form-control>
+        <button
+          nz-button
+          class="login-button"
+          nzBlock
+          [nzType]="'primary'"
+          [ngClass]="{ 'btn-invalid': !validateForm.valid }"
+        >
+          {{ 'dj-login-登录' | translate }}
+        </button>
+        <div class="register">
+          <label nz-checkbox formControlName="autoLogin">{{
+            'dj-login-自动登录' | translate
+          }}</label>
+          <div>
+            <a [href]="digiwincloudUrl + '/login'" target="_blank">{{
+              'dj-login-忘记密码' | translate
+            }}</a>
+            <nz-divider nzType="vertical"></nz-divider>
+            <a [href]="digiwincloudUrl + '/register'" target="_blank">{{
+              'dj-login-注册' | translate
+            }}</a>
+          </div>
+        </div>
+      </nz-form-control>
+    </nz-form-item>
+    <p *ngIf="isRecommendedResolution" class="recommend">
+      {{ 'dj-login-建议使用1920*1080以上分辨率' | translate }}
+    </p>
+  </form>
+</div>

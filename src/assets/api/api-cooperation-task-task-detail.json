@@ -1,0 +1,685 @@
+{
+    "status": 200,
+    "statusDescription": "OK",
+    "response": {
+        "layout": [
+            {
+                "id": "a10cb8e3-0d9e-458d-90d6-a67981cf48a7",
+                "type": "ACTIVITY_TITLE",
+                "schema": "uiBot__activity",
+                "important": false,
+                "isNavigate": false
+            },
+            {
+                "id": "04f61a98-fd70-45ba-bee0-3ba40e88d83b",
+                "type": "APPROVAL_DESCRIPTION",
+                "schema": "uiBot__APPROVAL_DESCRIPTION",
+                "important": false,
+                "isNavigate": false,
+                "group": [
+                    {
+                        "id": "project_no",
+                        "type": "LABEL",
+                        "schema": "project_no",
+                        "headerName": "项目编号",
+                        "path": "task_info",
+                        "editable": false,
+                        "dataType": "string",
+                        "sortable": true,
+                        "filterable": true,
+                        "rowGroupable": true,
+                        "tagDefinitions": [
+                            {
+                                "code": "TYPE_STRING",
+                                "name": "数据组件",
+                                "description": "数据组件",
+                                "category": "DATATYPE",
+                                "interpreterServiceName": "typeStringTagInterpreter",
+                                "customize": false,
+                                "themeMapTag": {
+                                    "id": 500038,
+                                    "name": "xxxx",
+                                    "code": "ORDER_1",
+                                    "category": "ORDER",
+                                    "value": "1",
+                                    "uiBotCode": "ORDER"
+                                },
+                                "append": false
+                            }
+                        ],
+                        "enableTrim": true,
+                        "isFocusDisplay": false,
+                        "important": false,
+                        "isNavigate": false
+                    },
+                    {
+                        "id": "project_name",
+                        "type": "LABEL",
+                        "schema": "project_name",
+                        "headerName": "项目名称",
+                        "path": "task_info",
+                        "editable": false,
+                        "dataType": "string",
+                        "sortable": true,
+                        "filterable": true,
+                        "rowGroupable": true,
+                        "tagDefinitions": [
+                            {
+                                "code": "TYPE_STRING",
+                                "name": "数据组件",
+                                "description": "数据组件",
+                                "category": "DATATYPE",
+                                "interpreterServiceName": "typeStringTagInterpreter",
+                                "customize": false,
+                                "themeMapTag": {
+                                    "id": 500039,
+                                    "name": "xxxx",
+                                    "code": "ORDER_2",
+                                    "category": "ORDER",
+                                    "value": "2",
+                                    "uiBotCode": "ORDER"
+                                },
+                                "append": false
+                            }
+                        ],
+                        "enableTrim": true,
+                        "isFocusDisplay": false,
+                        "important": false,
+                        "isNavigate": false
+                    },
+                    {
+                        "id": "project_leader_name",
+                        "type": "LABEL",
+                        "schema": "project_leader_name",
+                        "headerName": "项目负责人名称",
+                        "path": "task_info",
+                        "editable": false,
+                        "dataType": "string",
+                        "sortable": true,
+                        "filterable": true,
+                        "rowGroupable": true,
+                        "tagDefinitions": [
+                            {
+                                "code": "TYPE_STRING",
+                                "name": "数据组件",
+                                "description": "数据组件",
+                                "category": "DATATYPE",
+                                "interpreterServiceName": "typeStringTagInterpreter",
+                                "customize": false,
+                                "themeMapTag": {
+                                    "id": 500040,
+                                    "name": "xxxx",
+                                    "code": "ORDER_3",
+                                    "category": "ORDER",
+                                    "value": "3",
+                                    "uiBotCode": "ORDER"
+                                },
+                                "append": false
+                            }
+                        ],
+                        "enableTrim": true,
+                        "isFocusDisplay": false,
+                        "important": false,
+                        "isNavigate": false
+                    }
+                ]
+            },
+            {
+                "id": "6fe6b07e-2f66-4ac2-967b-21fab70ad64a",
+                "type": "CONTENT_QUERY_BUTTON",
+                "supportShowInMaxedWindow": true,
+                "important": false,
+                "isNavigate": false,
+                "queryButtons": [
+                    {
+                        "defaultShow": true,
+                        "dataStateCode": "waitting",
+                        "dataSourceSet": {
+                            "dataSourceList": [
+                                {
+                                    "title": "协同计划排定完成",
+                                    "name": "task_info",
+                                    "dataKeys": [
+                                        "project_no",
+                                        "task_no"
+                                    ],
+                                    "type": "ESP",
+                                    "actionId": "esp_teamwork.task.plan.info.get",
+                                    "action": {
+                                        "title": "协同计划排定完成",
+                                        "actionId": "esp_teamwork.task.plan.info.get",
+                                        "category": "ESP",
+                                        "serviceId": {
+                                            "tenant_id": "IGPtest",
+                                            "prod": "PCC",
+                                            "hostAcct": "athena",
+                                            "name": "teamwork.task.plan.info.get"
+                                        },
+                                        "paras": {
+                                            "task_info": [
+                                                {
+                                                    "teamwork_plan_seq": 1,
+                                                    "project_no": "20230331001",
+                                                    "task_no": "4",
+                                                    "teamwork_plan_status": "1"
+                                                }
+                                            ]
+                                        },
+                                        "businessUnit": {
+                                            "eoc_company_id": "DEMO"
+                                        },
+                                        "actionParams": [
+                                            {
+                                                "name": "task_info",
+                                                "type": "PROCESS_VARIABLE",
+                                                "value": "task_info",
+                                                "required": false
+                                            }
+                                        ]
+                                    },
+                                    "dataSourceProcessors": [
+                                        {
+                                            "type": "service",
+                                            "serviceName": "atmcDataService",
+                                            "applyTo": "",
+                                            "taskWithBacklogData": {
+                                                "bpmData": {
+                                                    "_inName": "task_info",
+                                                    "_planEndTime": "2023-04-01 09:47:26",
+                                                    "task_d_xt_info": [
+                                                        {
+                                                            "teamwork_plan_seq": 1,
+                                                            "project_no": "20230331001",
+                                                            "task_no": "4"
+                                                        }
+                                                    ],
+                                                    "_in": [
+                                                        {
+                                                            "teamwork_plan_seq": 1,
+                                                            "project_no": "20230331001",
+                                                            "task_no": "4"
+                                                        }
+                                                    ],
+                                                    "task_info": [
+                                                        {
+                                                            "teamwork_plan_seq": 1,
+                                                            "project_no": "20230331001",
+                                                            "task_no": "4"
+                                                        }
+                                                    ],
+                                                    "atmcTaskStartTime": "2023-04-02 00:00:00",
+                                                    "process_EOC": {
+                                                        "eoc_company_id": "DEMO"
+                                                    },
+                                                    "atmcTaskEndTime": "2023-04-02 23:59:59"
+                                                },
+                                                "stateData": {},
+                                                "businessUnit": {
+                                                    "eoc_company_id": "DEMO"
+                                                },
+                                                "eocName": [
+                                                    "深科装备"
+                                                ],
+                                                "tmActivityId": "completeCoordinationPlanArrange_DTD",
+                                                "tmActivityName": "协同计划排定",
+                                                "tmCategory": "PROCESS",
+                                                "tmPattern": "BUSINESS",
+                                                "bpmActivityId": "completeCoordinationPlanArrange_DTD",
+                                                "proxyToken": "",
+                                                "processSerialNumber": "projectCenterConsole_CoordinationPlanArrange_userProject1551330468987678720",
+                                                "bpmActivityType": "UserTask",
+                                                "backlog": [
+                                                    {
+                                                        "backlogId": 293930711711936,
+                                                        "backlogName": "协同计划排定",
+                                                        "performerId": "gptest01",
+                                                        "performerName": "财务人员",
+                                                        "readCount": 1,
+                                                        "startTime": "2023-03-31 09:47:26",
+                                                        "planEndTime": "2023-04-02 23:59:59",
+                                                        "remainTime": "2天",
+                                                        "workitemList": [
+                                                            {
+                                                                "id": 293930711711936,
+                                                                "activityStepId": 293930711679168,
+                                                                "createTime": "2023-03-31 09:47:27",
+                                                                "performerId": "gptest01",
+                                                                "performerName": "财务人员",
+                                                                "workitemId": "1551330473307807744",
+                                                                "comment": "",
+                                                                "state": 1,
+                                                                "agentPerformerId": "",
+                                                                "agentPerformerName": "",
+                                                                "performerType": 0,
+                                                                "readCount": 1,
+                                                                "subState": 0,
+                                                                "createType": 0,
+                                                                "approvalState": "",
+                                                                "fromWorkitemId": "",
+                                                                "groupId": 293930711711936,
+                                                                "targetTenantId": "IGPtest",
+                                                                "importance": 0,
+                                                                "importanceSource": "self"
+                                                            }
+                                                        ],
+                                                        "closed": false,
+                                                        "bpmSignReason": "",
+                                                        "ptmBacklogId": 293930711724224,
+                                                        "ptmWorkItemId": 293930711711936,
+                                                        "merge": false
+                                                    }
+                                                ],
+                                                "taskUid": "1551330470002700288"
+                                            },
+                                            "projectData": {
+                                                "projectId": 293930710319360,
+                                                "projectName": "协同计划排定项目变更-0331",
+                                                "tmProjectId": "projectCenterConsole_CoordinationPlanArrange_userProject",
+                                                "tenantId": "IGPtest",
+                                                "startTime": "2023-04-29 00:00:00",
+                                                "endTime": "2023-04-29 23:59:59",
+                                                "processCreateTime": "2023-03-31 09:47:26",
+                                                "sourceIds": [
+                                                    "20230331001-4-1"
+                                                ]
+                                            }
+                                        }
+                                    ],
+                                    "override": false,
+                                    "extendedData": {
+                                        "__workitemId": "1551330473307807744",
+                                        "__processSerialNumber": "projectCenterConsole_CoordinationPlanArrange_userProject1551330468987678720",
+                                        "__workitemSqlId": 293930711711936
+                                    }
+                                }
+                            ],
+                            "mainDatasource": "task_info",
+                            "dataProcess": []
+                        },
+                        "showSubmitActions": true,
+                        "mechnismConfig": {
+                            "rules": []
+                        },
+                        "version": "2.0",
+                        "queryTitle": "待处理",
+                        "rowSize": 1,
+                        "type": "UI",
+                        "finished": false
+                    }
+                ]
+            },
+            {
+                "id": "4c8eaec9-4104-448e-beac-4f25a772ea57",
+                "type": "completeCoordinationPlanArrange_DTD-task-detail-waitting",
+                "schema": "customData",
+                "supportShowInMaxedWindow": true,
+                "important": false,
+                "isNavigate": false,
+                "stateCode": "waitting",
+                "finished": false
+            }
+        ],
+        "style": {},
+        "rules": [],
+        "pageData": {
+            "uiBot__activity": {
+                "taskStartTime": "2023-04-29 00:00:00",
+                "endTime": "2023-04-02 23:59:59",
+                "name": "协同计划排定",
+                "remainTime": "2天",
+                "taskEndTime": "2023-04-29 23:59:59",
+                "taskName": "协同计划排定项目变更-0331",
+                "readCount": 1,
+                "extendedFields": {
+                    "signOffProgressData": {
+                        "processInstances": [
+                            {
+                                "workitemId": 293930711711936,
+                                "processSerialNumber": "projectCenterConsole_CoordinationPlanArrange_userProject1551330468987678720",
+                                "tmActivityIds": [
+                                    "completeCoordinationPlanArrange_DTD"
+                                ]
+                            }
+                        ],
+                        "locale": "zh_CN"
+                    }
+                },
+                "processSerialNumber": "projectCenterConsole_CoordinationPlanArrange_userProject1551330468987678720",
+                "workitemId": "1551330473307807744",
+                "processCreateTime": "2023-03-31 09:47:26",
+                "eocName": [
+                    "深科装备"
+                ],
+                "merge": false
+            },
+            "uiBot__content": {
+                "title": "协同计划排定",
+                "subTitle": "协同计划排定"
+            },
+            "uiBot__APPROVAL_DESCRIPTION": {
+                "task_name": "签核进度004",
+                "plan_finish_date": "2023-04-02",
+                "teamwork_plan_seq": "1",
+                "project_leader_code": "igp-01",
+                "project_no": "20230331001",
+                "teamwork_plan_status": "1",
+                "liable_person_name": "erp財務人員",
+                "dispatch_status": "2",
+                "liable_person_code": "igp-01",
+                "project_name": "项目变更-0331",
+                "project_leader_name": "erp財務人員",
+                "__DATA_KEY": "20230331001;NAN;",
+                "activity__backLog__data": {
+                    "backlogId": 293930711711936,
+                    "performerId": "gptest01",
+                    "performerName": "财务人员",
+                    "readCount": 1,
+                    "startTime": "2023-03-31 09:47:26",
+                    "planEndTime": "2023-04-02 23:59:59",
+                    "remainTime": "2天",
+                    "workitemList": [
+                        {
+                            "id": 293930711711936,
+                            "activityStepId": 293930711679168,
+                            "createTime": "2023-03-31 09:47:27",
+                            "performerId": "gptest01",
+                            "performerName": "财务人员",
+                            "workitemId": "1551330473307807744",
+                            "comment": "",
+                            "state": 1,
+                            "agentPerformerId": "",
+                            "agentPerformerName": "",
+                            "performerType": 0,
+                            "readCount": 1,
+                            "subState": 0,
+                            "createType": 0,
+                            "approvalState": "",
+                            "fromWorkitemId": "",
+                            "groupId": 293930711711936,
+                            "targetTenantId": "IGPtest",
+                            "importance": 0,
+                            "importanceSource": "self"
+                        }
+                    ],
+                    "closed": false,
+                    "bpmSignReason": "",
+                    "backlogName": "协同计划排定",
+                    "processSerialNumber": "projectCenterConsole_CoordinationPlanArrange_userProject1551330468987678720",
+                    "ptmBacklogId": 293930711724224,
+                    "ptmWorkItemId": 293930711711936,
+                    "taskUid": "1551330470002700288"
+                },
+                "activity__remainTime": "2天",
+                "activity__performerName": "财务人员",
+                "businessUnit": {
+                    "eoc_company_id": "DEMO"
+                },
+                "activity__planEndTime": "2023-04-02 23:59:59",
+                "activity__readCount": 1,
+                "activity__data__status": {
+                    "withdraw": 0
+                }
+            },
+            "customData": [],
+            "uiBot__prompt_message": "",
+            "task_info": [
+                {
+                    "task_name": "签核进度004",
+                    "plan_finish_date": "2023-04-02",
+                    "teamwork_plan_seq": "1",
+                    "project_leader_code": "igp-01",
+                    "project_no": "20230331001",
+                    "teamwork_plan_status": "1",
+                    "liable_person_name": "erp財務人員",
+                    "dispatch_status": "2",
+                    "liable_person_code": "igp-01",
+                    "project_name": "项目变更-0331",
+                    "project_leader_name": "erp財務人員",
+                    "__DATA_KEY": "20230331001;NAN;",
+                    "activity__backLog__data": {
+                        "backlogId": 293930711711936,
+                        "performerId": "gptest01",
+                        "performerName": "财务人员",
+                        "readCount": 1,
+                        "startTime": "2023-03-31 09:47:26",
+                        "planEndTime": "2023-04-02 23:59:59",
+                        "remainTime": "2天",
+                        "workitemList": [
+                            {
+                                "id": 293930711711936,
+                                "activityStepId": 293930711679168,
+                                "createTime": "2023-03-31 09:47:27",
+                                "performerId": "gptest01",
+                                "performerName": "财务人员",
+                                "workitemId": "1551330473307807744",
+                                "comment": "",
+                                "state": 1,
+                                "agentPerformerId": "",
+                                "agentPerformerName": "",
+                                "performerType": 0,
+                                "readCount": 1,
+                                "subState": 0,
+                                "createType": 0,
+                                "approvalState": "",
+                                "fromWorkitemId": "",
+                                "groupId": 293930711711936,
+                                "targetTenantId": "IGPtest",
+                                "importance": 0,
+                                "importanceSource": "self"
+                            }
+                        ],
+                        "closed": false,
+                        "bpmSignReason": "",
+                        "backlogName": "协同计划排定",
+                        "processSerialNumber": "projectCenterConsole_CoordinationPlanArrange_userProject1551330468987678720",
+                        "ptmBacklogId": 293930711724224,
+                        "ptmWorkItemId": 293930711711936,
+                        "taskUid": "1551330470002700288"
+                    },
+                    "activity__remainTime": "2天",
+                    "activity__performerName": "财务人员",
+                    "businessUnit": {
+                        "eoc_company_id": "DEMO"
+                    },
+                    "activity__planEndTime": "2023-04-02 23:59:59",
+                    "activity__readCount": 1,
+                    "activity__data__status": {
+                        "withdraw": 0
+                    }
+                }
+            ]
+        },
+        "pageDataKeys": {
+            "task_info": [
+                "project_no",
+                "task_no",
+                "project_no",
+                "task_no"
+            ]
+        },
+        "finished": false,
+        "executeContext": {
+            "locale": "zh_CN",
+            "clientAgent": "webplatform",
+            "identity": "performer",
+            "tmProjectId": "projectCenterConsole_CoordinationPlanArrange_userProject",
+            "taskWithBacklogData": {
+                "bpmData": {
+                    "_inName": "task_info",
+                    "_planEndTime": "2023-04-01 09:47:26",
+                    "task_d_xt_info": [
+                        {
+                            "teamwork_plan_seq": 1,
+                            "project_no": "20230331001",
+                            "task_no": "4"
+                        }
+                    ],
+                    "_in": [
+                        {
+                            "teamwork_plan_seq": 1,
+                            "project_no": "20230331001",
+                            "task_no": "4"
+                        }
+                    ],
+                    "task_info": [
+                        {
+                            "teamwork_plan_seq": 1,
+                            "project_no": "20230331001",
+                            "task_no": "4"
+                        }
+                    ],
+                    "atmcTaskStartTime": "2023-04-02 00:00:00",
+                    "process_EOC": {
+                        "eoc_company_id": "DEMO"
+                    },
+                    "atmcTaskEndTime": "2023-04-02 23:59:59"
+                },
+                "stateData": {},
+                "businessUnit": {
+                    "eoc_company_id": "DEMO"
+                },
+                "eocName": [
+                    "深科装备"
+                ],
+                "tmActivityId": "completeCoordinationPlanArrange_DTD",
+                "tmActivityName": "协同计划排定",
+                "tmCategory": "PROCESS",
+                "tmPattern": "BUSINESS",
+                "bpmActivityId": "completeCoordinationPlanArrange_DTD",
+                "proxyToken": "",
+                "processSerialNumber": "projectCenterConsole_CoordinationPlanArrange_userProject1551330468987678720",
+                "bpmActivityType": "UserTask",
+                "backlog": [
+                    {
+                        "backlogId": 293930711711936,
+                        "backlogName": "协同计划排定",
+                        "performerId": "gptest01",
+                        "performerName": "财务人员",
+                        "readCount": 1,
+                        "startTime": "2023-03-31 09:47:26",
+                        "planEndTime": "2023-04-02 23:59:59",
+                        "remainTime": "2天",
+                        "workitemList": [
+                            {
+                                "id": 293930711711936,
+                                "activityStepId": 293930711679168,
+                                "createTime": "2023-03-31 09:47:27",
+                                "performerId": "gptest01",
+                                "performerName": "财务人员",
+                                "workitemId": "1551330473307807744",
+                                "comment": "",
+                                "state": 1,
+                                "agentPerformerId": "",
+                                "agentPerformerName": "",
+                                "performerType": 0,
+                                "readCount": 1,
+                                "subState": 0,
+                                "createType": 0,
+                                "approvalState": "",
+                                "fromWorkitemId": "",
+                                "groupId": 293930711711936,
+                                "targetTenantId": "IGPtest",
+                                "importance": 0,
+                                "importanceSource": "self"
+                            }
+                        ],
+                        "closed": false,
+                        "bpmSignReason": "",
+                        "ptmBacklogId": 293930711724224,
+                        "ptmWorkItemId": 293930711711936,
+                        "merge": false
+                    }
+                ],
+                "taskUid": "1551330470002700288"
+            },
+            "allBpmData": [
+                {
+                    "_inName": "task_info",
+                    "_planEndTime": "2023-04-01 09:47:26",
+                    "task_d_xt_info": [
+                        {
+                            "teamwork_plan_seq": 1,
+                            "project_no": "20230331001",
+                            "task_no": "4"
+                        }
+                    ],
+                    "_in": [
+                        {
+                            "teamwork_plan_seq": 1,
+                            "project_no": "20230331001",
+                            "task_no": "4"
+                        }
+                    ],
+                    "task_info": [
+                        {
+                            "teamwork_plan_seq": 1,
+                            "project_no": "20230331001",
+                            "task_no": "4"
+                        }
+                    ],
+                    "atmcTaskStartTime": "2023-04-02 00:00:00",
+                    "process_EOC": {
+                        "eoc_company_id": "DEMO"
+                    },
+                    "atmcTaskEndTime": "2023-04-02 23:59:59"
+                }
+            ],
+            "taskType": 1,
+            "backlogId": 293930711711936,
+            "abnormalWorkitemId": 293930711724224,
+            "approvalInfo": {},
+            "tmActivityId": "completeCoordinationPlanArrange_DTD",
+            "tmActivityName": "协同计划排定",
+            "tenantId": "IGPtest",
+            "pageCode": "task-detail",
+            "pattern": "CUSTOM",
+            "category": "PROCESS",
+            "relationTag": {
+                "identity": "performer",
+                "activityId": "completeCoordinationPlanArrange_DTD"
+            },
+            "businessUnit": {
+                "eoc_company_id": "DEMO"
+            },
+            "isShared": false,
+            "isCustomize": true,
+            "dataFrom": "PTM",
+            "bpmData": {
+                "_inName": "task_info",
+                "_planEndTime": "2023-04-01 09:47:26",
+                "task_d_xt_info": [
+                    {
+                        "teamwork_plan_seq": 1,
+                        "project_no": "20230331001",
+                        "task_no": "4"
+                    }
+                ],
+                "_in": [
+                    {
+                        "teamwork_plan_seq": 1,
+                        "project_no": "20230331001",
+                        "task_no": "4"
+                    }
+                ],
+                "task_info": [
+                    {
+                        "teamwork_plan_seq": 1,
+                        "project_no": "20230331001",
+                        "task_no": "4"
+                    }
+                ],
+                "atmcTaskStartTime": "2023-04-02 00:00:00",
+                "process_EOC": {
+                    "eoc_company_id": "DEMO"
+                },
+                "atmcTaskEndTime": "2023-04-02 23:59:59"
+            },
+            "isSuperAdmin": false,
+            "isTaskEngine": true
+        },
+        "pageCountSize": 1,
+        "mechnismConfig": {
+            "rules": []
+        }
+    }
+}

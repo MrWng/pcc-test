@@ -1,0 +1,174 @@
+<div
+  #mask
+  *ngIf="isVisible"
+  class="masks not-select"
+  [style]="getMaskPosition()"
+  (mousemove)="mousemove($event, 'move')"
+  (mousedown)="mousedown($event, 'move')"
+  (mouseup)="mouseup($event)"
+  (mouseleave)="mouseup($event)"
+>
+  <div class="title">
+    {{ title }}
+    <div class="close" (click)="closeDialog()">
+      <svg class="iconfont" aria-hidden="true">
+        <use xlink:href="#icondelete1"></use>
+      </svg>
+    </div>
+  </div>
+  <div class="loading" *ngIf="loading"></div>
+  <div class="content">
+    <div class="formList">
+      <div class="dateSlect modalSelect">
+        {{ 'dj-pcc-起讫日期' | translate }}：
+        <div class="date">
+          <app-input-new
+            name="cardStart"
+            [value]="start_date"
+            [placeholder]="translateWord('开始时间')"
+            (ngModelChange)="startTimeChange($event)"
+            [nzDisabledDate]="disabledStartDate"
+            [nzAllowClear]="true"
+          ></app-input-new>
+        </div>
+        <div style="margin: 0 4px">~</div>
+        <div class="date">
+          <app-input-new
+            name="cardEnd"
+            [value]="finish_date"
+            [placeholder]="translateWord('结束时间')"
+            (ngModelChange)="endTimeChange($event)"
+            [nzDisabledDate]="disabledEndDate"
+            [nzAllowClear]="true"
+          >
+          </app-input-new>
+        </div>
+      </div>
+      <div class="modalSelect">
+        {{ 'dj-default-部门' | translate }}：
+        <span (click)="chooseDepart()">
+          <span *ngIf="!departList.length">{{ 'dj-pcc-选择部门' | translate }} ></span>
+          <span>
+            {{ departName }}
+          </span>
+        </span>
+        <em
+          nz-icon
+          nzType="delete"
+          nzTheme="outline"
+          *ngIf="departList.length"
+          (click)="deleteDepart()"
+        ></em>
+      </div>
+      <div class="modalSelect">
+        {{ 'dj-pcc-人员' | translate }}：
+        <span (click)="choosePeople()">
+          <span *ngIf="!peopleList.length">{{ 'dj-pcc-选择人员' | translate }} ></span>
+          <span>
+            {{ peopleName }}
+          </span>
+        </span>
+        <em
+          nz-icon
+          nzType="delete"
+          nzTheme="outline"
+          *ngIf="peopleList.length"
+          (click)="deletePeople()"
+        ></em>
+      </div>
+      <div class="modalSelect">
+        {{ 'dj-pcc-显示时距' | translate }}：
+        <nz-select [(ngModel)]="dateType" (ngModelChange)="dateChange()">
+          <nz-option nzValue="1" [nzLabel]="translateWord('日')"></nz-option>
+          <nz-option nzValue="2" [nzLabel]="translateWord('周')"></nz-option>
+          <nz-option nzValue="3" [nzLabel]="translateWord('月')"></nz-option>
+        </nz-select>
+      </div>
+    </div>
+    <div class="mask_table" *ngIf="loading || listOfMapData.length; else svgTemplate">
+      <nz-table
+        #expandTable
+        [nzData]="listOfMapData"
+        [nzBordered]="nzBordered"
+        nzTableLayout="fixed"
+        [nzShowPagination]="false"
+        [nzLoading]="loading"
+        [nzScroll]="getScroll()"
+      >
+        <thead>
+          <tr *ngIf="dateType === '1'">
+            <th nzWidth="54px" nzLeft></th>
+            <th nzWidth="120px" nzLeft>{{ 'dj-default-负责人' | translate }}</th>
+            <th nzWidth="160px" nzLeft>{{ 'dj-default-任务名称' | translate }}</th>
+            <th nzWidth="120px" nzLeft>{{ 'dj-default-总工时' | translate }}</th>
+            <th *ngFor="let data of titleList" nzWidth="120px" nzAlign="center">{{ data.name }}</th>
+          </tr>
+          <tr *ngIf="dateType === '2' || dateType === '3'">
+            <th nzWidth="54px" nzLeft rowspan="3"></th>
+            <th nzWidth="120px" nzLeft rowspan="3">{{ 'dj-default-负责人' | translate }}</th>
+            <th nzWidth="160px" nzLeft rowspan="3">{{ 'dj-default-任务名称' | translate }}</th>
+            <th nzWidth="120px" nzLeft rowspan="3">{{ 'dj-default-总工时' | translate }}</th>
+            <th
+              *ngFor="let data of yearList"
+              [colspan]="data.colspan"
+              nzAlign="center"
+              class="dateTh"
+            >
+              {{ data.name }}
+            </th>
+          </tr>
+          <tr *ngIf="dateType === '2'">
+            <th
+              *ngFor="let data of monthList"
+              [colspan]="data.colspan"
+              nzAlign="center"
+              class="dateTh"
+            >
+              {{ data.name }}
+            </th>
+          </tr>
+          <tr *ngIf="dateType === '2' || dateType === '3'">
+            <th *ngFor="let data of titleList" nzAlign="center" class="dateTh">{{ data.name }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let data of expandTable.data">
+            <ng-container *ngFor="let item of mapOfExpandedData[data.key]">
+              <tr *ngIf="(item.parent && item.parent.expand) || !item.parent">
+                <td
+                  [nzIndentSize]="item.level! * 20"
+                  [nzShowExpand]="item.children && item.children.length > 0"
+                  [(nzExpand)]="item.expand"
+                  [nzLeft]="true"
+                  (nzExpandChange)="collapse(mapOfExpandedData[data.key], item, $event)"
+                  nzLeft
+                ></td>
+                <td nzLeft>{{ item.personnel_name }}</td>
+                <td nzLeft>{{ item.task_name }}</td>
+                <td nzLeft class="totalHour" nzAlign="right">{{ item.totalHour }}</td>
+                <td
+                  *ngFor="let datas of titleList"
+                  [ngClass]="{
+                    active: item.children,
+                    redActive: dateType === '1' && item[datas.value] > 8
+                  }"
+                  nzAlign="right"
+                >
+                  {{ item[datas.value] }}
+                </td>
+              </tr>
+            </ng-container>
+          </ng-container>
+        </tbody>
+      </nz-table>
+    </div>
+    <ng-template #svgTemplate>
+      <div class="no-data-box">
+        <div style="margin-top: -30px">
+          <app-svg-file [type]="'noData'"></app-svg-file>
+          <p>{{ 'dj-c-暂无数据' | translate }}</p>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+</div>

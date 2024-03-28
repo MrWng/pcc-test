@@ -1,0 +1,36 @@
+.projectDetail {
+  width: 100%;
+  color: var(--main-color);
+  padding: 3px 10px 3px 0;
+  span {
+    color: var(--main-color);
+    cursor: pointer;
+  }
+}
+.mask {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background: #fff;
+  z-index: 100;
+  padding: 12px 24px;
+  app-dynamic-wbs-tabs {
+    width: 100%;
+  }
+  .close {
+    margin: 24px 12px 48px;
+    text-align: right;
+    cursor: pointer;
+  }
+}
+::ng-deep .mask {
+  .close {
+    .anticon svg {
+      color: #2012d9;
+      width: 20px;
+      height: 20px;
+    }
+  }
+}

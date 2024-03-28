@@ -1,0 +1,70 @@
+<div class="mes_table">
+  <nz-table #nestedTable [nzData]="listOfMapData" [nzShowPagination]="false">
+    <thead>
+      <tr>
+        <th></th>
+        <th>{{ 'dj-default-状态码' | translate }}</th>
+        <th>{{ 'dj-default-工单单号' | translate }}</th>
+        <th>{{ 'dj-default-品名规格' | translate }}</th>
+        <th>{{ 'dj-default-设备号' | translate }}</th>
+        <th>{{ 'dj-default-生产数量' | translate }}</th>
+        <th>{{ 'dj-default-加工顺序' | translate }}</th>
+        <th>{{ 'dj-default-工艺名称' | translate }}</th>
+        <th>{{ 'dj-default-工艺性质' | translate }}</th>
+        <th>{{ 'dj-default-线别/厂商名称' | translate }}</th>
+        <th>{{ 'dj-default-投入数量' | translate }}</th>
+        <th>{{ 'dj-default-完成数量' | translate }}</th>
+        <th>{{ 'dj-default-预定完工日' | translate }}</th>
+        <th>{{ 'dj-default-完成率' | translate }}</th>
+        <th>{{ 'dj-default-工时' | translate }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-template ngFor let-data [ngForOf]="nestedTable.data">
+        <tr>
+          <td [(nzExpand)]="data.expand" (nzExpandChange)="tableExpand(data)"></td>
+          <td>{{ data.status }}</td>
+          <td>{{ data.wo_no }}</td>
+          <td>{{ data.item_name_spec }}</td>
+          <td>{{ data.machine_no }}</td>
+          <td>{{ data.production_qty }}</td>
+          <td>{{ data.process_seq }}</td>
+          <td>{{ data.op_name }}</td>
+          <td>{{ data.op_type }}</td>
+          <td>{{ data.supplier_name }}</td>
+          <td>{{ data.feed_qty }}</td>
+          <td>{{ data.complete_qty }}</td>
+          <td>{{ data.plan_date_e }}</td>
+          <td>{{ data.complete_rate }}</td>
+          <td>{{ data.work_hours }}</td>
+        </tr>
+        <tr [nzExpand]="data.expand">
+          <nz-table #innerTable [nzData]="listOfChildrenData" nzSize="middle" [nzShowPagination]="false" [nzLoading]="isLoading">
+            <thead>
+              <tr>
+                <th>{{ 'dj-pcc-检验项目' | translate }}</th>
+                <th>{{ 'dj-pcc-检验内容' | translate }}</th>
+                <th>{{ 'dj-pcc-值范围' | translate }}</th>
+                <th>{{ 'dj-pcc-首检数据' | translate }}</th>
+                <th>{{ 'dj-pcc-巡检数据' | translate }}</th>
+                <th>{{ 'dj-pcc-首检结果' | translate }}</th>
+                <th>{{ 'dj-pcc-巡检结果' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let data of innerTable.data">
+                <td>{{ data.qc_project_no }}</td>
+                <td>{{ data.qc_content }}</td>
+                <td>{{ data.value_range }}</td>
+                <td>{{ data.first_qc_data }}</td>
+                <td>{{ data.patrol_qc_data }}</td>
+                <td>{{ data.first_qc_result }}</td>
+                <td >{{ data.patrol_qc_result }}</td>
+              </tr>
+            </tbody>
+          </nz-table>
+        </tr>
+      </ng-template>
+    </tbody>
+  </nz-table>
+</div>

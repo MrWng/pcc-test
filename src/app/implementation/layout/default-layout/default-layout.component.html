@@ -1,0 +1,20 @@
+<div class="layout">
+  <div class="layout-menu">
+    <app-menu-bar></app-menu-bar>
+  </div>
+  <div class="layout-content-else">
+    <router-outlet></router-outlet>
+  </div>
+
+  <!-- end of 消息中心 -->
+
+  <!-- TODO 提交的转圈：后续考虑使用指令/组件优化 -->
+  <app-submit-spin
+    *ngIf="submitSpinService.showSubmitSpin || submitSpinService.dataConfiguring"
+  ></app-submit-spin>
+
+  <!-- 消息提示组件(黑底白字的容器) -->
+  <div class="athena-overlay">
+    <div class="message-tip-overlay" id="message-tip-overlay"></div>
+  </div>
+</div>

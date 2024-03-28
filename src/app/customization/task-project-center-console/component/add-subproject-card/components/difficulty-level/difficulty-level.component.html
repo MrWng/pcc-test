@@ -1,0 +1,21 @@
+<form nz-form [formGroup]="form">
+  <nz-form-item>
+    <nz-form-control>
+      <ath-select
+        style="width: 100%; min-width: 100%"
+        formControlName="difficultyLevelObj"
+        [nzDisabled]="task_status > 10 || isForbidden"
+        [nzPlaceHolder]="translateWord('请选择难度等级')"
+        isInsideLabel
+        [label]="translateWord('难度等级')"
+      >
+        <ath-option
+          *ngFor="let item of dataList"
+          [nzValue]="item"
+          [nzLabel]="item.difficulty_level_name"
+        >
+        </ath-option>
+      </ath-select>
+    </nz-form-control>
+  </nz-form-item>
+</form>

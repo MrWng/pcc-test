@@ -1,0 +1,39 @@
+<ath-spin [athSpinning]="loading">
+  <div class="modal-content" (click)="hideComment()">
+    <div class="title">{{ 'dj-c-签核进程' | translate }}</div>
+    <div class="sign-off-return-info-container" *ngIf="returnInfo">
+      <div class="info-row" *ngFor="let row of returnInfo;">
+        <div class="return-info-title">{{row.title | translate}}：</div>
+        <div class="return-info-content">{{row.content}}</div>
+      </div>
+    </div>
+    <ul class="progress">
+      <li *ngFor="let progress of progressData">
+        <!-- 外层状态 0未开始 1进行中 2已暂停 3已完成 4已撤销 5已终止 6进行中但已开始 -->
+        <div
+          class="detail"
+          [ngClass]="{
+            'not-start': progress.state === -1 || progress.state === 0,
+            'in-progress': progress.state === 1
+          }"
+        >
+          <ng-container *ngIf="notifySignTypeList.includes(progress.signType); else commSignTypeTpl;">
+            <div class="checkpoint-name">
+              {{ 'dj-知会' | translate }}
+              <span>{{progress.bpmActivityName}}</span>
+            </div>
+          </ng-container>
+          <ng-template #commSignTypeTpl>
+            <div class="checkpoint-name">
+              {{ progress.bpmActivityName }}
+              <span *ngIf="progress.isAddTask">{{
+                'dj-c-加签' | translate
+                }}</span>
+            </div>
+          </ng-template>
+          <sign-progress [progress]="progress" (showComment)="showComment($event)"></sign-progress>
+        </div>
+      </li>
+    </ul>
+  </div>
+</ath-spin>

@@ -1,0 +1,23 @@
+<nz-modal 
+  [(nzVisible)]="changeReasonVisible" 
+  (nzOnCancel)="cancel()" 
+  (nzOnOk)="confirm()"
+>
+<ng-container *nzModalContent>
+    <div *ngIf="title" class="modal-title"> {{ title }} </div>
+    <div *ngIf="contentInfo" class="content-info">{{ contentInfo }}</div>
+    <nz-form-item *ngIf="isTextArea">
+      <nz-form-control nzSpan="24">
+        <ath-input-group [required]="true" [label]="translateWordPcc('变更原因')">
+        <textarea class="text-area" athInput [autosize]="{ minRows: 1 }" [maxlength]="255" [placeholder]="translateWordPcc('请输入')" [(ngModel)]="changeReason" ></textarea>
+        </ath-input-group>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item *ngIf="!isTextArea">
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="email">{{ 'dj-pcc-变更原因' | translate }}</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24" [nzErrorTip]="translateWordPcc('输入不是有效的电子邮件')">
+        <input nz-input [placeholder]="translateWordPcc('请输入')" [(ngModel)]="changeReason"/>
+      </nz-form-control>
+    </nz-form-item>
+  </ng-container>
+</nz-modal>

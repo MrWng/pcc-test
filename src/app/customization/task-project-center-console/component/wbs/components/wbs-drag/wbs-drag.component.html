@@ -1,0 +1,9 @@
+<div
+  cdkDropList
+  cdkDropListOrientation="horizontal"
+  class="example-list"
+  (cdkDropListDropped)="drop($event)"
+  [ngStyle]="{ width: data?.length * 260 + 12 + (this.data?.length - 1) * 46 + 'px' }"
+>
+  <div class="example-box" *ngFor="let item of data" cdkDrag></div>
+</div>

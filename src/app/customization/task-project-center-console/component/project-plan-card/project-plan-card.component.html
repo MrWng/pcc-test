@@ -1,0 +1,222 @@
+<ul>
+  <li
+    tDraggable
+    *ngFor="let item of planCardList; let i = index"
+    [nestingTargetRect]="{ marginBottom: 20 }"
+    [dragData]="{ item: item, parentList: planCardList, index: i }"
+    class="project-info"
+    [ngStyle]="{ width: 260 - item.level * 12 + 'px' }"
+  >
+    <div
+      class="card-wrapper"
+      [draggable]="!item.disabled && !wbsService.hasTaskProportionForThisTree(item.task_no)"
+    >
+      <div
+        class="project-top"
+        [ngClass]="{ 'leaf-top': item.children && !item.children.length }"
+        [ngStyle]="{ opacity: item.children && item.children.length ? 1 - item.level * 0.05 : 1 }"
+      >
+        <!-- 工期 -->
+        <div class="time">
+          <p class="date">
+            {{ wbsService.getPjPeriod(item.plan_start_date, item.plan_finish_date) }}
+          </p>
+          <div class="work-number">
+            {{ wbsService.durationCalculation(item) }}{{ 'dj-default-n天工期' | translate }}
+          </div>
+        </div>
+
+        <!-- 三个点：更多操作 -->
+        <ul
+          class="more"
+          *ngIf="
+            (!(item.level === 0 && source === Entry.collaborate) &&
+              hiddenAdd(item, 1) &&
+              wbsService.editable &&
+              !wbsService.needRefresh) ||
+            source === Entry.maintain
+          "
+          (click)="editOrDelete(item, $event)"
+          [ngStyle]="{
+            background: item.isOperationsShow
+              ? item.children && item.children.length
+                ? '#2736ce'
+                : '#000'
+              : ''
+          }"
+          nz-popover
+          nzPopoverTrigger="click"
+          nzPopoverPlacement="bottom"
+          [nzPopoverContent]="contentTemplate"
+          nzPopoverOverlayClassName="popoverTemplateBox"
+        >
+          <li></li>
+          <li></li>
+          <li></li>
+        </ul>
+
+        <ng-template #contentTemplate>
+          <div class="operations" [hidden]="!item.isOperationsShow">
+            <div
+              class="edit"
+              [ngClass]="{ disable: item.unEdit }"
+              (click)="edit(item, $event)"
+              [userBehavior]="{ name: 'dj-default-编辑一级计划', code: editCode }"
+            >
+              {{ 'dj-default-编辑' | translate }}
+            </div>
+            <div
+              class="delete"
+              [ngClass]="{
+                disable:
+                  item.complete_rate !== 0 ||
+                  item.isCollaborationCard ||
+                  item.unDelete ||
+                  item.unEdit ||
+                  getTaskProportionCheck() ||
+                  hasTaskProportionCheck(item)
+              }"
+              (click)="delete(item, $event)"
+            >
+              {{ 'dj-default-删除' | translate }}
+            </div>
+          </div>
+        </ng-template>
+
+        <!-- 任务卡片右上角的操作区 -- end -->
+      </div>
+      <!-- 显示任务信息 -- begin -->
+      <div class="info" [ngClass]="{ 'info-style': item.level !== 0 }">
+        <div class="plan-card-left">
+          <div class="title">
+            <em class="icon" *ngIf="item.is_milepost">
+              <svg class="iconfont" aria-hidden="true">
+                <use xlink:href="#iconlichengbei"></use>
+              </svg>
+            </em>
+            <em class="icon" *ngIf="item.is_attachment">
+              <svg class="iconfont" aria-hidden="true">
+                <use xlink:href="#iconjiaofuwu"></use>
+              </svg>
+            </em>
+            <em class="icon" *ngIf="item?.is_approve">
+              <svg class="iconfont" aria-hidden="true">
+                <use xlink:href="#iconqianhe"></use>
+              </svg>
+            </em>
+            <div
+              class="text"
+              nz-tooltip
+              [nzTooltipTitle]="item.task_name"
+              nzTooltipPlacement="topLeft"
+            >
+              <p class="task-name-box">
+                {{ item.task_name }}
+                <span *ngIf="hasEdit(item)" class="card-edit">*</span>
+                <span
+                  class="collaboration-card"
+                  *ngIf="item.isCollaborationCard && source === Entry.card"
+                >
+                  {{ 'dj-pcc-协同中' | translate }}
+                </span>
+              </p>
+            </div>
+          </div>
+          <div
+            class="text"
+            nz-tooltip
+            [nzTooltipTitle]="item.task_category"
+            nzTooltipPlacement="topLeft"
+          >
+            {{ 'dj-pcc-任务类型' | translate }}
+            {{ wbsService.TaskType[item.task_category] | translate }}
+          </div>
+          <div>
+            <span class="person" *ngIf="item.children && !item.children.length">
+              {{ item.liable_person_name }}
+            </span>
+          </div>
+        </div>
+        <!-- 任务比重提示信息 -->
+        <div
+          class="error_card"
+          *ngIf="
+            ((taskProportionCheck && taskProportionCheck.task_info?.length > 0) ||
+              wbsService.taskProportionCheck?.taskInfoTip) &&
+            hasTaskProportion(item.task_no)
+          "
+        >
+          <div
+            class="text"
+            nz-tooltip
+            [nzTooltipTitle]="
+              translatePccWord(
+                '存在下阶任务的任务比重 < 100%，则所有下阶任务的任务比重累计必须等于100%！'
+              )
+            "
+            nzTooltipPlacement="bottom"
+          >
+            {{
+              'dj-pcc-存在下阶任务的任务比重 < 100%，则所有下阶任务的任务比重累计必须等于100%！'
+                | translate
+            }}
+          </div>
+        </div>
+        <!-- 任务卡片，左下角(+) -->
+        <div *ngIf="showAddIcon && !wbsService.needRefresh" class="add-child-box">
+          <div class="add-next-child" (click)="addSubProjectCard(item)" *ngIf="isHiddenAdd(item)">
+            <em nz-icon nzType="plus" nzTheme="outline"></em>
+          </div>
+        </div>
+
+        <div
+          class="next-level-num"
+          *ngIf="item.children && item.children.length"
+          (click)="showOrHideChildren(item)"
+        >
+          {{ item.isChildrenshow ? '—' : item.children.length }}
+        </div>
+        <div
+          class="connection"
+          *ngIf="item.children && item.children.length && item.isChildrenshow"
+          [ngStyle]="{
+            height: 165 * item.chilrenLength - 87 + 'px',
+            bottom: -(165 * item.chilrenLength - 87) + 'px'
+          }"
+        ></div>
+      </div>
+      <!-- 显示任务信息 -- end -->
+    </div>
+
+    <ul
+      tDroppable
+      [disableDrop]="item.disabled || isIssueTaskCard(item)"
+      *ngIf="item.children?.length && item.isChildrenshow"
+      [allowDropOnItem]="true"
+      [nestingTargetRect]="{ height: 108, marginBottom: 20 }"
+      (dropEvent)="onDrop($event, item)"
+    >
+      <!-- ul---{{item.disabled}} -->
+      <!-- 非一级任务卡片，即，下级任务的卡片任务，嵌套使用 -->
+      <app-project-plan-card
+        *ngIf="item.children?.length && item.isChildrenshow"
+        [source]="source"
+        [planCardList]="item.children"
+        recursive-root
+        (changeWbsTaskCardProportion)="changeTaskCardProportion()"
+      ></app-project-plan-card>
+    </ul>
+  </li>
+</ul>
+<!-- 变更原因输入 -->
+<app-change-reason #changeReason (confirmInput)="changeReasonOk($event)"></app-change-reason>
+<nz-modal
+  [(nzVisible)]="confirmDeleteVisible"
+  [nzTitle]="translateWord('提示')"
+  [nzOkText]="translateWord('确定')"
+  [nzCancelText]="translateWord('取消')"
+  (nzOnOk)="handleOk()"
+  (nzOnCancel)="handleCancel()"
+>
+  <ng-container *nzModalContent> {{ 'dj-default-确定删除么？' | translate }} </ng-container>
+</nz-modal>

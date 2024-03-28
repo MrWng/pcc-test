@@ -1,0 +1,8 @@
+<div class="process-perc" [ngClass]="{ 'full-pert': fullScreenStatus }">
+  <div class="chart-wrapper" *ngIf="dependencyInfo?.length">
+      <div echarts [options]="option" class="chart"></div>
+  </div>
+  <div class="noData" *ngIf="!dependencyInfo?.length">
+    {{ 'dj-pcc-该项目暂未设定前后置任务关系！' | translate }}
+  </div>
+</div>

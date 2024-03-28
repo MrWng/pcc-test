@@ -1,0 +1,4130 @@
+{
+  "status": 200,
+  "statusDescription": "OK",
+  "response": {
+    "layout": [
+      {
+        "id": "e1facda6-3979-422e-8556-86193969b84d",
+        "type": "ACTIVITY_TITLE",
+        "schema": "uiBot__activity",
+        "important": false
+      },
+      {
+        "id": "47d8beb6-3ec6-4b86-9b9e-9afa0294a36f",
+        "type": "SIGN_OFF_PROGRESS_LINK",
+        "schema": "uiBot__activity",
+        "important": false
+      },
+      {
+        "id": "18976bab-7b3a-404f-9a78-1805e4ca423b",
+        "type": "APPROVAL_DESCRIPTION",
+        "schema": "uiBot__APPROVAL_DESCRIPTION",
+        "important": false,
+        "group": [
+          {
+            "id": "project_no",
+            "type": "LABEL",
+            "schema": "project_no",
+            "headerName": "專案編號",
+            "path": "project_info",
+            "editable": false,
+            "dataType": "string",
+            "sortable": true,
+            "filterable": true,
+            "rowGroupable": true,
+            "tagDefinitions": [
+              {
+                "code": "TYPE_STRING",
+                "name": "数据组件",
+                "description": "数据组件",
+                "category": "DATATYPE",
+                "interpreterServiceName": "typeStringTagInterpreter",
+                "customize": false,
+                "themeMapTag": {
+                  "id": 500030,
+                  "name": "xxxx",
+                  "code": "ACTIVITY_DESCRIPTION_title",
+                  "category": "BUSINESS",
+                  "uiBotCode": "ACTIVITY_DESCRIPTION_title"
+                },
+                "append": false
+              }
+            ],
+            "enableTrim": true,
+            "isFocusDisplay": false,
+            "important": false
+          },
+          {
+            "id": "project_name",
+            "type": "LABEL",
+            "schema": "project_name",
+            "headerName": "專案名稱",
+            "path": "project_info",
+            "editable": false,
+            "dataType": "string",
+            "sortable": true,
+            "filterable": true,
+            "rowGroupable": true,
+            "tagDefinitions": [
+              {
+                "code": "TYPE_STRING",
+                "name": "数据组件",
+                "description": "数据组件",
+                "category": "DATATYPE",
+                "interpreterServiceName": "typeStringTagInterpreter",
+                "customize": false,
+                "themeMapTag": {
+                  "id": 500039,
+                  "name": "xxxx",
+                  "code": "ORDER_2",
+                  "category": "ORDER",
+                  "value": "2",
+                  "uiBotCode": "ORDER"
+                },
+                "append": false
+              }
+            ],
+            "enableTrim": true,
+            "isFocusDisplay": false,
+            "important": false
+          },
+          {
+            "id": "project_leader_name",
+            "type": "LABEL",
+            "schema": "project_leader_name",
+            "headerName": "專案負責人名稱",
+            "path": "project_info",
+            "editable": false,
+            "dataType": "string",
+            "sortable": true,
+            "filterable": true,
+            "rowGroupable": true,
+            "tagDefinitions": [
+              {
+                "code": "TYPE_STRING",
+                "name": "数据组件",
+                "description": "数据组件",
+                "category": "DATATYPE",
+                "interpreterServiceName": "typeStringTagInterpreter",
+                "customize": false,
+                "themeMapTag": {
+                  "id": 500030,
+                  "name": "xxxx",
+                  "code": "ACTIVITY_DESCRIPTION_title",
+                  "category": "BUSINESS",
+                  "uiBotCode": "ACTIVITY_DESCRIPTION_title"
+                },
+                "append": false
+              }
+            ],
+            "enableTrim": true,
+            "isFocusDisplay": false,
+            "important": false
+          },
+          {
+            "id": "project_plan_start_date",
+            "type": "LABEL",
+            "schema": "project_plan_start_date",
+            "headerName": "專案預計開始日",
+            "title": "專案預計開始日",
+            "path": "project_info",
+            "dataType": "date",
+            "sortable": true,
+            "filterable": true,
+            "rowGroupable": true,
+            "tagDefinitions": [
+              {
+                "code": "TYPE_DATE",
+                "name": "数据组件",
+                "description": "数据组件",
+                "category": "DATATYPE",
+                "interpreterServiceName": "typeDateTagInterpreter",
+                "customize": false,
+                "themeMapTag": {
+                  "id": 500044,
+                  "name": "xxxx",
+                  "code": "ORDER_5",
+                  "category": "ORDER",
+                  "value": "5",
+                  "uiBotCode": "ORDER"
+                },
+                "append": false
+              }
+            ],
+            "important": false
+          },
+          {
+            "id": "project_plan_finish_date",
+            "type": "LABEL",
+            "schema": "project_plan_finish_date",
+            "headerName": "專案預計完成日",
+            "title": "專案預計完成日",
+            "path": "project_info",
+            "dataType": "date",
+            "sortable": true,
+            "filterable": true,
+            "rowGroupable": true,
+            "tagDefinitions": [
+              {
+                "code": "TYPE_DATE",
+                "name": "数据组件",
+                "description": "数据组件",
+                "category": "DATATYPE",
+                "interpreterServiceName": "typeDateTagInterpreter",
+                "customize": false,
+                "themeMapTag": {
+                  "id": 500045,
+                  "name": "xxxx",
+                  "code": "ORDER_6",
+                  "category": "ORDER",
+                  "value": "6",
+                  "uiBotCode": "ORDER"
+                },
+                "append": false
+              }
+            ],
+            "important": false
+          }
+        ]
+      },
+      {
+        "id": "49861686-2fd8-4c01-8aa4-1c7e431ffe25",
+        "type": "CONTENT_QUERY_BUTTON",
+        "supportShowInMaxedWindow": true,
+        "important": false,
+        "queryButtons": [
+          {
+            "defaultShow": true,
+            "dataStateCode": "waitting",
+            "dataSourceSet": {
+              "dataSourceList": [
+                {
+                  "title": "取得任務資訊",
+                  "name": "project_info",
+                  "dataKeys": [
+                    "project_no",
+                    "task_no"
+                  ],
+                  "type": "ESP",
+                  "actionId": "esp_task.info.get",
+                  "action": {
+                    "title": "取得任務資訊",
+                    "actionId": "esp_task.info.get",
+                    "category": "ESP",
+                    "serviceId": {
+                      "tenant_id": "E10ATHENA6003",
+                      "prod": "PCC",
+                      "hostAcct": "athena",
+                      "name": "task.info.get"
+                    },
+                    "paras": {
+                      "project_info": [
+                        {
+                          "project_no": "T-202208100006",
+                          "task_no": "7",
+                          "control_mode": "1",
+                          "process_status": "1"
+                        }
+                      ]
+                    },
+                    "businessUnit": {
+                      "eoc_company_id": "1",
+                      "eoc_site_id": "p1"
+                    },
+                    "actionParams": [
+                      {
+                        "name": "project_info",
+                        "type": "PROCESS_VARIABLE",
+                        "value": "project_info",
+                        "required": false
+                      }
+                    ]
+                  },
+                  "dataSourceProcessors": [
+                    {
+                      "type": "service",
+                      "serviceName": "attachmentDataService",
+                      "applyTo": "task-detail",
+                      "paras": {
+                        "enable": true,
+                        "configs": [
+                          {
+                            "enable": true,
+                            "description": {
+                              "title": "交付物樣板",
+                              "language": {
+                                "title": {
+                                  "zh_TW": "交付物樣板",
+                                  "en_US": "Delivery",
+                                  "zh_CN": "交付物样板"
+                                }
+                              }
+                            },
+                            "uploadEnable": false,
+                            "uploadCategory": "manualAssignmentSampleDelivery",
+                            "readEnable": true,
+                            "readCategory": [
+                              "manualAssignmentSampleDelivery"
+                            ],
+                            "deleteEnable": false,
+                            "deleteCategory": [
+                              "manualAssignmentSampleDelivery"
+                            ],
+                            "fileUploadLimit": {
+                              "count": 3,
+                              "size": 52428800
+                            },
+                            "targetSchema": "attachment",
+                            "disableAam": true
+                          },
+                          {
+                            "enable": true,
+                            "description": {
+                              "title": "交付物",
+                              "language": {
+                                "title": {
+                                  "zh_TW": "交付物",
+                                  "en_US": "Delivery",
+                                  "zh_CN": "交付物"
+                                }
+                              }
+                            },
+                            "uploadEnable": true,
+                            "uploadCategory": "manualAssignmentDelivery",
+                            "readEnable": true,
+                            "readCategory": [
+                              "manualAssignmentDelivery"
+                            ],
+                            "deleteEnable": true,
+                            "deleteCategory": [
+                              "manualAssignmentDelivery"
+                            ],
+                            "fileUploadLimit": {
+                              "count": 3,
+                              "size": 52428800
+                            },
+                            "targetSchema": "attachment1",
+                            "effectAfterSubmit": {
+                              "applyToSubmitActionId": [
+                                "esp_task.info.update"
+                              ],
+                              "submitVariableName": "project_info"
+                            }
+                          },
+                          {
+                            "enable": true,
+                            "description": {
+                              "title": "附檔",
+                              "language": {
+                                "title": {
+                                  "zh_TW": "附檔",
+                                  "en_US": "Attachment",
+                                  "zh_CN": "附件"
+                                }
+                              }
+                            },
+                            "uploadEnable": true,
+                            "uploadCategory": "manualAssignmentAttachment",
+                            "readEnable": true,
+                            "readCategory": [
+                              "manualAssignmentAttachment"
+                            ],
+                            "deleteEnable": true,
+                            "deleteCategory": [
+                              "manualAssignmentAttachment"
+                            ],
+                            "fileUploadLimit": {
+                              "count": 3,
+                              "size": 52428800
+                            },
+                            "targetSchema": "attachment2",
+                            "effectAfterSubmit": {
+                              "applyToSubmitActionId": [
+                                "esp_task.info.update"
+                              ],
+                              "submitVariableName": "project_info"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "override": false,
+                  "extendedData": {
+                    "__workitemId": "2c90815a83792027018379750c69070b",
+                    "__processSerialNumber": "projectCenterConsole_userProject1466980068516438016",
+                    "__workitemSqlId": 228242382352768
+                  }
+                }
+              ],
+              "mainDatasource": "project_info",
+              "dataProcess": []
+            },
+            "submitType": {
+              "isBatch": true,
+              "schema": "project_info",
+              "submitAll": false
+            },
+            "showSubmitActions": true,
+            "operations": [
+              {
+                "title": "查看前置任務",
+                "type": "showPreTaskType",
+                "description": "",
+                "attach": {
+                  "target": "project_info",
+                  "mode": "all"
+                },
+                "isCustomize": true
+              },
+              {
+                "title": "一鍵報工",
+                "description": "",
+                "operate": "script",
+                "attach": {
+                  "target": "project_info",
+                  "mode": "all"
+                },
+                "operateScript": "(data) => { var today = new Date(); if (data.actual_start_date == '' || data.actual_start_date == null) { let tempPlanStartDate = new Date(data.plan_start_date); if (tempPlanStartDate > today) { tempPlanStartDate = today.getFullYear() + '/' + (today.getMonth() + 1) + '/' + today.getDate(); } else { tempPlanStartDate = tempPlanStartDate.getFullYear() + '/' + (tempPlanStartDate.getMonth() + 1) + '/' + tempPlanStartDate.getDate(); } data.actual_start_date = tempPlanStartDate; } data.complete_rate = 1; data.actual_finish_date = today.getFullYear() + '/' + (today.getMonth() + 1) + '/' + today.getDate(); data.main_unit_actual_value = (data.plan_main_unit_value - data.complete_main_unit_value).toFixed(3); let tempSecondValue = (data.plan_second_unit_value - data.complete_second_unit_value).toFixed(3); if (tempSecondValue < 0) { tempSecondValue = 0; } data.second_unit_actual_value = tempSecondValue; }",
+                "pageCode": "task-detail"
+              }
+            ],
+            "settings": {},
+            "wordCapability": [
+              {
+                "condition": "project_info[0].main_unit === '0'",
+                "disabledAcCodes": [
+                  "pccSp1"
+                ]
+              }
+            ],
+            "version": "2.0",
+            "queryTitle": "待處理",
+            "rowSize": 1,
+            "type": "UI",
+            "finished": false
+          },
+          {
+            "defaultShow": false,
+            "dataStateCode": "completed",
+            "dataSourceSet": {
+              "dataSourceList": [
+                {
+                  "title": "取得任務資訊",
+                  "name": "project_info",
+                  "dataKeys": [
+                    "project_no",
+                    "task_no"
+                  ],
+                  "type": "ESP",
+                  "actionId": "esp_task.info.get",
+                  "action": {
+                    "title": "取得任務資訊",
+                    "actionId": "esp_task.info.get",
+                    "category": "ESP",
+                    "serviceId": {
+                      "tenant_id": "E10ATHENA6003",
+                      "prod": "PCC",
+                      "hostAcct": "athena",
+                      "name": "task.info.get"
+                    },
+                    "paras": {
+                      "project_info": [
+                        {
+                          "project_no": "T-202208100006",
+                          "task_no": "7",
+                          "control_mode": "1",
+                          "process_status": "2"
+                        }
+                      ]
+                    },
+                    "businessUnit": {
+                      "eoc_company_id": "1",
+                      "eoc_site_id": "p1"
+                    },
+                    "actionParams": [
+                      {
+                        "name": "project_info",
+                        "type": "PROCESS_VARIABLE",
+                        "value": "project_info",
+                        "required": false
+                      }
+                    ]
+                  },
+                  "dataSourceProcessors": [
+                    {
+                      "type": "service",
+                      "serviceName": "attachmentDataService",
+                      "applyTo": "task-detail",
+                      "paras": {
+                        "enable": true,
+                        "configs": [
+                          {
+                            "enable": true,
+                            "description": {
+                              "title": "交付物樣板",
+                              "language": {
+                                "title": {
+                                  "zh_TW": "交付物樣板",
+                                  "en_US": "Delivery",
+                                  "zh_CN": "交付物样板"
+                                }
+                              }
+                            },
+                            "uploadEnable": false,
+                            "uploadCategory": "manualAssignmentSampleDelivery",
+                            "readEnable": true,
+                            "readCategory": [
+                              "manualAssignmentSampleDelivery"
+                            ],
+                            "deleteEnable": false,
+                            "deleteCategory": [
+                              "manualAssignmentSampleDelivery"
+                            ],
+                            "fileUploadLimit": {
+                              "count": 3,
+                              "size": 52428800
+                            },
+                            "targetSchema": "attachment",
+                            "disableAam": true
+                          },
+                          {
+                            "enable": true,
+                            "description": {
+                              "title": "交付物",
+                              "language": {
+                                "title": {
+                                  "zh_TW": "交付物",
+                                  "en_US": "Delivery",
+                                  "zh_CN": "交付物"
+                                }
+                              }
+                            },
+                            "uploadEnable": true,
+                            "uploadCategory": "manualAssignmentDelivery",
+                            "readEnable": true,
+                            "readCategory": [
+                              "manualAssignmentDelivery"
+                            ],
+                            "deleteEnable": true,
+                            "deleteCategory": [
+                              "manualAssignmentDelivery"
+                            ],
+                            "fileUploadLimit": {
+                              "count": 3,
+                              "size": 52428800
+                            },
+                            "targetSchema": "attachment1",
+                            "effectAfterSubmit": {
+                              "applyToSubmitActionId": [
+                                "esp_task.info.update"
+                              ],
+                              "submitVariableName": "project_info"
+                            }
+                          },
+                          {
+                            "enable": true,
+                            "description": {
+                              "title": "附檔",
+                              "language": {
+                                "title": {
+                                  "zh_TW": "附檔",
+                                  "en_US": "Attachment",
+                                  "zh_CN": "附件"
+                                }
+                              }
+                            },
+                            "uploadEnable": true,
+                            "uploadCategory": "manualAssignmentAttachment",
+                            "readEnable": true,
+                            "readCategory": [
+                              "manualAssignmentAttachment"
+                            ],
+                            "deleteEnable": true,
+                            "deleteCategory": [
+                              "manualAssignmentAttachment"
+                            ],
+                            "fileUploadLimit": {
+                              "count": 3,
+                              "size": 52428800
+                            },
+                            "targetSchema": "attachment2",
+                            "effectAfterSubmit": {
+                              "applyToSubmitActionId": [
+                                "esp_task.info.update"
+                              ],
+                              "submitVariableName": "project_info"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "override": false,
+                  "extendedData": {
+                    "__workitemId": "2c90815a83792027018379750c69070b",
+                    "__processSerialNumber": "projectCenterConsole_userProject1466980068516438016",
+                    "__workitemSqlId": 228242382352768
+                  }
+                }
+              ],
+              "mainDatasource": "project_info",
+              "dataProcess": []
+            },
+            "submitType": {
+              "isBatch": false,
+              "schema": "project_info"
+            },
+            "showSubmitActions": true,
+            "operations": [
+              {
+                "title": "查看前置任務",
+                "type": "showPreTaskType",
+                "description": "",
+                "attach": {
+                  "target": "project_info",
+                  "mode": "all"
+                },
+                "isCustomize": true
+              }
+            ],
+            "wordCapability": [
+              {
+                "condition": "project_info[0].main_unit === '0'",
+                "disabledAcCodes": [
+                  "pccSp1"
+                ]
+              }
+            ],
+            "version": "2.0",
+            "queryTitle": "已完成",
+            "type": "async",
+            "finished": false
+          }
+        ]
+      },
+      {
+        "id": "project_info",
+        "type": "ATHENA_TABLE",
+        "schema": "project_info",
+        "editable": true,
+        "dataType": "array",
+        "setting": {
+          "orderFields": [
+            {
+              "name": "liable_person_name",
+              "description": "負責人名稱"
+            },
+            {
+              "name": "plan_start_date",
+              "description": "預計開始日"
+            },
+            {
+              "name": "plan_finish_date",
+              "description": "預計完成日"
+            },
+            {
+              "name": "actual_start_date",
+              "description": "實際開始日"
+            },
+            {
+              "name": "report_work_description",
+              "description": "報工說明"
+            },
+            {
+              "name": "remarks",
+              "description": "歷史報工說明"
+            },
+            {
+              "name": "work_hours",
+              "description": "工時"
+            },
+            {
+              "name": "complete_rate",
+              "description": "完成率"
+            },
+            {
+              "name": "actual_finish_date",
+              "description": "實際完成日"
+            },
+            {
+              "name": "total_work_hours",
+              "description": "耗用總工時"
+            },
+            {
+              "name": "attachment_remark",
+              "description": "任務說明"
+            },
+            {
+              "name": "remark",
+              "description": "備註"
+            },
+            {
+              "name": "is_approve",
+              "description": "簽核"
+            }
+          ]
+        },
+        "operations": [
+          {
+            "title": "查看前置任務",
+            "type": "showPreTaskType",
+            "description": "",
+            "attach": {
+              "target": "project_info",
+              "mode": "all"
+            },
+            "isCustomize": true
+          },
+          {
+            "title": "一鍵報工",
+            "description": "",
+            "operate": "script",
+            "attach": {
+              "target": "project_info",
+              "mode": "all"
+            },
+            "operateScript": "(data) => { var today = new Date(); if (data.actual_start_date == '' || data.actual_start_date == null) { let tempPlanStartDate = new Date(data.plan_start_date); if (tempPlanStartDate > today) { tempPlanStartDate = today.getFullYear() + '/' + (today.getMonth() + 1) + '/' + today.getDate(); } else { tempPlanStartDate = tempPlanStartDate.getFullYear() + '/' + (tempPlanStartDate.getMonth() + 1) + '/' + tempPlanStartDate.getDate(); } data.actual_start_date = tempPlanStartDate; } data.complete_rate = 1; data.actual_finish_date = today.getFullYear() + '/' + (today.getMonth() + 1) + '/' + today.getDate(); data.main_unit_actual_value = (data.plan_main_unit_value - data.complete_main_unit_value).toFixed(3); let tempSecondValue = (data.plan_second_unit_value - data.complete_second_unit_value).toFixed(3); if (tempSecondValue < 0) { tempSecondValue = 0; } data.second_unit_actual_value = tempSecondValue; }",
+            "pageCode": "task-detail"
+          }
+        ],
+        "supportShowInMaxedWindow": true,
+        "important": false,
+        "checkbox": true,
+        "scriptFilters": [],
+        "columnDefs": [
+          {
+            "headerName": "負責人名稱",
+            "path": "project_info",
+            "level": 0,
+            "description": "",
+            "operations": [],
+            "width": 115,
+            "important": false,
+            "columns": [
+              {
+                "type": "LABEL",
+                "schema": "liable_person_name",
+                "headerName": "負責人名稱",
+                "path": "project_info",
+                "level": 0,
+                "dataType": "string",
+                "sortable": true,
+                "filterable": true,
+                "rowGroupable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "TYPE_STRING",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "typeStringTagInterpreter",
+                    "customize": false,
+                    "themeMapTag": {
+                      "id": 801000010,
+                      "name": "xxxx",
+                      "code": "ORDER_10",
+                      "category": "ORDER",
+                      "value": "10",
+                      "uiBotCode": "ORDER"
+                    },
+                    "append": false
+                  }
+                ],
+                "width": 99,
+                "important": false
+              }
+            ],
+            "isUserDefined": false
+          },
+          {
+            "headerName": "預計開始日",
+            "path": "project_info",
+            "level": 0,
+            "description": "",
+            "operations": [],
+            "width": 115,
+            "important": false,
+            "columns": [
+              {
+                "type": "LABEL",
+                "schema": "plan_start_date",
+                "headerName": "預計開始日",
+                "showIcon": true,
+                "path": "project_info",
+                "level": 0,
+                "dataType": "date",
+                "sortable": true,
+                "filterable": true,
+                "rowGroupable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "TYPE_DATE",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "typeDateTagInterpreter",
+                    "customize": false,
+                    "themeMapTag": {
+                      "id": 604000005,
+                      "name": "不可编辑",
+                      "code": "UNEDITABLE",
+                      "category": "BUSINESS",
+                      "uiBotCode": "UNEDITABLE"
+                    },
+                    "append": false
+                  }
+                ],
+                "width": 78,
+                "important": false
+              }
+            ],
+            "isUserDefined": false
+          },
+          {
+            "headerName": "預計完成日",
+            "path": "project_info",
+            "level": 0,
+            "description": "",
+            "operations": [],
+            "width": 115,
+            "important": false,
+            "columns": [
+              {
+                "type": "LABEL",
+                "schema": "plan_finish_date",
+                "headerName": "預計完成日",
+                "showIcon": true,
+                "path": "project_info",
+                "level": 0,
+                "dataType": "date",
+                "sortable": true,
+                "filterable": true,
+                "rowGroupable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "TYPE_DATE",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "typeDateTagInterpreter",
+                    "customize": false,
+                    "themeMapTag": {
+                      "id": 801000030,
+                      "name": "xxxx",
+                      "code": "ORDER_30",
+                      "category": "ORDER",
+                      "value": "30",
+                      "uiBotCode": "ORDER"
+                    },
+                    "append": false
+                  }
+                ],
+                "width": 78,
+                "important": false
+              }
+            ],
+            "isUserDefined": false
+          },
+          {
+            "headerName": "實際開始日",
+            "path": "project_info",
+            "level": 0,
+            "description": "",
+            "operations": [],
+            "width": 115,
+            "important": false,
+            "columns": [
+              {
+                "type": "DATEPICKER",
+                "schema": "actual_start_date",
+                "headerName": "實際開始日",
+                "showIcon": true,
+                "path": "project_info",
+                "level": 0,
+                "disabled": false,
+                "editable": true,
+                "dataType": "date",
+                "sortable": true,
+                "filterable": true,
+                "rowGroupable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "TYPE_DATE",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "typeDateTagInterpreter",
+                    "customize": false,
+                    "themeMapTag": {
+                      "id": 801000040,
+                      "name": "xxxx",
+                      "code": "ORDER_40",
+                      "category": "ORDER",
+                      "value": "40",
+                      "uiBotCode": "ORDER"
+                    },
+                    "append": false
+                  }
+                ],
+                "important": false,
+                "editor": {
+                  "id": "bea7569e-bf2b-47b5-b778-2ad0fe060537",
+                  "type": "DATEPICKER",
+                  "schema": "actual_start_date",
+                  "editable": true,
+                  "dataType": "date",
+                  "important": false
+                }
+              }
+            ],
+            "isUserDefined": false
+          },
+          {
+            "headerName": "報工說明",
+            "path": "project_info",
+            "level": 0,
+            "description": "",
+            "operations": [],
+            "width": 102,
+            "important": false,
+            "columns": [
+              {
+                "type": "TEXTAREA_TEXT",
+                "schema": "report_work_description",
+                "headerName": "報工說明",
+                "path": "project_info",
+                "level": 0,
+                "editable": true,
+                "dataType": "string",
+                "important": false
+              }
+            ],
+            "isUserDefined": false
+          },
+          {
+            "headerName": "歷史報工說明",
+            "path": "project_info",
+            "level": 0,
+            "description": "",
+            "operations": [],
+            "width": 230,
+            "important": false,
+            "columns": [
+              {
+                "type": "TEXTAREA_TEXT",
+                "schema": "remarks",
+                "headerName": "歷史報工說明",
+                "path": "project_info",
+                "level": 0,
+                "editable": false,
+                "dataType": "string",
+                "width": 230,
+                "important": false
+              }
+            ],
+            "isUserDefined": false
+          },
+          {
+            "headerName": "工時",
+            "path": "project_info",
+            "level": 0,
+            "description": "",
+            "operations": [],
+            "width": 160,
+            "important": false,
+            "columns": [
+              {
+                "type": "LABEL",
+                "schema": "work_hours",
+                "headerName": "工時",
+                "showIcon": true,
+                "path": "project_info",
+                "level": 0,
+                "thousandthPercentile": true,
+                "disabled": false,
+                "editable": true,
+                "dataType": "numeric",
+                "sortable": true,
+                "filterable": true,
+                "rowGroupable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "TYPE_NUMERIC",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "typeNumericTagInterpreter",
+                    "customize": false,
+                    "themeMapTag": {
+                      "id": 801000110,
+                      "name": "xxxx",
+                      "code": "ORDER_110",
+                      "category": "ORDER",
+                      "value": "110",
+                      "uiBotCode": "ORDER"
+                    },
+                    "append": false
+                  }
+                ],
+                "width": 160,
+                "enableTrim": true,
+                "important": false,
+                "editor": {
+                  "id": "beb04af6-e22b-4631-9bcd-823836514756",
+                  "type": "INPUT",
+                  "schema": "work_hours",
+                  "showIcon": true,
+                  "editable": true,
+                  "dataType": "numeric",
+                  "important": false,
+                  "inputType": "number"
+                }
+              }
+            ],
+            "isUserDefined": false
+          },
+          {
+            "headerName": "完成率",
+            "path": "project_info",
+            "level": 0,
+            "description": "主單位=無，完成率需手動輸入\n主單位<>無，完成率=（實際值(主單位)+已完成(主單位)）/預計值(主單位)",
+            "operations": [],
+            "width": 160,
+            "important": false,
+            "columns": [
+              {
+                "type": "LABEL",
+                "schema": "complete_rate",
+                "headerName": "完成率",
+                "path": "project_info",
+                "level": 0,
+                "thousandthPercentile": true,
+                "disabled": false,
+                "editable": true,
+                "dataType": "numeric",
+                "sortable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "BUSINESS_PERCENT_INPUT",
+                    "name": "百分比输入框",
+                    "description": "百分比输入框",
+                    "category": "BUSINESS",
+                    "interpreterServiceName": "percentInputTagInterpreter",
+                    "customize": false,
+                    "extendedInfo": {},
+                    "themeMapTag": {
+                      "id": 802007071,
+                      "name": "可编辑百分比",
+                      "code": "BUSINESS_PERCENT_INPUT",
+                      "category": "BUSINESS",
+                      "uiBotCode": "BUSINESS_PERCENT_INPUT"
+                    },
+                    "append": false
+                  }
+                ],
+                "width": 160,
+                "important": false,
+                "editor": {
+                  "id": "4ca0cb51-3bec-47df-a459-4180d769f4af",
+                  "type": "PERCENT_INPUT",
+                  "schema": "complete_rate",
+                  "editable": true,
+                  "dataType": "numeric",
+                  "important": false
+                }
+              }
+            ],
+            "isUserDefined": false
+          },
+          {
+            "headerName": "實際完成日",
+            "path": "project_info",
+            "level": 0,
+            "description": "",
+            "operations": [],
+            "width": 115,
+            "important": false,
+            "columns": [
+              {
+                "type": "DATEPICKER",
+                "schema": "actual_finish_date",
+                "headerName": "實際完成日",
+                "showIcon": true,
+                "path": "project_info",
+                "level": 0,
+                "disabled": false,
+                "editable": true,
+                "dataType": "date",
+                "sortable": true,
+                "filterable": true,
+                "rowGroupable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "TYPE_DATE",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "typeDateTagInterpreter",
+                    "customize": false,
+                    "themeMapTag": {
+                      "id": 801000130,
+                      "name": "xxxx",
+                      "code": "ORDER_130",
+                      "category": "ORDER",
+                      "value": "130",
+                      "uiBotCode": "ORDER"
+                    },
+                    "append": false
+                  }
+                ],
+                "important": false,
+                "editor": {
+                  "id": "1c69762b-e36d-4751-bf8e-e636efdbd81f",
+                  "type": "DATEPICKER",
+                  "schema": "actual_finish_date",
+                  "editable": true,
+                  "dataType": "date",
+                  "important": false
+                }
+              }
+            ],
+            "isUserDefined": false
+          },
+          {
+            "headerName": "耗用總工時",
+            "path": "project_info",
+            "level": 0,
+            "description": "",
+            "operations": [],
+            "width": 115,
+            "important": false,
+            "columns": [
+              {
+                "type": "LABEL",
+                "schema": "total_work_hours",
+                "headerName": "耗用總工時",
+                "path": "project_info",
+                "level": 0,
+                "thousandthPercentile": true,
+                "editable": false,
+                "dataType": "numeric",
+                "sortable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "TYPE_NUMERIC",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "typeNumericTagInterpreter",
+                    "customize": false,
+                    "themeMapTag": {
+                      "id": 801000140,
+                      "name": "xxxx",
+                      "code": "ORDER_140",
+                      "category": "ORDER",
+                      "value": "140",
+                      "uiBotCode": "ORDER"
+                    },
+                    "append": false
+                  }
+                ],
+                "width": 8,
+                "important": false
+              }
+            ],
+            "isUserDefined": false
+          },
+          {
+            "headerName": "任務說明",
+            "path": "project_info",
+            "level": 0,
+            "description": "",
+            "operations": [],
+            "width": 230,
+            "important": false,
+            "columns": [
+              {
+                "type": "TEXTAREA",
+                "schema": "attachment_remark",
+                "headerName": "任務說明",
+                "path": "project_info",
+                "level": 0,
+                "editable": false,
+                "dataType": "string",
+                "sortable": true,
+                "filterable": true,
+                "rowGroupable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "TYPE_STRING",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "textAreaTagInterpreter",
+                    "customize": false,
+                    "themeMapTag": {
+                      "id": 801000270,
+                      "name": "XXXX",
+                      "code": "ORDER_270",
+                      "category": "ORDER",
+                      "value": "270",
+                      "uiBotCode": "ORDER"
+                    },
+                    "append": false
+                  }
+                ],
+                "width": 230,
+                "important": false
+              }
+            ],
+            "isUserDefined": false
+          },
+          {
+            "headerName": "備註",
+            "path": "project_info",
+            "level": 0,
+            "description": "",
+            "operations": [],
+            "width": 230,
+            "important": false,
+            "columns": [
+              {
+                "type": "TEXTAREA",
+                "schema": "remark",
+                "headerName": "備註",
+                "path": "project_info",
+                "level": 0,
+                "editable": false,
+                "dataType": "string",
+                "sortable": true,
+                "filterable": true,
+                "rowGroupable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "TYPE_STRING",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "textAreaTagInterpreter",
+                    "customize": false,
+                    "themeMapTag": {
+                      "id": 801000280,
+                      "name": "XXXX",
+                      "code": "ORDER_280",
+                      "category": "ORDER",
+                      "value": "280",
+                      "uiBotCode": "ORDER"
+                    },
+                    "append": false
+                  }
+                ],
+                "width": 230,
+                "important": false
+              }
+            ],
+            "isUserDefined": false
+          },
+          {
+            "headerName": "簽核",
+            "path": "project_info",
+            "level": 0,
+            "description": "",
+            "operations": [],
+            "width": 120,
+            "important": false,
+            "columns": [
+              {
+                "type": "LABEL",
+                "schema": "is_approve",
+                "headerName": "簽核",
+                "path": "project_info",
+                "level": 0,
+                "disabled": true,
+                "editable": false,
+                "dataType": "boolean",
+                "tagDefinitions": [
+                  {
+                    "code": "SELECT",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "selectInterpreter",
+                    "customize": false,
+                    "themeMapTag": {
+                      "id": 604000005,
+                      "name": "不可编辑",
+                      "code": "UNEDITABLE",
+                      "category": "BUSINESS",
+                      "uiBotCode": "UNEDITABLE"
+                    },
+                    "append": false
+                  }
+                ],
+                "width": 120,
+                "important": false,
+                "editor": {
+                  "id": "9947496f-f409-453d-884c-7d2615006a77",
+                  "type": "SELECT",
+                  "schema": "is_approve",
+                  "dataType": "boolean",
+                  "important": false,
+                  "options": [
+                    {
+                      "title": "無需簽核",
+                      "value": false
+                    },
+                    {
+                      "title": "需簽核",
+                      "value": true
+                    }
+                  ]
+                }
+              }
+            ],
+            "isUserDefined": false
+          },
+          {
+            "headerName": "交付物樣板",
+            "path": "project_info",
+            "level": 0,
+            "description": "",
+            "operations": [],
+            "width": 200,
+            "important": false,
+            "columns": [
+              {
+                "type": "FILE_UPLOAD",
+                "schema": "attachment",
+                "headerName": "交付物樣板",
+                "path": "project_info",
+                "level": 0,
+                "dataType": "object",
+                "sortable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "BUSINESS_ATTACHMENT_FILE",
+                    "name": "交付物樣板",
+                    "description": "交付物樣板",
+                    "category": "BUSINESS",
+                    "interpreterServiceName": "attachmentFileInterpreter",
+                    "customize": false,
+                    "append": false
+                  }
+                ],
+                "width": 200,
+                "important": false,
+                "attribute": {
+                  "disableAam": true,
+                  "uploadEnable": false,
+                  "editable": true,
+                  "uploadCategory": "manualAssignmentSampleDelivery",
+                  "deleteCategory": [
+                    "manualAssignmentSampleDelivery"
+                  ],
+                  "fileCount": 3,
+                  "enableEffectAfterSubmit": false,
+                  "operations": [],
+                  "fileMaxSize": 52428800,
+                  "readEnable": true,
+                  "readCategory": [
+                    "manualAssignmentSampleDelivery"
+                  ],
+                  "id": "ef673260-75df-4f78-805f-6d5e29a7da38",
+                  "deleteEnable": false
+                }
+              }
+            ],
+            "isUserDefined": false
+          },
+          {
+            "headerName": "交付物",
+            "path": "project_info",
+            "level": 0,
+            "description": "",
+            "operations": [],
+            "width": 200,
+            "important": false,
+            "columns": [
+              {
+                "type": "TASK_FILE_UPLOAD",
+                "schema": "attachment1",
+                "headerName": "交付物",
+                "path": "project_info",
+                "level": 0,
+                "dataType": "object",
+                "sortable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "BUSINESS_ATTACHMENT_FILE",
+                    "name": "交付物",
+                    "description": "交付物",
+                    "category": "BUSINESS",
+                    "interpreterServiceName": "attachmentFileInterpreter",
+                    "customize": false,
+                    "append": false
+                  }
+                ],
+                "width": 200,
+                "important": false,
+                "attribute": {
+                  "disableAam": true,
+                  "uploadEnable": true,
+                  "editable": true,
+                  "uploadCategory": "manualAssignmentDelivery",
+                  "deleteCategory": [
+                    "manualAssignmentDelivery"
+                  ],
+                  "fileCount": 3,
+                  "enableEffectAfterSubmit": true,
+                  "operations": [
+                    {
+                      "actionParas": [
+                        {
+                          "type": "VARIABLE",
+                          "value": "id",
+                          "key": "id"
+                        },
+                        {
+                          "type": "VARIABLE",
+                          "value": "name",
+                          "key": "name"
+                        },
+                        {
+                          "type": "VARIABLE",
+                          "value": "rowDataKey",
+                          "key": "rowDataKey"
+                        },
+                        {
+                          "type": "VARIABLE",
+                          "value": "category",
+                          "key": "category"
+                        },
+                        {
+                          "type": "VARIABLE",
+                          "value": "categoryId",
+                          "key": "categoryId"
+                        },
+                        {
+                          "type": "VARIABLE",
+                          "value": "size",
+                          "key": "size"
+                        }
+                      ],
+                      "api": "/api/aam/v1/uploadAttachment",
+                      "paras": {
+                        "tenantId": "E10ATHENA6003",
+                        "projectId": "projectCenterConsole_userProject",
+                        "taskId": "manual_DTD_Assignment"
+                      },
+                      "type": "upload"
+                    },
+                    {
+                      "actionParas": [
+                        {
+                          "type": "VARIABLE",
+                          "value": "id",
+                          "key": "id"
+                        },
+                        {
+                          "type": "VARIABLE",
+                          "value": "category",
+                          "key": "category"
+                        },
+                        {
+                          "type": "VARIABLE",
+                          "value": "categoryId",
+                          "key": "categoryId"
+                        }
+                      ],
+                      "api": "/api/aam/v1/deleteAttachment",
+                      "type": "delete"
+                    }
+                  ],
+                  "fileMaxSize": 52428800,
+                  "readEnable": true,
+                  "readCategory": [
+                    "manualAssignmentDelivery"
+                  ],
+                  "id": "659cd441-aabe-43e3-a63c-5fd778d6069e",
+                  "deleteEnable": true
+                }
+              }
+            ],
+            "isUserDefined": false
+          },
+          {
+            "headerName": "附檔",
+            "path": "project_info",
+            "level": 0,
+            "description": "",
+            "operations": [],
+            "width": 200,
+            "important": false,
+            "columns": [
+              {
+                "type": "TASK_FILE_UPLOAD",
+                "schema": "attachment2",
+                "headerName": "附檔",
+                "path": "project_info",
+                "level": 0,
+                "dataType": "object",
+                "sortable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "BUSINESS_ATTACHMENT_FILE",
+                    "name": "附檔",
+                    "description": "附檔",
+                    "category": "BUSINESS",
+                    "interpreterServiceName": "attachmentFileInterpreter",
+                    "customize": false,
+                    "append": false
+                  }
+                ],
+                "width": 200,
+                "important": false,
+                "attribute": {
+                  "disableAam": true,
+                  "uploadEnable": true,
+                  "editable": true,
+                  "uploadCategory": "manualAssignmentAttachment",
+                  "deleteCategory": [
+                    "manualAssignmentAttachment"
+                  ],
+                  "fileCount": 3,
+                  "enableEffectAfterSubmit": true,
+                  "operations": [
+                    {
+                      "actionParas": [
+                        {
+                          "type": "VARIABLE",
+                          "value": "id",
+                          "key": "id"
+                        },
+                        {
+                          "type": "VARIABLE",
+                          "value": "name",
+                          "key": "name"
+                        },
+                        {
+                          "type": "VARIABLE",
+                          "value": "rowDataKey",
+                          "key": "rowDataKey"
+                        },
+                        {
+                          "type": "VARIABLE",
+                          "value": "category",
+                          "key": "category"
+                        },
+                        {
+                          "type": "VARIABLE",
+                          "value": "categoryId",
+                          "key": "categoryId"
+                        },
+                        {
+                          "type": "VARIABLE",
+                          "value": "size",
+                          "key": "size"
+                        }
+                      ],
+                      "api": "/api/aam/v1/uploadAttachment",
+                      "paras": {
+                        "tenantId": "E10ATHENA6003",
+                        "projectId": "projectCenterConsole_userProject",
+                        "taskId": "manual_DTD_Assignment"
+                      },
+                      "type": "upload"
+                    },
+                    {
+                      "actionParas": [
+                        {
+                          "type": "VARIABLE",
+                          "value": "id",
+                          "key": "id"
+                        },
+                        {
+                          "type": "VARIABLE",
+                          "value": "category",
+                          "key": "category"
+                        },
+                        {
+                          "type": "VARIABLE",
+                          "value": "categoryId",
+                          "key": "categoryId"
+                        }
+                      ],
+                      "api": "/api/aam/v1/deleteAttachment",
+                      "type": "delete"
+                    }
+                  ],
+                  "fileMaxSize": 52428800,
+                  "readEnable": true,
+                  "readCategory": [
+                    "manualAssignmentAttachment"
+                  ],
+                  "id": "a9d45893-918a-4626-94e1-6a6ba8b3d198",
+                  "deleteEnable": true
+                }
+              }
+            ],
+            "isUserDefined": false
+          }
+        ],
+        "details": [],
+        "allFields": [
+          {
+            "name": "project_no",
+            "path": "project_info",
+            "headerName": "專案編號",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": true,
+            "isShow": false
+          },
+          {
+            "name": "project_name",
+            "path": "project_info",
+            "headerName": "專案名稱",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "project_plan_start_date",
+            "path": "project_info",
+            "headerName": "專案預計開始日",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "date",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "project_plan_finish_date",
+            "path": "project_info",
+            "headerName": "專案預計完成日",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "date",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "task_no",
+            "path": "project_info",
+            "headerName": "任務編號",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": true,
+            "isShow": false
+          },
+          {
+            "name": "task_name",
+            "path": "project_info",
+            "headerName": "任務名稱",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "upper_level_task_no",
+            "path": "project_info",
+            "headerName": "上階任務編號",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "before_task_no",
+            "path": "project_info",
+            "headerName": "前置任務編號",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "task_status",
+            "path": "project_info",
+            "headerName": "任務狀態",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "workload_qty",
+            "path": "project_info",
+            "headerName": "工作量",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "workload_unit",
+            "path": "project_info",
+            "headerName": "工作量單位",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "plan_start_date",
+            "path": "project_info",
+            "headerName": "預計開始日",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "date",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true
+          },
+          {
+            "name": "plan_finish_date",
+            "path": "project_info",
+            "headerName": "預計完成日",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "date",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true
+          },
+          {
+            "name": "actual_start_date",
+            "path": "project_info",
+            "headerName": "實際開始日",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "date",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true
+          },
+          {
+            "name": "actual_finish_date",
+            "path": "project_info",
+            "headerName": "實際完成日",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "date",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true
+          },
+          {
+            "name": "liable_person_code",
+            "path": "project_info",
+            "headerName": "負責人編號",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "liable_person_name",
+            "path": "project_info",
+            "headerName": "負責人名稱",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true
+          },
+          {
+            "name": "liable_person_department_code",
+            "path": "project_info",
+            "headerName": "負責人部門編號",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "liable_person_department_name",
+            "path": "project_info",
+            "headerName": "負責人部門名稱",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "complete_rate",
+            "path": "project_info",
+            "headerName": "完成率",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true
+          },
+          {
+            "name": "task_category",
+            "path": "project_info",
+            "headerName": "任務類型",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "new_complete_rate",
+            "path": "project_info",
+            "headerName": "新完成率",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "new_task_category",
+            "path": "project_info",
+            "headerName": "新任務類型",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "task_tag",
+            "path": "project_info",
+            "headerName": "任務標籤",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "is_milepost",
+            "path": "project_info",
+            "headerName": "是否里程碑",
+            "level": 0,
+            "dataType": "boolean",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "work_hours",
+            "path": "project_info",
+            "headerName": "工時",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true
+          },
+          {
+            "name": "is_approve",
+            "path": "project_info",
+            "headerName": "簽核",
+            "level": 0,
+            "dataType": "boolean",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true
+          },
+          {
+            "name": "is_attachment",
+            "path": "project_info",
+            "headerName": "交付物",
+            "level": 0,
+            "dataType": "boolean",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "project_status",
+            "path": "project_info",
+            "headerName": "專案狀態",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "sequence",
+            "path": "project_info",
+            "headerName": "順序",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "eoc_company_id",
+            "path": "project_info",
+            "headerName": "雲端營運公司編號",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "eoc_site_id",
+            "path": "project_info",
+            "headerName": "雲端營運據點編號",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "eoc_region_id",
+            "path": "project_info",
+            "headerName": "雲端營運域編號",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "task_template_no",
+            "path": "project_info",
+            "headerName": "任務模板類型編號",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "task_template_name",
+            "path": "project_info",
+            "headerName": "任務模板類型名稱",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "company_no",
+            "path": "project_info",
+            "headerName": "公司別",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "contract_no",
+            "path": "project_info",
+            "headerName": "合同編號",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "sales_no",
+            "path": "project_info",
+            "headerName": "業務員編號",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "sales_name",
+            "path": "project_info",
+            "headerName": "業務員名稱",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "attachment_remark",
+            "path": "project_info",
+            "headerName": "任務說明",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true
+          },
+          {
+            "name": "ar_stage_no",
+            "path": "project_info",
+            "headerName": "款項階段編號",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "ar_stage_name",
+            "path": "project_info",
+            "headerName": "款項階段名稱",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "remarks",
+            "path": "project_info",
+            "headerName": "歷史報工說明",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true
+          },
+          {
+            "name": "report_work_description",
+            "path": "project_info",
+            "headerName": "報工說明",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true
+          },
+          {
+            "name": "total_work_hours",
+            "path": "project_info",
+            "headerName": "耗用總工時",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true
+          },
+          {
+            "name": "plan_work_hours",
+            "path": "project_info",
+            "headerName": "預計工時",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "is_equipment_list_unfold",
+            "path": "project_info",
+            "headerName": "是否依設備清單展開",
+            "level": 0,
+            "dataType": "boolean",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "display_project_no",
+            "path": "project_info",
+            "headerName": "外顯專案編號",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "product_type",
+            "path": "project_info",
+            "headerName": "產品別",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "doc_condition_value",
+            "path": "project_info",
+            "headerName": "單別條件值",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "item_operator",
+            "path": "project_info",
+            "headerName": "料號運算符",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "item_condition_value",
+            "path": "project_info",
+            "headerName": "料號條件值",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "is_doc_date",
+            "path": "project_info",
+            "headerName": "單據日期條件",
+            "level": 0,
+            "dataType": "boolean",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "is_confirm_date",
+            "path": "project_info",
+            "headerName": "確認日期條件",
+            "level": 0,
+            "dataType": "boolean",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "is_project_no",
+            "path": "project_info",
+            "headerName": "專案編號條件",
+            "level": 0,
+            "dataType": "boolean",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "is_task_no",
+            "path": "project_info",
+            "headerName": "任務編號條件",
+            "level": 0,
+            "dataType": "boolean",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "complete_rate_method",
+            "path": "project_info",
+            "headerName": "完成率計算方式",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "item_type",
+            "path": "project_info",
+            "headerName": "品號類別/群組",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "item_type_value",
+            "path": "project_info",
+            "headerName": "品號類別條件值",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "is_issue_task_card",
+            "path": "project_info",
+            "headerName": "是否已發任務卡",
+            "level": 0,
+            "dataType": "boolean",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "task_tag_description",
+            "path": "project_info",
+            "headerName": "任務標籤說明",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "item_type_name",
+            "path": "project_info",
+            "headerName": "品號類別/群組名稱",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "doc_type_no",
+            "path": "project_info",
+            "headerName": "單別",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "doc_no",
+            "path": "project_info",
+            "headerName": "單號",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "seq",
+            "path": "project_info",
+            "headerName": "序號",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "overdue_days",
+            "path": "project_info",
+            "headerName": "逾期天數",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "type_field_code",
+            "path": "project_info",
+            "headerName": "類型欄位代號",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "sub_type_field_code",
+            "path": "project_info",
+            "headerName": "次類型欄位代號",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "type_condition_value",
+            "path": "project_info",
+            "headerName": "類型條件值",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "sub_type_condition_value",
+            "path": "project_info",
+            "headerName": "次類型條件值",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "outsourcing_field_code",
+            "path": "project_info",
+            "headerName": "託外欄位代號",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "outsourcing_condition_value",
+            "path": "project_info",
+            "headerName": "託外條件值",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "closed_stus",
+            "path": "project_info",
+            "headerName": "結案否",
+            "level": 0,
+            "dataType": "boolean",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "is_need_doc_no",
+            "path": "project_info",
+            "headerName": "需要單別及單號",
+            "level": 0,
+            "dataType": "boolean",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "milepost_desc",
+            "path": "project_info",
+            "headerName": "里程碑說明",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "project_leader_code",
+            "path": "project_info",
+            "headerName": "專案負責人編號",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "project_leader_name",
+            "path": "project_info",
+            "headerName": "專案負責人名稱",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "remark",
+            "path": "project_info",
+            "headerName": "備註",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true
+          },
+          {
+            "name": "business_info",
+            "path": "project_info",
+            "headerName": "業務資訊",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "required_task",
+            "path": "project_info",
+            "headerName": "必要任務",
+            "level": 0,
+            "dataType": "boolean",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "before_task_complete_rate",
+            "path": "project_info",
+            "headerName": "前置任務完成率",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "task_classification_no",
+            "path": "project_info",
+            "headerName": "任務分類編號",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "task_classification_name",
+            "path": "project_info",
+            "headerName": "任務分類名稱",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "main_unit",
+            "path": "project_info",
+            "headerName": "主單位",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "second_unit",
+            "path": "project_info",
+            "headerName": "次單位",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "plan_main_unit_value",
+            "path": "project_info",
+            "headerName": "預計值（主單位）",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "plan_second_unit_value",
+            "path": "project_info",
+            "headerName": "預計值（次單位）",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "complete_main_unit_value",
+            "path": "project_info",
+            "headerName": "已完成（主單位）",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "complete_second_unit_value",
+            "path": "project_info",
+            "headerName": "已完成（次單位）",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "main_unit_actual_value",
+            "path": "project_info",
+            "headerName": "實際值（主單位）",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "second_unit_actual_value",
+            "path": "project_info",
+            "headerName": "實際值（次單位）",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "standard_work_hours",
+            "path": "project_info",
+            "headerName": "標準工時",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "standard_days",
+            "path": "project_info",
+            "headerName": "標準天數",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "task_proportion",
+            "path": "project_info",
+            "headerName": "任務比重",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "difficulty_level_no",
+            "path": "project_info",
+            "headerName": "難度等級",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "difficulty_level_name",
+            "path": "project_info",
+            "headerName": "難度等級名稱",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "difficulty_coefficient",
+            "path": "project_info",
+            "headerName": "難度係數",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "actual_days",
+            "path": "project_info",
+            "headerName": "實際天數",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "rework_drawing_qty",
+            "path": "project_info",
+            "headerName": "返工圖數",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "rework_work_hours",
+            "path": "project_info",
+            "headerName": "返工工時",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "complete_rework_drawing_qty",
+            "path": "project_info",
+            "headerName": "已返工圖數",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "complete_rework_work_hours",
+            "path": "project_info",
+            "headerName": "已返工工時",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "complete_rework_days",
+            "path": "project_info",
+            "headerName": "已返工天數",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "task_member_info",
+            "path": "project_info",
+            "headerName": "任務成員資訊",
+            "level": 0,
+            "defaultValue": [],
+            "dataType": "array",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "task_report_info",
+            "path": "project_info",
+            "headerName": "任務報工資訊",
+            "level": 0,
+            "defaultValue": [],
+            "dataType": "array",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "task_dependency_info",
+            "path": "project_info",
+            "headerName": "任務依賴資訊",
+            "level": 0,
+            "defaultValue": [],
+            "dataType": "array",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false
+          },
+          {
+            "name": "attachment",
+            "path": "project_info",
+            "headerName": "交付物樣板",
+            "level": 0,
+            "defaultValue": {
+              "data": [],
+              "row_data": ""
+            },
+            "dataType": "object",
+            "isDataKey": false,
+            "isShow": true
+          },
+          {
+            "name": "attachment1",
+            "path": "project_info",
+            "headerName": "交付物",
+            "level": 0,
+            "defaultValue": {
+              "data": [],
+              "row_data": ""
+            },
+            "dataType": "object",
+            "isDataKey": false,
+            "isShow": true
+          },
+          {
+            "name": "attachment2",
+            "path": "project_info",
+            "headerName": "附檔",
+            "level": 0,
+            "defaultValue": {
+              "data": [],
+              "row_data": ""
+            },
+            "dataType": "object",
+            "isDataKey": false,
+            "isShow": true
+          },
+          {
+            "name": "sync_steady_state",
+            "path": "project_info",
+            "headerName": "同步穩態",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "isDataKey": false,
+            "isShow": false
+          }
+        ],
+        "saveColumnsWidth": true,
+        "disabledUserDefined": true,
+        "suppressAutoAddRow": true,
+        "scrollType": "autoHeight"
+      }
+    ],
+    "style": {},
+    "rules": [
+      {
+        "schema": "complete_rate",
+        "targetSchema": "actual_finish_date",
+        "path": "project_info",
+        "condition": "data.complete_rate < 1 || data.complete_rate > 1",
+        "key": "disabled"
+      },
+      {
+        "schema": "complete_rate",
+        "path": "project_info",
+        "condition": "true",
+        "relations": [
+          {
+            "path": "actual_finish_date",
+            "operations": [
+              {
+                "name": "disabledDate",
+                "type": "attribute",
+                "script": "(current) => { let actual_start_date = relationControl.parent.value.actual_start_date; if (typeof actual_start_date === 'string') { actual_start_date = new Date(actual_start_date); } var today = new Date(); return (current > today || current < actual_start_date); }"
+              }
+            ]
+          }
+        ],
+        "key": "connection"
+      },
+      {
+        "schema": "complete_rate",
+        "path": "project_info",
+        "condition": "data.main_unit === '0'",
+        "parameter": "^[1]$|^0\\.\\d{0,2}$",
+        "scope": "EDIT",
+        "errorMessage": "完工率必須是整數，大於0小於等於100",
+        "language": {
+          "errorMessage": {
+            "zh_TW": "完工率必須是整數，大於0小於等於100",
+            "en_US": "Completion rate must be an integer, greater than 0 and less than or equal to 100",
+            "zh_CN": "完工率必须是整数，大于0小于等于100"
+          }
+        },
+        "lang": {
+          "errorMessage": {
+            "zh_TW": "完工率必須是整數，大於0小於等於100",
+            "en_US": "Completion rate must be an integer, greater than 0 and less than or equal to 100",
+            "zh_CN": "完工率必须是整数，大于0小于等于100"
+          }
+        },
+        "key": "pattern"
+      },
+      {
+        "schema": "actual_start_date",
+        "path": "project_info",
+        "condition": "data.task_status != 10",
+        "key": "disabled",
+        "relationIsLinkage": false
+      },
+      {
+        "schema": "work_hours",
+        "path": "project_info",
+        "condition": "true",
+        "parameter": "^\\s*(?=.*0|[1-9])\\d*(?:\\.\\d{1,2})?\\s*$",
+        "scope": "EDIT",
+        "errorMessage": "必須大於等於0且最多兩位小數",
+        "language": {
+          "errorMessage": {
+            "zh_TW": "必須大於等於0且最多兩位小數",
+            "en_US": "Work hours must be greater than 0 or one or two decimal places",
+            "zh_CN": "必须大于等于0且最多两位小数"
+          }
+        },
+        "lang": {
+          "errorMessage": {
+            "zh_TW": "必須大於等於0且最多兩位小數",
+            "en_US": "Work hours must be greater than 0 or one or two decimal places",
+            "zh_CN": "必须大于等于0且最多两位小数"
+          }
+        },
+        "key": "pattern"
+      },
+      {
+        "schema": "complete_rate",
+        "targetScchema": "actual_finish_date",
+        "path": "project_info",
+        "condition": "data.complete_rate < 1 ? '':data.actual_finish_date",
+        "scope": "EDIT",
+        "key": "value"
+      },
+      {
+        "schema": "actual_start_date",
+        "path": "project_info",
+        "condition": "data.task_status == 10",
+        "scope": "EDIT",
+        "errorMessage": "任務未開始，實際開始日必輸",
+        "language": {
+          "errorMessage": {
+            "zh_TW": "任務未開始，實際開始日必輸",
+            "en_US": "when task is not started,actual start date must be input",
+            "zh_CN": "任务未开始，实际开始日必输"
+          }
+        },
+        "lang": {
+          "errorMessage": {
+            "zh_TW": "任務未開始，實際開始日必輸",
+            "en_US": "when task is not started,actual start date must be input",
+            "zh_CN": "任务未开始，实际开始日必输"
+          }
+        },
+        "key": "required"
+      },
+      {
+        "schema": "attachment1",
+        "path": "project_info",
+        "linkageSchemas": [
+          "complete_rate"
+        ],
+        "scope": "EDIT",
+        "errorMessage": "請先上傳交付物",
+        "language": {
+          "errorMessage": {
+            "zh_TW": "請先上傳交付物",
+            "en_US": "Please upload deliverables first",
+            "zh_CN": "请先上传交付物"
+          }
+        },
+        "trigger": {
+          "condition": "currentControl.parent.get('complete_rate').value == 1 && currentControl.parent.get('is_attachment').value == true && !currentControl.get('data').controls.length",
+          "type": "sync",
+          "point": "default"
+        },
+        "lang": {
+          "errorMessage": {
+            "zh_TW": "請先上傳交付物",
+            "en_US": "Please upload deliverables first",
+            "zh_CN": "请先上传交付物"
+          }
+        },
+        "key": "custom"
+      },
+      {
+        "schema": "project_status",
+        "path": "project_info",
+        "condition": "data.project_status == '50'",
+        "errorMessage": "任務已暫停，無法更新",
+        "language": {
+          "errorMessage": {
+            "zh_TW": "任務已暫停，無法更新",
+            "en_US": "Mission has been suspended and cannot be updated",
+            "zh_CN": "任务已暂停，无法更新"
+          }
+        },
+        "lang": {
+          "errorMessage": {
+            "zh_TW": "任務已暫停，無法更新",
+            "en_US": "Mission has been suspended and cannot be updated",
+            "zh_CN": "任务已暂停，无法更新"
+          }
+        },
+        "crossFieldOrNot": false,
+        "key": "custom"
+      },
+      {
+        "schema": "complete_rate",
+        "path": "project_info",
+        "targetSchema": "actual_finish_date",
+        "scope": "EDIT",
+        "errorMessage": "請輸入實際完成日",
+        "language": {
+          "errorMessage": {
+            "zh_TW": "請輸入實際完成日",
+            "en_US": "Please enter the actual date of completion",
+            "zh_CN": "请输入实际完成日"
+          }
+        },
+        "trigger": {
+          "condition": "data.complete_rate == 1",
+          "type": "sync",
+          "point": "default"
+        },
+        "lang": {
+          "errorMessage": {
+            "zh_TW": "請輸入實際完成日",
+            "en_US": "Please enter the actual date of completion",
+            "zh_CN": "请输入实际完成日"
+          }
+        },
+        "key": "required"
+      },
+      {
+        "schema": "complete_rate",
+        "path": "project_info",
+        "condition": "data.complete_rate < OLDVALUE('complete_rate')",
+        "scope": "EDIT",
+        "errorMessage": "完工率必須大於上一次報工",
+        "language": {
+          "errorMessage": {
+            "zh_TW": "完工率必須大於上一次報工",
+            "en_US": "Completion rate must be greater than the last reported work.",
+            "zh_CN": "完工率必须大于上一次报工"
+          }
+        },
+        "lang": {
+          "errorMessage": {
+            "zh_TW": "完工率必須大於上一次報工",
+            "en_US": "Completion rate must be greater than the last reported work.",
+            "zh_CN": "完工率必须大于上一次报工"
+          }
+        },
+        "key": "custom"
+      },
+      {
+        "schema": "actual_start_date",
+        "path": "project_info",
+        "condition": "data.actual_finish_date != '' && data.actual_finish_date != null && data.actual_start_date != '' && data.actual_start_date != null && (new Date(data.actual_finish_date) < new Date(data.actual_start_date) || new Date(data.actual_finish_date)>new Date()) ",
+        "linkageSchemas": [
+          "actual_finish_date"
+        ],
+        "scope": "EDIT",
+        "errorMessage": "實際完成日不能小於實際開始日且實際完成日不能大於系統日",
+        "language": {
+          "errorMessage": {
+            "zh_TW": "實際完成日不能小於實際開始日且實際完成日不能大於系統日",
+            "en_US": "startdate cannot great than finishDate or sysdate",
+            "zh_CN": "实际完成日不能小于实际开始日且实际完成日不能大于系统日"
+          }
+        },
+        "lang": {
+          "errorMessage": {
+            "zh_TW": "實際完成日不能小於實際開始日且實際完成日不能大於系統日",
+            "en_US": "startdate cannot great than finishDate or sysdate",
+            "zh_CN": "实际完成日不能小于实际开始日且实际完成日不能大于系统日"
+          }
+        },
+        "key": "custom"
+      },
+      {
+        "schema": "complete_rate",
+        "path": "project_info",
+        "condition": "data.before_task_no !== null && data.before_task_no !== ''&&  data.before_task_complete_rate < 1 && data.complete_rate === 1 ",
+        "scope": "EDIT",
+        "errorMessage": "前置任務未完成，不可報工完成",
+        "language": {
+          "errorMessage": {
+            "zh_TW": "前置任務未完成，不可報工完成",
+            "en_US": "when before task is not completed ,complete rate can not be 100%",
+            "zh_CN": "前置任务未完成，不可报工完成"
+          }
+        },
+        "lang": {
+          "errorMessage": {
+            "zh_TW": "前置任務未完成，不可報工完成",
+            "en_US": "when before task is not completed ,complete rate can not be 100%",
+            "zh_CN": "前置任务未完成，不可报工完成"
+          }
+        },
+        "key": "custom"
+      },
+      {
+        "schema": "main_unit",
+        "path": "project_info",
+        "condition": "true",
+        "key": "disabled"
+      },
+      {
+        "schema": "second_unit",
+        "path": "project_info",
+        "condition": "true",
+        "key": "disabled"
+      },
+      {
+        "schema": "main_unit",
+        "targetSchema": "main_unit_actual_value",
+        "path": "project_info",
+        "condition": "data.main_unit==='0'",
+        "key": "disabled"
+      },
+      {
+        "schema": "second_unit",
+        "targetSchema": "second_unit_actual_value",
+        "path": "project_info",
+        "condition": "data.second_unit==='0'",
+        "key": "disabled"
+      },
+      {
+        "schema": "complete_main_unit_value",
+        "path": "project_info",
+        "condition": "true",
+        "key": "disabled"
+      },
+      {
+        "schema": "complete_second_unit_value",
+        "path": "project_info",
+        "condition": "true",
+        "key": "disabled"
+      },
+      {
+        "schema": "complete_rework_drawing_qty",
+        "path": "project_info",
+        "condition": "true",
+        "key": "disabled"
+      },
+      {
+        "schema": "complete_rework_work_hours",
+        "path": "project_info",
+        "condition": "true",
+        "key": "disabled"
+      },
+      {
+        "schema": "main_unit",
+        "targetSchema": "rework_drawing_qty",
+        "path": "project_info",
+        "condition": "data.main_unit ==='0' ",
+        "key": "disabled"
+      },
+      {
+        "schema": "main_unit",
+        "targetSchema": "rework_work_hours",
+        "path": "project_info",
+        "condition": "data.main_unit ==='0' ",
+        "key": "disabled"
+      },
+      {
+        "schema": "main_unit",
+        "targetSchema": "complete_rate",
+        "path": "project_info",
+        "condition": "data.main_unit!=='0'",
+        "key": "disabled"
+      },
+      {
+        "schema": "main_unit_actual_value",
+        "path": "project_info",
+        "condition": "data.main_unit !== '0'",
+        "relations": [
+          {
+            "path": "main_unit_actual_value",
+            "operations": [
+              {
+                "type": "script",
+                "script": "let tmain_unit_actual_value = relationControl.parent.value.main_unit_actual_value; if(typeof tmain_unit_actual_value === 'string'){tmain_unit_actual_value=parseFloat(tmain_unit_actual_value);} let tcomplete_main_unit_value = relationControl.parent.value.complete_main_unit_value; if(typeof tcomplete_main_unit_value === 'string'){tcomplete_main_unit_value=parseFloat(tcomplete_main_unit_value);} let tplan_main_unit_value = relationControl.parent.value.plan_main_unit_value; if(typeof tplan_main_unit_value === 'string'){tplan_main_unit_value=parseFloat(tplan_main_unit_value);} let tRate = (tmain_unit_actual_value + tcomplete_main_unit_value) / tplan_main_unit_value; if (tRate >= 1) { relationControl.parent.get('complete_rate').setValue(1); } else { tRate = tRate.toFixed(4); relationControl.parent.get('complete_rate').setValue(tRate); }"
+              }
+            ]
+          }
+        ],
+        "key": "connection"
+      },
+      {
+        "schema": "plan_main_unit_value",
+        "path": "project_info",
+        "condition": "true",
+        "key": "disabled"
+      },
+      {
+        "schema": "plan_second_unit_value",
+        "path": "project_info",
+        "condition": "true",
+        "key": "disabled"
+      },
+      {
+        "schema": "main_unit_actual_value",
+        "path": "project_info",
+        "condition": "data.main_unit !== '0'",
+        "parameter": "^\\s*(?=.*0|[1-9])\\d*(?:\\.\\d{1,3})?\\s*$",
+        "scope": "EDIT",
+        "errorMessage": "必須大於等於0且最多三位小數",
+        "language": {
+          "errorMessage": {
+            "zh_TW": "必須大於等於0且最多三位小數",
+            "en_US": "must be greater than 0 or one or two decimal places",
+            "zh_CN": "必须大于等于0且最多三位小数"
+          }
+        },
+        "lang": {
+          "errorMessage": {
+            "zh_TW": "必須大於等於0且最多三位小數",
+            "en_US": "must be greater than 0 or one or two decimal places",
+            "zh_CN": "必须大于等于0且最多三位小数"
+          }
+        },
+        "key": "pattern"
+      },
+      {
+        "schema": "second_unit_actual_value",
+        "path": "project_info",
+        "condition": "data.main_unit !== '0'",
+        "parameter": "^\\s*(?=.*0|[1-9])\\d*(?:\\.\\d{1,3})?\\s*$",
+        "scope": "EDIT",
+        "errorMessage": "必須大於等於0且最多三位小數",
+        "language": {
+          "errorMessage": {
+            "zh_TW": "必須大於等於0且最多三位小數",
+            "en_US": "must be greater than 0 or one or two decimal places",
+            "zh_CN": "必须大于等于0且最多三位小数"
+          }
+        },
+        "lang": {
+          "errorMessage": {
+            "zh_TW": "必須大於等於0且最多三位小數",
+            "en_US": "must be greater than 0 or one or two decimal places",
+            "zh_CN": "必须大于等于0且最多三位小数"
+          }
+        },
+        "key": "pattern"
+      },
+      {
+        "schema": "rework_drawing_qty",
+        "path": "project_info",
+        "condition": "data.main_unit !== '0'",
+        "parameter": "^\\s*(?=.*0|[1-9])\\d*(?:\\.\\d{1,3})?\\s*$",
+        "scope": "EDIT",
+        "errorMessage": "必須大於等於0且最多三位小數",
+        "language": {
+          "errorMessage": {
+            "zh_TW": "必須大於等於0且最多三位小數",
+            "en_US": "must be greater than 0 or one or two decimal places",
+            "zh_CN": "必须大于等于0且最多三位小数"
+          }
+        },
+        "lang": {
+          "errorMessage": {
+            "zh_TW": "必須大於等於0且最多三位小數",
+            "en_US": "must be greater than 0 or one or two decimal places",
+            "zh_CN": "必须大于等于0且最多三位小数"
+          }
+        },
+        "key": "pattern"
+      },
+      {
+        "schema": "rework_work_hours",
+        "path": "project_info",
+        "condition": "data.main_unit !== '0'",
+        "parameter": "^\\s*(?=.*0|[1-9])\\d*(?:\\.\\d{1,2})?\\s*$",
+        "scope": "EDIT",
+        "errorMessage": "必須大於等於0且最多兩位小數",
+        "language": {
+          "errorMessage": {
+            "zh_TW": "必須大於等於0且最多兩位小數",
+            "en_US": "must be greater than 0 or one or two decimal places",
+            "zh_CN": "必须大于等于0且最多两位小数"
+          }
+        },
+        "lang": {
+          "errorMessage": {
+            "zh_TW": "必須大於等於0且最多兩位小數",
+            "en_US": "must be greater than 0 or one or two decimal places",
+            "zh_CN": "必须大于等于0且最多两位小数"
+          }
+        },
+        "key": "pattern"
+      },
+      {
+        "schema": "complete_rate",
+        "path": "project_info",
+        "condition": "data.main_unit !== '0' &&  (data.complete_rate >1 ||data.complete_rate <=0)  ",
+        "scope": "EDIT",
+        "errorMessage": "完工率必須大於0且小於等於100",
+        "language": {
+          "errorMessage": {
+            "zh_TW": "完工率必須大於0且小於等於100",
+            "en_US": "Completion rate must be greater than 0",
+            "zh_CN": "完工率必须大于0且小于等于100"
+          }
+        },
+        "lang": {
+          "errorMessage": {
+            "zh_TW": "完工率必須大於0且小於等於100",
+            "en_US": "Completion rate must be greater than 0",
+            "zh_CN": "完工率必须大于0且小于等于100"
+          }
+        },
+        "key": "custom"
+      },
+      {
+        "schema": "report_work_description",
+        "path": "project_info",
+        "condition": "true",
+        "parameter": "255",
+        "errorMessage": "已超過單次報工說明的最大長度限制！",
+        "language": {
+          "errorMessage": {
+            "zh_TW": "已超過單次報工說明的最大長度限制！",
+            "en_US": "Please enter a maximum of 255 characters",
+            "zh_CN": "已超过单次报工说明的最大长度限制！"
+          }
+        },
+        "lang": {
+          "errorMessage": {
+            "zh_TW": "已超過單次報工說明的最大長度限制！",
+            "en_US": "Please enter a maximum of 255 characters",
+            "zh_CN": "已超过单次报工说明的最大长度限制！"
+          }
+        },
+        "key": "maxLength"
+      }
+    ],
+    "pageData": {
+      "uiBot__activity": {
+        "taskStartTime": "2022-08-10 00:00:00",
+        "endTime": "2022-08-09 23:59:59",
+        "name": "协同12222",
+        "taskEndTime": "2022-09-10 23:59:59",
+        "taskName": "图标测试[T-202208100006]",
+        "readCount": 1,
+        "overdueDate": "76天",
+        "extendedFields": {
+          "signOffProgressData": {
+            "processInstances": [
+              {
+                "workitemId": 228242382356864,
+                "processSerialNumber": "projectCenterConsole_userProject1466980068516438016",
+                "tmActivityIds": [
+                  "manual_DTD_AssignmentApproval2_mech2"
+                ]
+              }
+            ],
+            "locale": "zh_TW"
+          }
+        },
+        "processSerialNumber": "projectCenterConsole_userProject1466980068516438016",
+        "workitemId": "2c90815a83792027018379750c69070b",
+        "processCreateTime": "2022-08-10 15:29:03",
+        "eocName": [
+          "南京**公司（测试区）"
+        ],
+        "merge": false
+      },
+      "uiBot__content": {
+        "title": "协同12222",
+        "subTitle": "协同12222"
+      },
+      "uiBot__APPROVAL_DESCRIPTION": {
+        "project_no": "T-202208100006",
+        "task_no": "7",
+        "task_name": "协同12222",
+        "report_work_description": "",
+        "project_plan_start_date": "2022-08-10",
+        "project_plan_finish_date": "2022-09-10",
+        "project_name": "图标测试",
+        "contract_no": "",
+        "sales_no": "",
+        "sales_name": "",
+        "project_leader_code": "pur001",
+        "project_leader_name": "ERP采购人员1",
+        "business_info": "ERP采购人员1",
+        "total_work_hours": 0,
+        "product_type": "",
+        "before_task_no": "1",
+        "before_task_complete_rate": 1,
+        "attachment": {
+          "data": [],
+          "row_data": "T-202208100006;7"
+        },
+        "company_no": "",
+        "upper_level_task_no": "7",
+        "task_status": "10",
+        "workload_qty": 1,
+        "workload_unit": "2",
+        "plan_start_date": "2022-08-09",
+        "plan_finish_date": "2022-08-09",
+        "actual_start_date": "",
+        "actual_finish_date": "",
+        "liable_person_code": "pur004",
+        "liable_person_name": "ERP采购主管2",
+        "liable_person_department_code": "04",
+        "liable_person_department_name": "采购部",
+        "complete_rate": 0,
+        "task_category": "ORD",
+        "new_complete_rate": 0,
+        "new_task_category": "",
+        "task_tag": "2",
+        "task_tag_description": "前置任務提前完成<br>完成率0%",
+        "is_milepost": false,
+        "work_hours": 0,
+        "is_attachment": false,
+        "is_approve": false,
+        "project_status": "30",
+        "sequence": 5,
+        "eoc_company_id": "1",
+        "eoc_site_id": "p1",
+        "eoc_region_id": "1",
+        "task_template_no": "",
+        "task_template_name": "",
+        "attachment_remark": "",
+        "ar_stage_no": "",
+        "ar_stage_name": "",
+        "remarks": "",
+        "plan_work_hours": 8,
+        "is_equipment_list_unfold": false,
+        "display_project_no": "T-202208100006",
+        "doc_condition_value": "",
+        "item_operator": "",
+        "item_condition_value": "",
+        "is_doc_date": false,
+        "is_confirm_date": false,
+        "is_project_no": true,
+        "is_task_no": false,
+        "is_issue_task_card": true,
+        "complete_rate_method": "1",
+        "item_type": "",
+        "item_type_value": "",
+        "item_type_name": "",
+        "doc_type_no": "",
+        "doc_no": "",
+        "seq": "",
+        "overdue_days": "76天",
+        "type_field_code": "",
+        "sub_type_field_code": "",
+        "type_condition_value": "",
+        "sub_type_condition_value": "",
+        "outsourcing_field_code": "",
+        "outsourcing_condition_value": "",
+        "milepost_desc": "",
+        "is_need_doc_no": false,
+        "remark": "",
+        "task_classification_no": "",
+        "task_classification_name": "",
+        "required_task": false,
+        "task_member_info": [],
+        "task_dependency_info": [
+          {
+            "project_no": "T-202208100006",
+            "before_task_no": "1",
+            "after_task_no": "7",
+            "dependency_type": "FS",
+            "advance_lag_type": 1,
+            "advance_lag_days": 1
+          }
+        ],
+        "task_report_info": [],
+        "main_unit": "0",
+        "second_unit": "0",
+        "plan_main_unit_value": 0,
+        "plan_second_unit_value": 0,
+        "standard_work_hours": 0,
+        "standard_days": 0,
+        "task_proportion": 1,
+        "difficulty_level_no": "",
+        "complete_main_unit_value": 0,
+        "complete_second_unit_value": 0,
+        "actual_days": 0,
+        "complete_rework_drawing_qty": 0,
+        "complete_rework_work_hours": 0,
+        "complete_rework_days": 0,
+        "main_unit_actual_value": 0,
+        "second_unit_actual_value": 0,
+        "difficulty_level_name": "",
+        "difficulty_coefficient": 0,
+        "rework_drawing_qty": 0,
+        "rework_work_hours": 0,
+        "__DATA_KEY": "T-202208100006;7;",
+        "attachment1": {
+          "rowDataKey": "T-202208100006;7;",
+          "data": []
+        },
+        "attachment2": {
+          "rowDataKey": "T-202208100006;7;",
+          "data": []
+        },
+        "uibot_id": "a57c9091-91a0-43ba-b80a-0c0fe21e162c",
+        "uibot_checked": false
+      },
+      "uiBot__prompt_message": "",
+      "project_info": [
+        {
+          "project_no": "T-202208100006",
+          "task_no": "7",
+          "task_name": "协同12222",
+          "report_work_description": "",
+          "project_plan_start_date": "2022-08-10",
+          "project_plan_finish_date": "2022-09-10",
+          "project_name": "图标测试",
+          "contract_no": "",
+          "sales_no": "",
+          "sales_name": "",
+          "project_leader_code": "pur001",
+          "project_leader_name": "ERP采购人员1",
+          "business_info": "ERP采购人员1",
+          "total_work_hours": 0,
+          "product_type": "",
+          "before_task_no": "1",
+          "before_task_complete_rate": 1,
+          "attachment": {
+            "data": [],
+            "row_data": "T-202208100006;7"
+          },
+          "company_no": "",
+          "upper_level_task_no": "7",
+          "task_status": "10",
+          "workload_qty": 1,
+          "workload_unit": "2",
+          "plan_start_date": "2022-08-09",
+          "plan_finish_date": "2022-08-09",
+          "actual_start_date": "",
+          "actual_finish_date": "",
+          "liable_person_code": "pur004",
+          "liable_person_name": "ERP采购主管2",
+          "liable_person_department_code": "04",
+          "liable_person_department_name": "采购部",
+          "complete_rate": 0,
+          "task_category": "ORD",
+          "new_complete_rate": 0,
+          "new_task_category": "",
+          "task_tag": "2",
+          "task_tag_description": "前置任務提前完成<br>完成率0%",
+          "is_milepost": false,
+          "work_hours": 0,
+          "is_attachment": false,
+          "is_approve": false,
+          "project_status": "30",
+          "sequence": 5,
+          "eoc_company_id": "1",
+          "eoc_site_id": "p1",
+          "eoc_region_id": "1",
+          "task_template_no": "",
+          "task_template_name": "",
+          "attachment_remark": "",
+          "ar_stage_no": "",
+          "ar_stage_name": "",
+          "remarks": "",
+          "plan_work_hours": 8,
+          "is_equipment_list_unfold": false,
+          "display_project_no": "T-202208100006",
+          "doc_condition_value": "",
+          "item_operator": "",
+          "item_condition_value": "",
+          "is_doc_date": false,
+          "is_confirm_date": false,
+          "is_project_no": true,
+          "is_task_no": false,
+          "is_issue_task_card": true,
+          "complete_rate_method": "1",
+          "item_type": "",
+          "item_type_value": "",
+          "item_type_name": "",
+          "doc_type_no": "",
+          "doc_no": "",
+          "seq": "",
+          "overdue_days": "76天",
+          "type_field_code": "",
+          "sub_type_field_code": "",
+          "type_condition_value": "",
+          "sub_type_condition_value": "",
+          "outsourcing_field_code": "",
+          "outsourcing_condition_value": "",
+          "milepost_desc": "",
+          "is_need_doc_no": false,
+          "remark": "",
+          "task_classification_no": "",
+          "task_classification_name": "",
+          "required_task": false,
+          "task_member_info": [],
+          "task_dependency_info": [
+            {
+              "project_no": "T-202208100006",
+              "before_task_no": "1",
+              "after_task_no": "7",
+              "dependency_type": "FS",
+              "advance_lag_type": 1,
+              "advance_lag_days": 1
+            }
+          ],
+          "task_report_info": [],
+          "main_unit": "0",
+          "second_unit": "0",
+          "plan_main_unit_value": 0,
+          "plan_second_unit_value": 0,
+          "standard_work_hours": 0,
+          "standard_days": 0,
+          "task_proportion": 1,
+          "difficulty_level_no": "",
+          "complete_main_unit_value": 0,
+          "complete_second_unit_value": 0,
+          "actual_days": 0,
+          "complete_rework_drawing_qty": 0,
+          "complete_rework_work_hours": 0,
+          "complete_rework_days": 0,
+          "main_unit_actual_value": 0,
+          "second_unit_actual_value": 0,
+          "difficulty_level_name": "",
+          "difficulty_coefficient": 0,
+          "rework_drawing_qty": 0,
+          "rework_work_hours": 0,
+          "__DATA_KEY": "T-202208100006;7;",
+          "attachment1": {
+            "rowDataKey": "T-202208100006;7;",
+            "data": []
+          },
+          "attachment2": {
+            "rowDataKey": "T-202208100006;7;",
+            "data": []
+          }
+        }
+      ]
+    },
+    "pageDataKeys": {
+      "project_info": [
+        "project_no",
+        "task_no",
+        "project_no",
+        "task_no"
+      ]
+    },
+    "actions": [
+      {
+        "title": "提交",
+        "actionId": "esp_task.info.update",
+        "category": "ESP",
+        "serviceId": {
+          "tenant_id": "E10ATHENA6003",
+          "prod": "PCC",
+          "hostAcct": "athena",
+          "name": "task.info.update"
+        },
+        "businessUnit": {
+          "eoc_company_id": "1",
+          "eoc_site_id": "p1"
+        },
+        "actionParams": [
+          {
+            "name": "project_info.project_no",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "project_info.project_no",
+            "source": "esp_task.info.get",
+            "required": false
+          },
+          {
+            "name": "project_info.task_no",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "project_info.task_no",
+            "source": "esp_task.info.get",
+            "required": false
+          },
+          {
+            "name": "project_info.task_category",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "project_info.task_category",
+            "source": "esp_task.info.get",
+            "required": false
+          },
+          {
+            "name": "project_info.task_status",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "project_info.task_status",
+            "source": "esp_task.info.get",
+            "required": false
+          },
+          {
+            "name": "project_info.actual_start_date",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "project_info.actual_start_date",
+            "source": "esp_task.info.get",
+            "required": false
+          },
+          {
+            "name": "project_info.actual_finish_date",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "project_info.actual_finish_date",
+            "source": "esp_task.info.get",
+            "required": false
+          },
+          {
+            "name": "project_info.work_hours",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "project_info.work_hours",
+            "source": "esp_task.info.get",
+            "required": false
+          },
+          {
+            "name": "project_info.complete_rate",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "project_info.complete_rate",
+            "source": "esp_task.info.get",
+            "required": false
+          },
+          {
+            "name": "project_info.employee_no",
+            "type": "CONSTANT",
+            "value": "pur004",
+            "source": "esp_task.info.get",
+            "required": false
+          },
+          {
+            "name": "project_info.report_source",
+            "type": "CONSTANT",
+            "value": "10",
+            "required": false
+          },
+          {
+            "name": "project_info.is_approve",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "project_info.is_approve",
+            "source": "esp_task.info.get",
+            "required": false
+          },
+          {
+            "name": "project_info.easy_flow_status",
+            "type": "CONSTANT",
+            "value": "N",
+            "required": false
+          },
+          {
+            "name": "project_info.remarks",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "project_info.report_work_description",
+            "source": "esp_task.info.get",
+            "required": false
+          },
+          {
+            "name": "project_info.main_unit",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "project_info.main_unit",
+            "source": "",
+            "required": false
+          },
+          {
+            "name": "project_info.second_unit",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "project_info.second_unit",
+            "source": "",
+            "required": false
+          },
+          {
+            "name": "project_info.main_unit_actual_value",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "project_info.main_unit_actual_value",
+            "source": "",
+            "required": false
+          },
+          {
+            "name": "project_info.second_unit_actual_value",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "project_info.second_unit_actual_value",
+            "source": "",
+            "required": false
+          },
+          {
+            "name": "project_info.complete_main_unit_value",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "project_info.complete_main_unit_value",
+            "source": "",
+            "required": false
+          },
+          {
+            "name": "project_info.complete_second_unit_value",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "project_info.complete_second_unit_value",
+            "source": "",
+            "required": false
+          },
+          {
+            "name": "project_info.task_proportion",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "project_info.task_proportion",
+            "source": "",
+            "required": false
+          },
+          {
+            "name": "project_info.rework_drawing_qty",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "project_info.rework_drawing_qty",
+            "source": "",
+            "required": false
+          },
+          {
+            "name": "project_info.rework_work_hours",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "project_info.rework_work_hours",
+            "source": "",
+            "required": false
+          },
+          {
+            "name": "project_info.complete_rework_drawing_qty",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "project_info.complete_rework_drawing_qty",
+            "source": "",
+            "required": false
+          },
+          {
+            "name": "project_info.complete_rework_work_hours",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "project_info.complete_rework_work_hours",
+            "source": "",
+            "required": false
+          },
+          {
+            "name": "sync_steady_state",
+            "type": "TM_VARIABLE",
+            "value": "hasGroundEnd",
+            "required": false
+          }
+        ],
+        "trackCode": "SUBMIT",
+        "defaultAction": true,
+        "executeContext": {
+          "locale": "zh_TW",
+          "clientAgent": "webplatform",
+          "tmProjectId": "projectCenterConsole_userProject",
+          "tmActivityId": "manual_DTD_Assignment",
+          "backlogId": 228242382352768,
+          "processSerialNumber": "projectCenterConsole_userProject1466980068516438016",
+          "bpmData": {
+            "_planEndTime": "2022-09-27 19:00:57",
+            "task_d_info": [
+              {
+                "project_no": "T-202208100006",
+                "task_no": "7"
+              }
+            ],
+            "_in": [
+              {
+                "project_no": "T-202208100006",
+                "task_no": "7"
+              }
+            ],
+            "atmcTaskName": "协同12222",
+            "imBusinessKey": "E10ATHENA6003;T-202208100006;7",
+            "atmcTaskStartTime": "2022-08-09 00:00:00",
+            "process_EOC": {
+              "eoc_company_id": "1",
+              "eoc_site_id": "p1"
+            },
+            "project_info": [
+              {
+                "project_no": "T-202208100006",
+                "task_no": "7"
+              }
+            ],
+            "atmcTaskEndTime": "2022-08-09 23:59:59"
+          },
+          "pageCode": "task-detail",
+          "pattern": "BUSINESS",
+          "category": "PROCESS",
+          "businessUnit": {
+            "eoc_company_id": "1",
+            "eoc_site_id": "p1"
+          },
+          "dataFrom": "PTM",
+          "taskType": 1,
+          "abnormalWorkitemId": 228242382356864
+        },
+        "submitType": {
+          "isBatch": true,
+          "schema": "project_info",
+          "submitAll": false
+        },
+        "checkCompleteAction": {
+          "name": "project_info",
+          "dataKeys": [
+            "project_no",
+            "task_no"
+          ],
+          "type": "ESP",
+          "actionId": "esp_task.info.get",
+          "action": {
+            "title": "取得任務資訊",
+            "actionId": "esp_task.info.get",
+            "category": "ESP",
+            "serviceId": {
+              "tenant_id": "E10ATHENA6003",
+              "prod": "PCC",
+              "hostAcct": "athena",
+              "name": "task.info.get"
+            },
+            "paras": {
+              "project_info": [
+                {
+                  "project_no": "T-202208100006",
+                  "task_no": "7",
+                  "control_mode": "1",
+                  "process_status": "1"
+                }
+              ]
+            },
+            "businessUnit": {
+              "eoc_company_id": "1",
+              "eoc_site_id": "p1"
+            },
+            "actionParams": [
+              {
+                "name": "project_info",
+                "type": "PROCESS_VARIABLE",
+                "value": "project_info",
+                "required": false
+              }
+            ]
+          },
+          "override": false
+        },
+        "attachActions": [
+          {
+            "title": "提交數據到流程",
+            "actionId": "submit-data",
+            "category": "PTM",
+            "serviceId": {
+              "name": "submit-data",
+              "serviceUri": "api/task/card/submit"
+            },
+            "paras": {
+              "workitemId": "2c90815a83792027018379750c69070b",
+              "backlogId": 228242382356864,
+              "comment": "",
+              "dispatchData": [],
+              "locale": "zh_TW",
+              "performerType": 0,
+              "performerId": "pur004"
+            },
+            "actionParams": [
+              {
+                "name": "project_info.project_no",
+                "type": "GET_ACTION_RESPONSE",
+                "value": "project_info.project_no",
+                "source": "esp_task.info.get",
+                "required": false
+              },
+              {
+                "name": "project_info.task_no",
+                "type": "GET_ACTION_RESPONSE",
+                "value": "project_info.task_no",
+                "source": "esp_task.info.get",
+                "required": false
+              },
+              {
+                "name": "project_info.task_category",
+                "type": "GET_ACTION_RESPONSE",
+                "value": "project_info.task_category",
+                "source": "esp_task.info.get",
+                "required": false
+              }
+            ],
+            "trackCode": "SUBMIT",
+            "id": "submit-data",
+            "defaultAction": false,
+            "executeAfterCheckCompleted": true,
+            "attachActions": []
+          },
+          {
+            "title": "上传保存/删除附件",
+            "actionId": "upload-or-save-attachment",
+            "category": "UIBOT",
+            "serviceId": {
+              "tenant_id": "E10ATHENA6003",
+              "hostAcct": "athena",
+              "name": "upload-or-save-attachment"
+            },
+            "businessUnit": {
+              "eoc_company_id": "1",
+              "eoc_site_id": "p1"
+            },
+            "trackCode": "SUBMIT",
+            "defaultAction": false,
+            "extendParas": {
+              "submitVariableName": "project_info",
+              "targetSchemaList": [
+                "attachment1",
+                "attachment2"
+              ]
+            },
+            "attachActions": []
+          },
+          {
+            "title": "同意",
+            "actionId": "dispatch",
+            "category": "TaskEngine",
+            "serviceId": {
+              "name": "dispatch",
+              "serviceUri": "api/task/manual/dispatch"
+            },
+            "paras": {
+              "workitemId": "2c90815a83792027018379750c69070b",
+              "comment": "",
+              "locale": "zh_TW",
+              "performerType": 0,
+              "performerId": "pur004"
+            },
+            "trackCode": "SUBMIT",
+            "defaultAction": false,
+            "extendParas": {
+              "dataSource": "parent"
+            }
+          }
+        ]
+      }
+    ],
+    "finished": false,
+    "executeContext": {
+      "locale": "zh_TW",
+      "clientAgent": "webplatform",
+      "identity": "performer",
+      "tmProjectId": "projectCenterConsole_userProject",
+      "taskWithBacklogData": {
+        "bpmData": {
+          "_planEndTime": "2022-09-27 19:00:57",
+          "task_d_info": [
+            {
+              "project_no": "T-202208100006",
+              "task_no": "7"
+            }
+          ],
+          "_in": [
+            {
+              "project_no": "T-202208100006",
+              "task_no": "7"
+            }
+          ],
+          "atmcTaskName": "协同12222",
+          "imBusinessKey": "E10ATHENA6003;T-202208100006;7",
+          "atmcTaskStartTime": "2022-08-09 00:00:00",
+          "process_EOC": {
+            "eoc_company_id": "1",
+            "eoc_site_id": "p1"
+          },
+          "project_info": [
+            {
+              "project_no": "T-202208100006",
+              "task_no": "7"
+            }
+          ],
+          "atmcTaskEndTime": "2022-08-09 23:59:59"
+        },
+        "stateData": {},
+        "businessUnit": {
+          "eoc_company_id": "1",
+          "eoc_site_id": "p1"
+        },
+        "eocName": [
+          "南京**公司（测试区）"
+        ],
+        "tmActivityId": "manual_DTD_Assignment",
+        "tmActivityName": "手動任務",
+        "tmCategory": "PROCESS",
+        "tmPattern": "BUSINESS",
+        "bpmActivityId": "manual_DTD_Assignment",
+        "proxyToken": "",
+        "processSerialNumber": "projectCenterConsole_userProject1466980068516438016",
+        "bpmActivityType": "UserTask",
+        "backlog": [
+          {
+            "backlogId": 228242382352768,
+            "backlogName": "协同12222",
+            "performerId": "pur004",
+            "performerName": "采购主管2",
+            "readCount": 1,
+            "startTime": "2022-09-26 19:00:57",
+            "planEndTime": "2022-08-09 23:59:59",
+            "overdueDate": "76天",
+            "workitemList": [
+              {
+                "id": 228242382352768,
+                "activityStepId": 228242382320000,
+                "createTime": "2022-09-26 19:00:58",
+                "performerId": "pur004",
+                "performerName": "采购主管2",
+                "workitemId": "2c90815a83792027018379750c69070b",
+                "comment": "",
+                "state": 1,
+                "agentPerformerId": "",
+                "agentPerformerName": "",
+                "performerType": 0,
+                "readCount": 1,
+                "subState": 0,
+                "createType": 0,
+                "approvalState": "",
+                "fromWorkitemId": "",
+                "groupId": 228242382352768,
+                "targetTenantId": "E10ATHENA6003",
+                "importance": 0,
+                "importanceSource": "self"
+              }
+            ],
+            "closed": false,
+            "bpmSignReason": "",
+            "ptmBacklogId": 228242382356864,
+            "ptmWorkItemId": 228242382352768,
+            "merge": false
+          }
+        ],
+        "relationApproval": {
+          "workitemId": 228242382356864,
+          "processSerialNumber": "projectCenterConsole_userProject1466980068516438016",
+          "tmActivityIds": [
+            "manual_DTD_AssignmentApproval2_mech2"
+          ]
+        },
+        "taskUid": "2c9084bf8379202d018379750bb60747"
+      },
+      "allBpmData": [
+        {
+          "_planEndTime": "2022-09-27 19:00:57",
+          "task_d_info": [
+            {
+              "project_no": "T-202208100006",
+              "task_no": "7"
+            }
+          ],
+          "_in": [
+            {
+              "project_no": "T-202208100006",
+              "task_no": "7"
+            }
+          ],
+          "atmcTaskName": "协同12222",
+          "imBusinessKey": "E10ATHENA6003;T-202208100006;7",
+          "atmcTaskStartTime": "2022-08-09 00:00:00",
+          "process_EOC": {
+            "eoc_company_id": "1",
+            "eoc_site_id": "p1"
+          },
+          "project_info": [
+            {
+              "project_no": "T-202208100006",
+              "task_no": "7"
+            }
+          ],
+          "atmcTaskEndTime": "2022-08-09 23:59:59"
+        }
+      ],
+      "taskType": 1,
+      "backlogId": 228242382352768,
+      "abnormalWorkitemId": 228242382356864,
+      "approvalInfo": {},
+      "tmActivityId": "manual_DTD_Assignment",
+      "tenantId": "E10ATHENA6003",
+      "pageCode": "task-detail",
+      "pattern": "BUSINESS",
+      "category": "PROCESS",
+      "relationTag": {
+        "identity": "performer",
+        "activityId": "manual_DTD_Assignment"
+      },
+      "businessUnit": {
+        "eoc_company_id": "1",
+        "eoc_site_id": "p1"
+      },
+      "isShared": false,
+      "dataFrom": "PTM",
+      "gridSchema": "project_info",
+      "openWordsLibrary": false,
+      "bpmData": {
+        "_planEndTime": "2022-09-27 19:00:57",
+        "task_d_info": [
+          {
+            "project_no": "T-202208100006",
+            "task_no": "7"
+          }
+        ],
+        "_in": [
+          {
+            "project_no": "T-202208100006",
+            "task_no": "7"
+          }
+        ],
+        "atmcTaskName": "协同12222",
+        "imBusinessKey": "E10ATHENA6003;T-202208100006;7",
+        "atmcTaskStartTime": "2022-08-09 00:00:00",
+        "process_EOC": {
+          "eoc_company_id": "1",
+          "eoc_site_id": "p1"
+        },
+        "project_info": [
+          {
+            "project_no": "T-202208100006",
+            "task_no": "7"
+          }
+        ],
+        "atmcTaskEndTime": "2022-08-09 23:59:59"
+      },
+      "scrollType": "autoHeight",
+      "isSuperAdmin": false,
+      "isTaskEngine": true
+    },
+    "pageCountSize": 1
+  }
+}

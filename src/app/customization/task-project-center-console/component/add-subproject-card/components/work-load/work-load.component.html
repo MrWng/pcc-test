@@ -1,0 +1,128 @@
+<form nz-form [formGroup]="validateForm">
+  <div nz-row class="row-box" [nzGutter]="24">
+    <!-- 工期 -->
+    <div nz-col class="gutter-row" nzSpan="12">
+      <nz-form-item>
+        <nz-form-control nzSpan="12">
+          <ath-input-number
+            formControlName="workload_qty"
+            [placeholder]="translateWord('请输入工期')"
+            [(ngModel)]="addSubProjectCardService.validateForm.value.workload_qty"
+            (focus)="rerverseClick()"
+            (ngModelChange)="workloadQtyChange($event)"
+            [innerLabel]="true"
+            [label]="translateWord('工期')"
+            [min]="0"
+          ></ath-input-number>
+        </nz-form-control>
+        <nz-form-control nzSpan="12" style="padding-left: 10px">
+          <ath-select
+            style="width: 100%; min-width: 100%"
+            [nzDisabled]="isForbidden"
+            formControlName="workload_unit"
+            [nzOptions]="listOfTime"
+            [nzPlaceHolder]="translateWord('请选择单位')"
+            [(ngModel)]="addSubProjectCardService.validateForm.value.workload_unit"
+            (ngModelChange)="workloadUnitChange()"
+            (click)="rerverseClick()"
+            isInsideLabel
+            [label]="translateWord('单位')"
+            [nzAllowClear]="false"
+          >
+          </ath-select>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+
+    <!-- 工时 -->
+    <div nz-col class="gutter-row" nzSpan="12">
+      <nz-form-item>
+        <nz-form-control nzSpan="24">
+          <ath-input-number
+            class="plan-work-hours"
+            [placeholder]="translateWord('请维护预计工时')"
+            formControlName="plan_work_hours"
+            [min]="0"
+            [step]="1"
+            [innerLabel]="true"
+            [label]="translateWord('预计工时')"
+          ></ath-input-number>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+  <div nz-row class="row-box" [nzGutter]="24">
+    <!-- 开始时间 -->
+    <div nz-col class="gutter-row" nzSpan="12">
+      <nz-form-item style="display: block">
+        <nz-form-control>
+          <div>
+            <div class="pickerNotice" style="width: 100%; height: 34px">
+              <app-input-new
+                name="cardStart"
+                [value]="addSubProjectCardService.validateForm.controls['plan_start_date'].value"
+                [placeholder]="translateWord('开始时间')"
+                (appClick)="rerverseClick()"
+                (appChange)="rerverseClick()"
+                (ngModelChange)="startTimeChange($event)"
+                [nzDisabledDate]="disabledStartDate"
+                [nzDisabled]="
+                  addSubProjectCardService.validateForm.controls['plan_start_date'].disabled
+                "
+                [nzAllowClear]="true"
+              ></app-input-new>
+            </div>
+          </div>
+        </nz-form-control>
+        <div class="notice">
+          {{ startNotice }}
+        </div>
+        <div *ngIf="startNoticeForlate" class="notice long" [title]="startNoticeForlate">
+          {{ startNoticeForlate }}
+        </div>
+      </nz-form-item>
+    </div>
+
+    <!-- 结束时间 -->
+    <div nz-col class="gutter-row" nzSpan="12">
+      <nz-form-item style="display: block">
+        <nz-form-control>
+          <div style="display: flex; align-items: center">
+            <div class="pickerNotice" style="flex: 1; height: 34px">
+              <app-input-new
+                name="cardEnd"
+                [value]="addSubProjectCardService.validateForm.value.plan_finish_date"
+                [placeholder]="translateWord('结束时间')"
+                (appClick)="endTimeClick()"
+                (appChange)="endTimeClick()"
+                (ngModelChange)="endTimeChange($event)"
+                [nzDisabledDate]="disabledEndDate"
+                [nzDisabled]="this.source === Entry.card && this.designStatus === 'completed'"
+                [nzAllowClear]="true"
+              ></app-input-new>
+            </div>
+            <div
+              class="btn-event"
+              [class]="
+                addSubProjectCardService.currentCardInfo?.task_status == '10' &&
+                addSubProjectCardService.buttonType === 'EDIT'
+                  ? ''
+                  : 'dis-btn'
+              "
+              [class.dis-btn-event]="isDisable"
+              (click)="setSameValue('date', $event)"
+            >
+              {{ 'dj-pcc-日期同值' | translate }}
+            </div>
+          </div>
+        </nz-form-control>
+        <div class="notice">
+          {{ endNotice }}
+        </div>
+        <div *ngIf="endNoticeForEarly" class="notice long" [title]="endNoticeForEarly">
+          {{ endNoticeForEarly }}
+        </div>
+      </nz-form-item>
+    </div>
+  </div>
+</form>

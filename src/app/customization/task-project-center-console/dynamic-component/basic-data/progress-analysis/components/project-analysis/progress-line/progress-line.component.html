@@ -1,0 +1,14 @@
+<div class="progress-line">
+  <div class="all-progress">
+    <div
+      class="current-progress"
+      [ngClass]="{
+        overdue: currentStatus < 0,
+        advance: currentStatus > 0,
+        normal: currentStatus === 0
+      }"
+      [ngStyle]="{ width: lineWidth + 'px' }"
+    ></div>
+  </div>
+  <p>{{ actualCompleteRate }}%</p>
+</div>

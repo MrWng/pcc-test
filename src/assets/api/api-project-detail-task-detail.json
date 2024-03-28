@@ -1,0 +1,1891 @@
+{
+    "status": 200,
+    "statusDescription": "OK",
+    "response": {
+        "layout": [
+            {
+                "id": "30fd2191-2907-4e14-ba70-df8bc8bd92b9",
+                "type": "ACTIVITY_TITLE",
+                "schema": "uiBot__activity",
+                "important": false
+            },
+            {
+                "id": "07579f7f-738b-40b3-9099-8c53bc25c63d",
+                "type": "APPROVAL_DESCRIPTION",
+                "schema": "uiBot__APPROVAL_DESCRIPTION",
+                "important": false,
+                "group": [
+                    {
+                        "id": "project_no",
+                        "type": "LABEL",
+                        "schema": "project_no",
+                        "headerName": "项目编号",
+                        "path": "project_info",
+                        "editable": false,
+                        "dataType": "string",
+                        "sortable": true,
+                        "filterable": true,
+                        "rowGroupable": true,
+                        "tagDefinitions": [
+                            {
+                                "code": "TYPE_STRING",
+                                "name": "数据组件",
+                                "description": "数据组件",
+                                "category": "DATATYPE",
+                                "interpreterServiceName": "typeStringTagInterpreter",
+                                "customize": false,
+                                "themeMapTag": {
+                                    "id": 500030,
+                                    "name": "xxxx",
+                                    "code": "ACTIVITY_DESCRIPTION_title",
+                                    "category": "BUSINESS",
+                                    "uiBotCode": "ACTIVITY_DESCRIPTION_title"
+                                },
+                                "append": false
+                            }
+                        ],
+                        "enableTrim": true,
+                        "isFocusDisplay": false,
+                        "important": false
+                    },
+                    {
+                        "id": "project_name",
+                        "type": "LABEL",
+                        "schema": "project_name",
+                        "headerName": "项目名称",
+                        "path": "project_info",
+                        "editable": false,
+                        "dataType": "string",
+                        "sortable": true,
+                        "filterable": true,
+                        "rowGroupable": true,
+                        "tagDefinitions": [
+                            {
+                                "code": "TYPE_STRING",
+                                "name": "数据组件",
+                                "description": "数据组件",
+                                "category": "DATATYPE",
+                                "interpreterServiceName": "typeStringTagInterpreter",
+                                "customize": false,
+                                "themeMapTag": {
+                                    "id": 500030,
+                                    "name": "xxxx",
+                                    "code": "ACTIVITY_DESCRIPTION_title",
+                                    "category": "BUSINESS",
+                                    "uiBotCode": "ACTIVITY_DESCRIPTION_title"
+                                },
+                                "append": false
+                            }
+                        ],
+                        "enableTrim": true,
+                        "isFocusDisplay": false,
+                        "important": false
+                    },
+                    {
+                        "id": "project_leader_name",
+                        "type": "LABEL",
+                        "schema": "project_leader_name",
+                        "headerName": "项目负责人名称",
+                        "path": "project_info",
+                        "editable": false,
+                        "dataType": "string",
+                        "sortable": true,
+                        "filterable": true,
+                        "rowGroupable": true,
+                        "tagDefinitions": [
+                            {
+                                "code": "TYPE_STRING",
+                                "name": "数据组件",
+                                "description": "数据组件",
+                                "category": "DATATYPE",
+                                "interpreterServiceName": "typeStringTagInterpreter",
+                                "customize": false,
+                                "themeMapTag": {
+                                    "id": 500040,
+                                    "name": "xxxx",
+                                    "code": "ORDER_3",
+                                    "category": "ORDER",
+                                    "value": "3",
+                                    "uiBotCode": "ORDER"
+                                },
+                                "append": false
+                            }
+                        ],
+                        "enableTrim": true,
+                        "isFocusDisplay": false,
+                        "important": false
+                    }
+                ]
+            },
+            {
+                "id": "5f343189-6e3e-4729-afee-925fe6a6b1ae",
+                "type": "SIGN_OFF_PROGRESS_LINK",
+                "schema": "uiBot__activity",
+                "important": false
+            },
+            {
+                "id": "936ad47b-688d-49ee-aea4-b5c1589eb506",
+                "type": "CONTENT_QUERY_BUTTON",
+                "supportShowInMaxedWindow": true,
+                "important": false,
+                "queryButtons": [
+                    {
+                        "defaultShow": true,
+                        "dataStateCode": "waitting",
+                        "dataSourceSet": {
+                            "dataSourceList": [
+                                {
+                                    "name": "project_info",
+                                    "dataKeys": [
+                                        "project_no"
+                                    ],
+                                    "type": "ESP",
+                                    "actionId": "esp_bm.pisc.project.get",
+                                    "action": {
+                                        "actionId": "esp_bm.pisc.project.get",
+                                        "category": "ESP",
+                                        "serviceId": {
+                                            "tenant_id": "E10ATHENA6003",
+                                            "prod": "BM-PISC",
+                                            "hostAcct": "athena",
+                                            "name": "bm.pisc.project.get"
+                                        },
+                                        "paras": {
+                                            "project_info": [
+                                                {
+                                                    "project_no": "T-20221122000301"
+                                                }
+                                            ]
+                                        },
+                                        "businessUnit": {
+                                            "eoc_company_id": "1"
+                                        },
+                                        "actionParams": [
+                                            {
+                                                "name": "project_info",
+                                                "type": "PROCESS_VARIABLE",
+                                                "value": "project_info",
+                                                "source": "",
+                                                "required": false
+                                            }
+                                        ]
+                                    },
+                                    "dataSourceProcessors": [
+                                        {
+                                            "type": "service",
+                                            "serviceName": "attachmentDataService",
+                                            "applyTo": "task-detail",
+                                            "paras": {
+                                                "enable": true,
+                                                "configs": [
+                                                    {
+                                                        "enable": true,
+                                                        "description": {
+                                                            "title": "项目附件",
+                                                            "language": {
+                                                                "title": {
+                                                                    "zh_TW": "專案附檔",
+                                                                    "en_US": "project attachment",
+                                                                    "zh_CN": "项目附件"
+                                                                }
+                                                            }
+                                                        },
+                                                        "uploadEnable": false,
+                                                        "uploadCategory": "athena_LaunchSpecialProject_create",
+                                                        "readEnable": true,
+                                                        "readCategory": [
+                                                            "athena_LaunchSpecialProject_create"
+                                                        ],
+                                                        "deleteEnable": false,
+                                                        "deleteCategory": [
+                                                            "athena_LaunchSpecialProject_create"
+                                                        ],
+                                                        "targetSchema": "attachment",
+                                                        "disableAam": true
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ],
+                                    "override": false,
+                                    "extendedData": {
+                                        "__workitemId": "2c908137848a190001849d58d5c52840",
+                                        "__processSerialNumber": "projectCenterConsole_userProject1504605315998425088",
+                                        "__workitemSqlId": 248300898083072
+                                    }
+                                }
+                            ],
+                            "mainDatasource": "project_info",
+                            "dataProcess": []
+                        },
+                        "submitType": {
+                            "isBatch": false,
+                            "schema": "project_info"
+                        },
+                        "submitActions": [
+                            {
+                                "title": "同意",
+                                "actionId": "agree",
+                                "category": "TaskEngine",
+                                "serviceId": {
+                                    "name": "agree",
+                                    "serviceUri": "api/task/approve/work/agree"
+                                },
+                                "paras": {
+                                    "workitemId": "2c908137848a190001849d58d5c52840",
+                                    "comment": "",
+                                    "locale": "zh_CN",
+                                    "performerType": 0,
+                                    "performerId": "pur004"
+                                },
+                                "trackCode": "SUBMIT",
+                                "id": "agree",
+                                "defaultAction": true,
+                                "executeContext": {
+                                    "locale": "zh_CN",
+                                    "clientAgent": "webplatform",
+                                    "tmProjectId": "projectCenterConsole_userProject",
+                                    "tmActivityId": "maintenanceProjectApproval_DTD2",
+                                    "backlogId": 248300898083072,
+                                    "processSerialNumber": "projectCenterConsole_userProject1504605315998425088",
+                                    "bpmData": {
+                                        "_inName": "project_info",
+                                        "_planEndTime": "2022-11-23 11:19:14",
+                                        "_in": [
+                                            {
+                                                "project_no": "T-20221122000301"
+                                            }
+                                        ],
+                                        "atmcTaskStartTime": "2022-11-22 00:00:00",
+                                        "project_d_info": [
+                                            {
+                                                "project_no": "T-20221122000301"
+                                            }
+                                        ],
+                                        "process_EOC": {
+                                            "eoc_company_id": "1"
+                                        },
+                                        "project_info": [
+                                            {
+                                                "project_no": "T-20221122000301"
+                                            }
+                                        ],
+                                        "atmcTaskEndTime": "2022-11-23 23:59:59"
+                                    },
+                                    "pageCode": "task-detail",
+                                    "pattern": "BUSINESS",
+                                    "category": "APPROVAL",
+                                    "businessUnit": {
+                                        "eoc_company_id": "1"
+                                    },
+                                    "dataFrom": "PTM",
+                                    "taskType": 1,
+                                    "abnormalWorkitemId": 248300898087168
+                                },
+                                "submitType": {
+                                    "isBatch": false,
+                                    "schema": "project_info"
+                                },
+                                "attachActions": []
+                            },
+                            {
+                                "title": "退回重办",
+                                "actionId": "athena_bpm_reexecute",
+                                "category": "TaskEngine",
+                                "serviceId": {
+                                    "name": "reexecute",
+                                    "serviceUri": "api/task/approve/work/re-do"
+                                },
+                                "paras": {
+                                    "workitemId": "2c908137848a190001849d58d5c52840",
+                                    "comment": "",
+                                    "locale": "zh_CN",
+                                    "performerType": 0,
+                                    "performerId": "pur004"
+                                },
+                                "trackCode": "SUBMIT",
+                                "id": "athena_bpm_reexecute",
+                                "defaultAction": false,
+                                "executeContext": {
+                                    "locale": "zh_CN",
+                                    "clientAgent": "webplatform",
+                                    "tmProjectId": "projectCenterConsole_userProject",
+                                    "tmActivityId": "maintenanceProjectApproval_DTD2",
+                                    "backlogId": 248300898083072,
+                                    "processSerialNumber": "projectCenterConsole_userProject1504605315998425088",
+                                    "bpmData": {
+                                        "_inName": "project_info",
+                                        "_planEndTime": "2022-11-23 11:19:14",
+                                        "_in": [
+                                            {
+                                                "project_no": "T-20221122000301"
+                                            }
+                                        ],
+                                        "atmcTaskStartTime": "2022-11-22 00:00:00",
+                                        "project_d_info": [
+                                            {
+                                                "project_no": "T-20221122000301"
+                                            }
+                                        ],
+                                        "process_EOC": {
+                                            "eoc_company_id": "1"
+                                        },
+                                        "project_info": [
+                                            {
+                                                "project_no": "T-20221122000301"
+                                            }
+                                        ],
+                                        "atmcTaskEndTime": "2022-11-23 23:59:59"
+                                    },
+                                    "pageCode": "task-detail",
+                                    "pattern": "BUSINESS",
+                                    "category": "APPROVAL",
+                                    "businessUnit": {
+                                        "eoc_company_id": "1"
+                                    },
+                                    "dataFrom": "PTM",
+                                    "taskType": 1,
+                                    "abnormalWorkitemId": 248300898087168
+                                },
+                                "submitType": {
+                                    "isBatch": false,
+                                    "schema": "project_info"
+                                },
+                                "startApproveActivity": [
+                                    "maintenanceProjectSubmit_DTD"
+                                ],
+                                "attachActions": []
+                            }
+                        ],
+                        "showSubmitActions": true,
+                        "operations": [
+                            {
+                                "title": "项目计划",
+                                "type": "showProjectDetail",
+                                "description": "",
+                                "attach": {
+                                    "target": "project_info",
+                                    "mode": "all"
+                                },
+                                "isCustomize": true
+                            }
+                        ],
+                        "settings": {},
+                        "version": "2.0",
+                        "queryTitle": "全部",
+                        "rowSize": 1,
+                        "type": "UI",
+                        "startApproveActivityName": "项目计划维护提交",
+                        "startApproveActivity": [
+                            "maintenanceProjectSubmit_DTD"
+                        ],
+                        "finished": false
+                    }
+                ]
+            },
+            {
+                "id": "project_info",
+                "type": "ATHENA_TABLE",
+                "schema": "project_info",
+                "editable": true,
+                "dataType": "array",
+                "setting": {
+                    "orderFields": [
+                        {
+                            "name": "project_no",
+                            "description": "项目编号"
+                        },
+                        {
+                            "name": "project_name",
+                            "description": "项目名称"
+                        },
+                        {
+                            "name": "project_type_name",
+                            "description": "项目类型名称"
+                        },
+                        {
+                            "name": "plan_start_date",
+                            "description": "计划开始日期"
+                        },
+                        {
+                            "name": "plan_finish_date",
+                            "description": "计划截止日期"
+                        },
+                        {
+                            "name": "eoc_company_name",
+                            "description": "云端营运公司名称"
+                        },
+                        {
+                            "name": "project_property",
+                            "description": "项目性质"
+                        }
+                    ]
+                },
+                "operations": [
+                    {
+                        "title": "项目计划",
+                        "type": "showProjectDetail",
+                        "description": "",
+                        "attach": {
+                            "target": "project_info",
+                            "mode": "all"
+                        },
+                        "isCustomize": true
+                    }
+                ],
+                "supportShowInMaxedWindow": true,
+                "important": false,
+                "checkbox": false,
+                "checkboxMerge": false,
+                "scriptFilters": [],
+                "columnDefs": [
+                    {
+                        "headerName": "项目编号",
+                        "path": "project_info",
+                        "level": 0,
+                        "description": "",
+                        "operations": [],
+                        "width": 148,
+                        "important": false,
+                        "columns": [
+                            {
+                                "type": "LABEL",
+                                "schema": "project_no",
+                                "headerName": "项目编号",
+                                "path": "project_info",
+                                "level": 0,
+                                "dataType": "string",
+                                "sortable": true,
+                                "filterable": true,
+                                "rowGroupable": true,
+                                "tagDefinitions": [
+                                    {
+                                        "code": "DISPLAY_NOT_CONTAIN_EXPLICIT",
+                                        "name": "非内含外显",
+                                        "description": "非内含外显",
+                                        "category": "DISPLAY",
+                                        "interpreterServiceName": "",
+                                        "customize": false,
+                                        "extendedInfo": {},
+                                        "themeMapTag": {
+                                            "id": 802006011,
+                                            "name": "xxxx",
+                                            "code": "DISPLAY_NOT_CONTAIN_EXPLICIT",
+                                            "category": "BUSINESS",
+                                            "uiBotCode": "DISPLAY_NOT_CONTAIN_EXPLICIT"
+                                        },
+                                        "append": false
+                                    },
+                                    {
+                                        "code": "TYPE_STRING",
+                                        "name": "数据组件",
+                                        "description": "数据组件",
+                                        "category": "DATATYPE",
+                                        "interpreterServiceName": "typeStringTagInterpreter",
+                                        "customize": false,
+                                        "themeMapTag": {
+                                            "id": 801000010,
+                                            "name": "xxxx",
+                                            "code": "ORDER_10",
+                                            "category": "ORDER",
+                                            "value": "10",
+                                            "uiBotCode": "ORDER"
+                                        },
+                                        "append": false
+                                    }
+                                ],
+                                "width": 132,
+                                "important": false
+                            }
+                        ],
+                        "headers": [],
+                        "isUserDefined": false
+                    },
+                    {
+                        "headerName": "项目名称",
+                        "path": "project_info",
+                        "level": 0,
+                        "description": "",
+                        "operations": [],
+                        "width": 102,
+                        "important": false,
+                        "columns": [
+                            {
+                                "type": "LABEL",
+                                "schema": "project_name",
+                                "headerName": "项目名称",
+                                "path": "project_info",
+                                "level": 0,
+                                "dataType": "string",
+                                "sortable": true,
+                                "filterable": true,
+                                "rowGroupable": true,
+                                "tagDefinitions": [
+                                    {
+                                        "code": "DISPLAY_NOT_CONTAIN_EXPLICIT",
+                                        "name": "非内含外显",
+                                        "description": "非内含外显",
+                                        "category": "DISPLAY",
+                                        "interpreterServiceName": "",
+                                        "customize": false,
+                                        "extendedInfo": {},
+                                        "themeMapTag": {
+                                            "id": 802006011,
+                                            "name": "xxxx",
+                                            "code": "DISPLAY_NOT_CONTAIN_EXPLICIT",
+                                            "category": "BUSINESS",
+                                            "uiBotCode": "DISPLAY_NOT_CONTAIN_EXPLICIT"
+                                        },
+                                        "append": false
+                                    },
+                                    {
+                                        "code": "DISPLAY_NOT_CONTAIN_EXPLICIT",
+                                        "name": "非内含外显",
+                                        "description": "非内含外显",
+                                        "category": "DISPLAY",
+                                        "interpreterServiceName": "",
+                                        "customize": false,
+                                        "extendedInfo": {},
+                                        "themeMapTag": {
+                                            "id": 802006011,
+                                            "name": "xxxx",
+                                            "code": "DISPLAY_NOT_CONTAIN_EXPLICIT",
+                                            "category": "BUSINESS",
+                                            "uiBotCode": "DISPLAY_NOT_CONTAIN_EXPLICIT"
+                                        },
+                                        "append": false
+                                    },
+                                    {
+                                        "code": "TYPE_STRING",
+                                        "name": "数据组件",
+                                        "description": "数据组件",
+                                        "category": "DATATYPE",
+                                        "interpreterServiceName": "typeStringTagInterpreter",
+                                        "customize": false,
+                                        "themeMapTag": {
+                                            "id": 802006011,
+                                            "name": "xxxx",
+                                            "code": "DISPLAY_NOT_CONTAIN_EXPLICIT",
+                                            "category": "BUSINESS",
+                                            "uiBotCode": "DISPLAY_NOT_CONTAIN_EXPLICIT"
+                                        },
+                                        "append": false
+                                    }
+                                ],
+                                "width": 76,
+                                "important": false
+                            }
+                        ],
+                        "headers": [],
+                        "isUserDefined": false
+                    },
+                    {
+                        "headerName": "项目类型名称",
+                        "path": "project_info",
+                        "level": 0,
+                        "description": "",
+                        "operations": [],
+                        "width": 128,
+                        "important": false,
+                        "columns": [
+                            {
+                                "type": "LABEL",
+                                "schema": "project_type_name",
+                                "headerName": "项目类型名称",
+                                "path": "project_info",
+                                "level": 0,
+                                "dataType": "string",
+                                "sortable": true,
+                                "filterable": true,
+                                "rowGroupable": true,
+                                "tagDefinitions": [
+                                    {
+                                        "code": "TYPE_STRING",
+                                        "name": "数据组件",
+                                        "description": "数据组件",
+                                        "category": "DATATYPE",
+                                        "interpreterServiceName": "typeStringTagInterpreter",
+                                        "customize": false,
+                                        "themeMapTag": {
+                                            "id": 806046040,
+                                            "name": "performer__maintenanceProjectApproval_DTD2__ORDER_40",
+                                            "code": "ORDER_40",
+                                            "category": "ORDER",
+                                            "value": "40",
+                                            "uiBotCode": "ORDER"
+                                        },
+                                        "append": false
+                                    }
+                                ],
+                                "width": 52,
+                                "important": false
+                            }
+                        ],
+                        "headers": [],
+                        "isUserDefined": false
+                    },
+                    {
+                        "headerName": "计划开始日期",
+                        "path": "project_info",
+                        "level": 0,
+                        "description": "",
+                        "operations": [],
+                        "width": 128,
+                        "important": false,
+                        "columns": [
+                            {
+                                "type": "LABEL",
+                                "schema": "plan_start_date",
+                                "headerName": "计划开始日期",
+                                "showIcon": true,
+                                "path": "project_info",
+                                "level": 0,
+                                "dataType": "date",
+                                "sortable": true,
+                                "filterable": true,
+                                "rowGroupable": true,
+                                "tagDefinitions": [
+                                    {
+                                        "code": "TYPE_DATE",
+                                        "name": "数据组件",
+                                        "description": "数据组件",
+                                        "category": "DATATYPE",
+                                        "interpreterServiceName": "typeDateTagInterpreter",
+                                        "customize": false,
+                                        "themeMapTag": {
+                                            "id": 806046050,
+                                            "name": "performer__maintenanceProjectApproval_DTD2__ORDER_50",
+                                            "code": "ORDER_50",
+                                            "category": "ORDER",
+                                            "value": "50",
+                                            "uiBotCode": "ORDER"
+                                        },
+                                        "append": false
+                                    }
+                                ],
+                                "width": 78,
+                                "important": false
+                            }
+                        ],
+                        "headers": [],
+                        "isUserDefined": false
+                    },
+                    {
+                        "headerName": "计划截止日期",
+                        "path": "project_info",
+                        "level": 0,
+                        "description": "",
+                        "operations": [],
+                        "width": 128,
+                        "important": false,
+                        "columns": [
+                            {
+                                "type": "LABEL",
+                                "schema": "plan_finish_date",
+                                "headerName": "计划截止日期",
+                                "showIcon": true,
+                                "path": "project_info",
+                                "level": 0,
+                                "dataType": "date",
+                                "sortable": true,
+                                "filterable": true,
+                                "rowGroupable": true,
+                                "tagDefinitions": [
+                                    {
+                                        "code": "TYPE_DATE",
+                                        "name": "数据组件",
+                                        "description": "数据组件",
+                                        "category": "DATATYPE",
+                                        "interpreterServiceName": "typeDateTagInterpreter",
+                                        "customize": false,
+                                        "themeMapTag": {
+                                            "id": 806046060,
+                                            "name": "performer__maintenanceProjectApproval_DTD2__ORDER_60",
+                                            "code": "ORDER_60",
+                                            "category": "ORDER",
+                                            "value": "60",
+                                            "uiBotCode": "ORDER"
+                                        },
+                                        "append": false
+                                    }
+                                ],
+                                "width": 78,
+                                "important": false
+                            }
+                        ],
+                        "headers": [],
+                        "isUserDefined": false
+                    },
+                    {
+                        "headerName": "云端营运公司名称",
+                        "path": "project_info",
+                        "level": 0,
+                        "description": "",
+                        "operations": [],
+                        "width": 154,
+                        "important": false,
+                        "columns": [
+                            {
+                                "type": "LABEL",
+                                "schema": "eoc_company_name",
+                                "headerName": "云端营运公司名称",
+                                "path": "project_info",
+                                "level": 0,
+                                "dataType": "string",
+                                "sortable": true,
+                                "filterable": true,
+                                "rowGroupable": true,
+                                "tagDefinitions": [
+                                    {
+                                        "code": "TYPE_STRING",
+                                        "name": "数据组件",
+                                        "description": "数据组件",
+                                        "category": "DATATYPE",
+                                        "interpreterServiceName": "typeStringTagInterpreter",
+                                        "customize": false,
+                                        "themeMapTag": {
+                                            "id": 806046070,
+                                            "name": "performer__maintenanceProjectApproval_DTD2__ORDER_70",
+                                            "code": "ORDER_70",
+                                            "category": "ORDER",
+                                            "value": "70",
+                                            "uiBotCode": "ORDER"
+                                        },
+                                        "append": false
+                                    }
+                                ],
+                                "width": 131,
+                                "important": false
+                            }
+                        ],
+                        "headers": [],
+                        "isUserDefined": false
+                    },
+                    {
+                        "headerName": "项目性质",
+                        "path": "project_info",
+                        "level": 0,
+                        "description": "",
+                        "operations": [],
+                        "width": 120,
+                        "important": false,
+                        "columns": [
+                            {
+                                "type": "LABEL",
+                                "schema": "project_property",
+                                "headerName": "项目性质",
+                                "path": "project_info",
+                                "level": 0,
+                                "disabled": true,
+                                "editable": false,
+                                "dataType": "string",
+                                "tagDefinitions": [
+                                    {
+                                        "code": "BUSINESS_PROJECT_PROPERTY",
+                                        "name": "项目性质",
+                                        "description": "项目性质",
+                                        "category": "BUSINESS",
+                                        "interpreterServiceName": "selectInterpreter",
+                                        "customize": false,
+                                        "extendedInfo": {
+                                            "option": {
+                                                "10": "潜在",
+                                                "20": "正式",
+                                                "language": {
+                                                    "10": {
+                                                        "zh_TW": "潛在",
+                                                        "zh_CN": "潜在"
+                                                    },
+                                                    "20": {
+                                                        "zh_TW": "正式",
+                                                        "zh_CN": "正式"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "themeMapTag": {
+                                            "id": 802007131,
+                                            "name": "xxxx",
+                                            "code": "BUSINESS_PROJECT_PROPERTY",
+                                            "category": "BUSINESS",
+                                            "uiBotCode": "BUSINESS_PROJECT_PROPERTY"
+                                        },
+                                        "append": false
+                                    }
+                                ],
+                                "width": 120,
+                                "important": false,
+                                "editor": {
+                                    "id": "3c66841a-545b-4732-aee9-b1c0c6802676",
+                                    "type": "SELECT",
+                                    "schema": "project_property",
+                                    "dataType": "string",
+                                    "important": false,
+                                    "options": [
+                                        {
+                                            "title": "正式",
+                                            "value": "20"
+                                        },
+                                        {
+                                            "title": "潜在",
+                                            "value": "10"
+                                        }
+                                    ]
+                                }
+                            }
+                        ],
+                        "headers": [],
+                        "isUserDefined": false
+                    },
+                    {
+                        "headerName": "项目附件",
+                        "path": "project_info",
+                        "level": 0,
+                        "description": "",
+                        "operations": [],
+                        "width": 200,
+                        "important": false,
+                        "columns": [
+                            {
+                                "type": "FILE_UPLOAD",
+                                "schema": "attachment",
+                                "headerName": "项目附件",
+                                "path": "project_info",
+                                "level": 0,
+                                "dataType": "object",
+                                "sortable": true,
+                                "tagDefinitions": [
+                                    {
+                                        "code": "BUSINESS_ATTACHMENT_FILE",
+                                        "name": "项目附件",
+                                        "description": "项目附件",
+                                        "category": "BUSINESS",
+                                        "interpreterServiceName": "attachmentFileInterpreter",
+                                        "customize": false,
+                                        "append": false
+                                    }
+                                ],
+                                "width": 200,
+                                "important": false,
+                                "attribute": {
+                                    "disableAam": true,
+                                    "uploadEnable": false,
+                                    "editable": true,
+                                    "uploadCategory": "athena_LaunchSpecialProject_create",
+                                    "deleteCategory": [
+                                        "athena_LaunchSpecialProject_create"
+                                    ],
+                                    "enableEffectAfterSubmit": false,
+                                    "operations": [],
+                                    "readEnable": true,
+                                    "readCategory": [
+                                        "athena_LaunchSpecialProject_create"
+                                    ],
+                                    "id": "2a13dc27-9adb-412e-9ffe-0a76b905729a",
+                                    "deleteEnable": false
+                                }
+                            }
+                        ],
+                        "headers": [],
+                        "isUserDefined": false
+                    }
+                ],
+                "details": [],
+                "allFields": [
+                    {
+                        "name": "project_no",
+                        "path": "project_info",
+                        "headerName": "项目编号",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": true,
+                        "isShow": true
+                    },
+                    {
+                        "name": "project_name",
+                        "path": "project_info",
+                        "headerName": "项目名称",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": true
+                    },
+                    {
+                        "name": "project_introduction",
+                        "path": "project_info",
+                        "headerName": "项目简介",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "customer_no",
+                        "path": "project_info",
+                        "headerName": "客户编号",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "customer_name",
+                        "path": "project_info",
+                        "headerName": "客户名称",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "customer_shortname",
+                        "path": "project_info",
+                        "headerName": "客户简称",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "customer_address",
+                        "path": "project_info",
+                        "headerName": "客户地址",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "bid_date",
+                        "path": "project_info",
+                        "headerName": "投标时间",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "date",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "plan_start_date",
+                        "path": "project_info",
+                        "headerName": "计划开始日期",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "date",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": true
+                    },
+                    {
+                        "name": "plan_finish_date",
+                        "path": "project_info",
+                        "headerName": "计划截止日期",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "date",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": true
+                    },
+                    {
+                        "name": "project_leader_code",
+                        "path": "project_info",
+                        "headerName": "项目负责人编号",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "project_leader_name",
+                        "path": "project_info",
+                        "headerName": "项目负责人名称",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "project_leader_dept_no",
+                        "path": "project_info",
+                        "headerName": "项目负责人部门编号",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "project_leader_dept_name",
+                        "path": "project_info",
+                        "headerName": "项目负责人部门名称",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "sales_no",
+                        "path": "project_info",
+                        "headerName": "业务员编号",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "sales_name",
+                        "path": "project_info",
+                        "headerName": "业务员名称",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "project_status",
+                        "path": "project_info",
+                        "headerName": "项目状态",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "project_property",
+                        "path": "project_info",
+                        "headerName": "项目性质",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": true
+                    },
+                    {
+                        "name": "project_set_no",
+                        "path": "project_info",
+                        "headerName": "项目集编号",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "project_type_no",
+                        "path": "project_info",
+                        "headerName": "项目类型编号",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "project_template_no",
+                        "path": "project_info",
+                        "headerName": "项目模板编号",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "project_contact_name",
+                        "path": "project_info",
+                        "headerName": "项目联系人",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "contact_tel_no",
+                        "path": "project_info",
+                        "headerName": "联系人电话",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "address",
+                        "path": "project_info",
+                        "headerName": "地址",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "enter_scene_date",
+                        "path": "project_info",
+                        "headerName": "进场日期",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "date",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "contract_no",
+                        "path": "project_info",
+                        "headerName": "合同号",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "actual_start_date",
+                        "path": "project_info",
+                        "headerName": "实际开始日期",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "date",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "actual_finish_date",
+                        "path": "project_info",
+                        "headerName": "实际截止日期",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "date",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "belong_company_no",
+                        "path": "project_info",
+                        "headerName": "归属公司编号",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "project_days",
+                        "path": "project_info",
+                        "headerName": "项目天数",
+                        "level": 0,
+                        "dataType": "numeric",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "pause_date",
+                        "path": "project_info",
+                        "headerName": "暂停日期",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "date",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "to_be_formal_project",
+                        "path": "project_info",
+                        "headerName": "已转正式项目",
+                        "level": 0,
+                        "dataType": "boolean",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "potential_project_no",
+                        "path": "project_info",
+                        "headerName": "潜在项目编号",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "approve_date",
+                        "path": "project_info",
+                        "headerName": "审核时间",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "date",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "remarks",
+                        "path": "project_info",
+                        "headerName": "备注",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "manage_status",
+                        "path": "project_info",
+                        "headerName": "状态",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "project_set_name",
+                        "path": "project_info",
+                        "headerName": "项目集名称",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "project_type_name",
+                        "path": "project_info",
+                        "headerName": "项目类型名称",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": true
+                    },
+                    {
+                        "name": "budget_planning",
+                        "path": "project_info",
+                        "headerName": "预算编制",
+                        "level": 0,
+                        "dataType": "boolean",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "control_type",
+                        "path": "project_info",
+                        "headerName": "控管方式",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "remark",
+                        "path": "project_info",
+                        "headerName": "备注",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "eoc_company_id",
+                        "path": "project_info",
+                        "headerName": "云端营运公司编号",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "eoc_company_name",
+                        "path": "project_info",
+                        "headerName": "云端营运公司名称",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": true
+                    },
+                    {
+                        "name": "project_address",
+                        "path": "project_info",
+                        "headerName": "项目地址",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "string",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "key_date",
+                        "path": "project_info",
+                        "headerName": "关键日期",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "date",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "potential_transfer_formal_time",
+                        "path": "project_info",
+                        "headerName": "潜在转正式时间",
+                        "level": 0,
+                        "defaultValue": "",
+                        "dataType": "datetime",
+                        "sort": false,
+                        "isDataKey": false,
+                        "isShow": false
+                    },
+                    {
+                        "name": "attachment",
+                        "path": "project_info",
+                        "headerName": "项目附件",
+                        "level": 0,
+                        "defaultValue": {
+                            "data": [],
+                            "row_data": ""
+                        },
+                        "dataType": "object",
+                        "isDataKey": false,
+                        "isShow": true
+                    }
+                ],
+                "saveColumnsWidth": true,
+                "disabledUserDefined": true,
+                "suppressAutoAddRow": true,
+                "scrollType": "autoHeight"
+            }
+        ],
+        "style": {},
+        "rules": [
+            {
+                "path": "project_info",
+                "errorMessage": "存在一级或下阶任务比重<100%,则所有一级或下阶任务比重累计必须等于100%！否则项目不可启动！",
+                "language": {
+                    "errorMessage": {
+                        "zh_TW": "存在一級或下階任務比重<100%,則所有一級或下階任務比重累計必須等於100%！否則專案不可啟動！",
+                        "en_US": "project cannot start",
+                        "zh_CN": "存在一级或下阶任务比重<100%,则所有一级或下阶任务比重累计必须等于100%！否则项目不可启动！"
+                    }
+                },
+                "asyncCacheScope": "none",
+                "trigger": {
+                    "parameterScript": "let canRequest=false;let projectNo=rowData.project_info[0].project_no;if(projectNo){canRequest=true}const params={\"canRequest\":canRequest,businessUnit:businessUnit,tmAction:{\"sequence\":0,\"type\":\"ESP\",\"actionId\":\"esp_task.proportion.check\"},paras:{\"project_info\":[{\"project_no\":projectNo}]}};return params;",
+                    "needValidateParameter": true,
+                    "condition": "data.data.length>0",
+                    "apiUrl": "/api/atdm/v1/data/query/by/action",
+                    "needCustomEvaluation": false,
+                    "actionId": "agree",
+                    "type": "async",
+                    "apiPrefixType": "atdmUrl",
+                    "evaluationScript": "",
+                    "point": "inSubmit"
+                },
+                "lang": {
+                    "errorMessage": {
+                        "zh_TW": "存在一級或下階任務比重<100%,則所有一級或下階任務比重累計必須等於100%！否則專案不可啟動！",
+                        "en_US": "project cannot start",
+                        "zh_CN": "存在一级或下阶任务比重<100%,则所有一级或下阶任务比重累计必须等于100%！否则项目不可启动！"
+                    }
+                },
+                "key": "custom"
+            }
+        ],
+        "pageData": {
+            "uiBot__activity": {
+                "taskStartTime": "2022-11-22 00:00:00",
+                "endTime": "2022-11-23 23:59:59",
+                "name": "子母项目启动签核",
+                "remainTime": "1天",
+                "taskEndTime": "2022-12-11 00:00:00",
+                "taskName": "测试签核001[T-20221122000301]",
+                "readCount": 7,
+                "extendedFields": {
+                    "signOffProgressData": {
+                        "processInstances": [
+                            {
+                                "workitemId": 248300898083072,
+                                "processSerialNumber": "projectCenterConsole_userProject1504605315998425088",
+                                "tmActivityIds": [
+                                    "maintenanceProjectApproval_DTD2"
+                                ]
+                            }
+                        ],
+                        "locale": "zh_CN"
+                    }
+                },
+                "processSerialNumber": "projectCenterConsole_userProject1504605315998425088",
+                "workitemId": "2c908137848a190001849d58d5c52840",
+                "processCreateTime": "2022-11-22 11:18:28",
+                "eocName": [
+                    "南京**公司（测试区）"
+                ],
+                "merge": false
+            },
+            "uiBot__content": {
+                "title": "子母项目启动签核",
+                "subTitle": "子母项目启动签核"
+            },
+            "uiBot__APPROVAL_DESCRIPTION": {
+                "project_address": "",
+                "project_no": "T-20221122000301",
+                "project_name": "测试签核001",
+                "project_introduction": "",
+                "customer_no": "",
+                "customer_name": "",
+                "customer_shortname": "",
+                "customer_address": "",
+                "plan_start_date": "2022-11-22",
+                "plan_finish_date": "2022-12-11",
+                "project_leader_code": "pur004",
+                "project_leader_name": "ERP采购主管2",
+                "project_leader_dept_no": "04",
+                "project_leader_dept_name": "采购部",
+                "sales_no": "",
+                "sales_name": "",
+                "project_status": "20",
+                "project_property": "20",
+                "project_set_no": "T-202211220003",
+                "project_type_no": "T002",
+                "project_template_no": "",
+                "project_contact_name": "",
+                "contact_tel_no": "",
+                "address": "",
+                "contract_no": "",
+                "project_type_name": "项目签核",
+                "project_set_name": "测试子母项目签核",
+                "budget_planning": false,
+                "control_type": "",
+                "remark": "",
+                "belong_company_no": "",
+                "project_days": 20,
+                "to_be_formal_project": false,
+                "potential_project_no": "",
+                "manage_status": "Y",
+                "remarks": "",
+                "eoc_company_id": "1",
+                "eoc_company_name": "南京**公司（测试区）",
+                "key_date": "1900-01-01",
+                "attachment": {
+                    "data": [],
+                    "row_data": "T-20221122000301;"
+                },
+                "__DATA_KEY": "T-20221122000301;"
+            },
+            "uiBot__approvalMessage": "",
+            "uiBot__prompt_message": "",
+            "project_info": [
+                {
+                    "project_address": "",
+                    "project_no": "T-20221122000301",
+                    "project_name": "测试签核001",
+                    "project_introduction": "",
+                    "customer_no": "",
+                    "customer_name": "",
+                    "customer_shortname": "",
+                    "customer_address": "",
+                    "plan_start_date": "2022-11-22",
+                    "plan_finish_date": "2022-12-11",
+                    "project_leader_code": "pur004",
+                    "project_leader_name": "ERP采购主管2",
+                    "project_leader_dept_no": "04",
+                    "project_leader_dept_name": "采购部",
+                    "sales_no": "",
+                    "sales_name": "",
+                    "project_status": "20",
+                    "project_property": "20",
+                    "project_set_no": "T-202211220003",
+                    "project_type_no": "T002",
+                    "project_template_no": "",
+                    "project_contact_name": "",
+                    "contact_tel_no": "",
+                    "address": "",
+                    "contract_no": "",
+                    "project_type_name": "项目签核",
+                    "project_set_name": "测试子母项目签核",
+                    "budget_planning": false,
+                    "control_type": "",
+                    "remark": "",
+                    "belong_company_no": "",
+                    "project_days": 20,
+                    "to_be_formal_project": false,
+                    "potential_project_no": "",
+                    "manage_status": "Y",
+                    "remarks": "",
+                    "eoc_company_id": "1",
+                    "eoc_company_name": "南京**公司（测试区）",
+                    "key_date": "1900-01-01",
+                    "attachment": {
+                        "data": [],
+                        "row_data": "T-20221122000301;"
+                    },
+                    "__DATA_KEY": "T-20221122000301;"
+                }
+            ]
+        },
+        "pageDataKeys": {
+            "project_info": [
+                "project_no",
+                "project_no"
+            ]
+        },
+        "actions": [
+            {
+                "title": "同意",
+                "actionId": "agree",
+                "category": "TaskEngine",
+                "serviceId": {
+                    "name": "agree",
+                    "serviceUri": "api/task/approve/work/agree"
+                },
+                "paras": {
+                    "workitemId": "2c908137848a190001849d58d5c52840",
+                    "comment": "",
+                    "locale": "zh_CN",
+                    "performerType": 0,
+                    "performerId": "pur004"
+                },
+                "trackCode": "SUBMIT",
+                "id": "agree",
+                "defaultAction": true,
+                "executeContext": {
+                    "locale": "zh_CN",
+                    "clientAgent": "webplatform",
+                    "tmProjectId": "projectCenterConsole_userProject",
+                    "tmActivityId": "maintenanceProjectApproval_DTD2",
+                    "backlogId": 248300898083072,
+                    "processSerialNumber": "projectCenterConsole_userProject1504605315998425088",
+                    "bpmData": {
+                        "_inName": "project_info",
+                        "_planEndTime": "2022-11-23 11:19:14",
+                        "_in": [
+                            {
+                                "project_no": "T-20221122000301"
+                            }
+                        ],
+                        "atmcTaskStartTime": "2022-11-22 00:00:00",
+                        "project_d_info": [
+                            {
+                                "project_no": "T-20221122000301"
+                            }
+                        ],
+                        "process_EOC": {
+                            "eoc_company_id": "1"
+                        },
+                        "project_info": [
+                            {
+                                "project_no": "T-20221122000301"
+                            }
+                        ],
+                        "atmcTaskEndTime": "2022-11-23 23:59:59"
+                    },
+                    "pageCode": "task-detail",
+                    "pattern": "BUSINESS",
+                    "category": "APPROVAL",
+                    "businessUnit": {
+                        "eoc_company_id": "1"
+                    },
+                    "dataFrom": "PTM",
+                    "taskType": 1,
+                    "abnormalWorkitemId": 248300898087168
+                },
+                "submitType": {
+                    "isBatch": false,
+                    "schema": "project_info"
+                },
+                "attachActions": []
+            },
+            {
+                "title": "退回重办",
+                "actionId": "athena_bpm_reexecute",
+                "category": "TaskEngine",
+                "serviceId": {
+                    "name": "reexecute",
+                    "serviceUri": "api/task/approve/work/re-do"
+                },
+                "paras": {
+                    "workitemId": "2c908137848a190001849d58d5c52840",
+                    "comment": "",
+                    "locale": "zh_CN",
+                    "performerType": 0,
+                    "performerId": "pur004"
+                },
+                "trackCode": "SUBMIT",
+                "id": "athena_bpm_reexecute",
+                "defaultAction": false,
+                "executeContext": {
+                    "locale": "zh_CN",
+                    "clientAgent": "webplatform",
+                    "tmProjectId": "projectCenterConsole_userProject",
+                    "tmActivityId": "maintenanceProjectApproval_DTD2",
+                    "backlogId": 248300898083072,
+                    "processSerialNumber": "projectCenterConsole_userProject1504605315998425088",
+                    "bpmData": {
+                        "_inName": "project_info",
+                        "_planEndTime": "2022-11-23 11:19:14",
+                        "_in": [
+                            {
+                                "project_no": "T-20221122000301"
+                            }
+                        ],
+                        "atmcTaskStartTime": "2022-11-22 00:00:00",
+                        "project_d_info": [
+                            {
+                                "project_no": "T-20221122000301"
+                            }
+                        ],
+                        "process_EOC": {
+                            "eoc_company_id": "1"
+                        },
+                        "project_info": [
+                            {
+                                "project_no": "T-20221122000301"
+                            }
+                        ],
+                        "atmcTaskEndTime": "2022-11-23 23:59:59"
+                    },
+                    "pageCode": "task-detail",
+                    "pattern": "BUSINESS",
+                    "category": "APPROVAL",
+                    "businessUnit": {
+                        "eoc_company_id": "1"
+                    },
+                    "dataFrom": "PTM",
+                    "taskType": 1,
+                    "abnormalWorkitemId": 248300898087168
+                },
+                "submitType": {
+                    "isBatch": false,
+                    "schema": "project_info"
+                },
+                "startApproveActivity": [
+                    "maintenanceProjectSubmit_DTD"
+                ],
+                "attachActions": []
+            }
+        ],
+        "finished": false,
+        "executeContext": {
+            "locale": "zh_CN",
+            "clientAgent": "webplatform",
+            "identity": "performer",
+            "tmProjectId": "projectCenterConsole_userProject",
+            "taskWithBacklogData": {
+                "bpmData": {
+                    "_inName": "project_info",
+                    "_planEndTime": "2022-11-23 11:19:14",
+                    "_in": [
+                        {
+                            "project_no": "T-20221122000301"
+                        }
+                    ],
+                    "atmcTaskStartTime": "2022-11-22 00:00:00",
+                    "project_d_info": [
+                        {
+                            "project_no": "T-20221122000301"
+                        }
+                    ],
+                    "process_EOC": {
+                        "eoc_company_id": "1"
+                    },
+                    "project_info": [
+                        {
+                            "project_no": "T-20221122000301"
+                        }
+                    ],
+                    "atmcTaskEndTime": "2022-11-23 23:59:59"
+                },
+                "stateData": {},
+                "businessUnit": {
+                    "eoc_company_id": "1"
+                },
+                "eocName": [
+                    "南京**公司（测试区）"
+                ],
+                "tmActivityId": "maintenanceProjectApproval_DTD2",
+                "tmActivityName": "子母项目启动签核",
+                "tmCategory": "APPROVAL",
+                "tmPattern": "BUSINESS",
+                "bpmActivityId": "approval_1",
+                "proxyToken": "",
+                "processSerialNumber": "projectCenterConsole_userProject1504605315998425088",
+                "bpmActivityType": "UserTask",
+                "backlog": [
+                    {
+                        "backlogId": 248300898083072,
+                        "backlogName": "子母项目启动签核",
+                        "performerId": "pur004",
+                        "performerName": "采购主管2",
+                        "readCount": 7,
+                        "startTime": "2022-11-22 11:19:13",
+                        "planEndTime": "2022-11-23 23:59:59",
+                        "remainTime": "1天",
+                        "workitemList": [
+                            {
+                                "id": 248300898083072,
+                                "activityStepId": 248300898029824,
+                                "createTime": "2022-11-22 11:19:16",
+                                "performerId": "pur004",
+                                "performerName": "采购主管2",
+                                "workitemId": "2c908137848a190001849d58d5c52840",
+                                "comment": "",
+                                "state": 1,
+                                "agentPerformerId": "",
+                                "agentPerformerName": "",
+                                "performerType": 0,
+                                "readCount": 7,
+                                "subState": 0,
+                                "createType": 0,
+                                "approvalState": "",
+                                "fromWorkitemId": "",
+                                "groupId": 248300898083072,
+                                "targetTenantId": "E10ATHENA6003",
+                                "importance": 0,
+                                "importanceSource": "self"
+                            }
+                        ],
+                        "closed": false,
+                        "bpmSignReason": "",
+                        "ptmBacklogId": 248300898087168,
+                        "ptmWorkItemId": 248300898083072,
+                        "merge": false
+                    }
+                ],
+                "taskUid": "2c908137848a190001849d58ce302836"
+            },
+            "allBpmData": [
+                {
+                    "_inName": "project_info",
+                    "_planEndTime": "2022-11-23 11:19:14",
+                    "_in": [
+                        {
+                            "project_no": "T-20221122000301"
+                        }
+                    ],
+                    "atmcTaskStartTime": "2022-11-22 00:00:00",
+                    "project_d_info": [
+                        {
+                            "project_no": "T-20221122000301"
+                        }
+                    ],
+                    "process_EOC": {
+                        "eoc_company_id": "1"
+                    },
+                    "project_info": [
+                        {
+                            "project_no": "T-20221122000301"
+                        }
+                    ],
+                    "atmcTaskEndTime": "2022-11-23 23:59:59"
+                }
+            ],
+            "taskType": 1,
+            "backlogId": 248300898083072,
+            "abnormalWorkitemId": 248300898087168,
+            "approvalInfo": {},
+            "tmActivityId": "maintenanceProjectApproval_DTD2",
+            "tenantId": "E10ATHENA6003",
+            "pageCode": "task-detail",
+            "pattern": "BUSINESS",
+            "category": "APPROVAL",
+            "relationTag": {
+                "identity": "performer",
+                "activityId": "maintenanceProjectApproval_DTD2"
+            },
+            "businessUnit": {
+                "eoc_company_id": "1"
+            },
+            "isShared": false,
+            "dataFrom": "PTM",
+            "gridSchema": "project_info",
+            "openWordsLibrary": false,
+            "bpmData": {
+                "_inName": "project_info",
+                "_planEndTime": "2022-11-23 11:19:14",
+                "_in": [
+                    {
+                        "project_no": "T-20221122000301"
+                    }
+                ],
+                "atmcTaskStartTime": "2022-11-22 00:00:00",
+                "project_d_info": [
+                    {
+                        "project_no": "T-20221122000301"
+                    }
+                ],
+                "process_EOC": {
+                    "eoc_company_id": "1"
+                },
+                "project_info": [
+                    {
+                        "project_no": "T-20221122000301"
+                    }
+                ],
+                "atmcTaskEndTime": "2022-11-23 23:59:59"
+            },
+            "scrollType": "autoHeight",
+            "isSuperAdmin": false,
+            "isTaskEngine": true
+        },
+        "pageCountSize": 1
+    }
+}

@@ -1,0 +1,21 @@
+{
+  "/mock": {
+    "target": "http://47.102.222.172:22692/"
+  },
+  "/themeMapUrl": {
+    "target": "https://thememap-paas.apps.digiwincloud.com.cn/restful/service",
+    "logLevel": "debug",
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/themeMapUrl": ""
+    }
+  },
+  "/bpmUrl": {
+    "target": "https://flowengine-test.apps.digiwincloud.com.cn/restful/standard/bpm_cloud",
+    "logLevel": "debug",
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/bpmUrl": ""
+    }
+  }
+}

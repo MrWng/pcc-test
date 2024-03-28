@@ -1,0 +1,486 @@
+<div class="wbs-header">
+  <div class="precautions">
+    <span *ngIf="promptMessage">
+      {{ 'dj-default-请注意！模板内必须维护项目检讨类型的任务！' | translate }}</span
+    >
+    <span *ngIf="wbsService.taskProportionCheck?.projectInfoTip && source === Entry.maintain">
+      {{
+        'dj-pcc-存在一级任务的任务比重 < 100%，则所有一级任务的任务比重累计必须等于100%！'
+          | translate
+      }}
+    </span>
+  </div>
+  <!-- 进度追踪页面的头部信息 -->
+  <div
+    class="progress-tracking-operations"
+    *ngIf="wbsService.isTrackPages && source === Entry.card; else projectTemplate"
+  >
+    <div (click)="toFullScreen()">
+      <em class="icon" *ngIf="!wbsService.fullScreenStatus">
+        <svg class="iconfont" aria-hidden="true">
+          <use xlink:href="#iconquanpin"></use>
+        </svg>
+      </em>
+      <em class="icon" *ngIf="wbsService.fullScreenStatus">
+        <svg class="iconfont" aria-hidden="true">
+          <use xlink:href="#icontcqp"></use>
+        </svg>
+      </em>
+    </div>
+    <div
+      [ngClass]="{ 'disabled-status': wbsService.projectInfo?.project_status !== '30' }"
+      *ngIf="wbsService.editable"
+      (click)="closeTheCase()"
+    >
+      {{ 'dj-default-结案' | translate }}
+    </div>
+    <div
+      [ngClass]="{
+        'disabled-status':
+          wbsService.projectInfo?.project_status !== '30' &&
+          wbsService.projectInfo?.project_status !== '50'
+      }"
+      *ngIf="wbsService.editable"
+      (click)="designatedProject()"
+    >
+      {{ 'dj-default-指定结案' | translate }}
+    </div>
+    <div
+      *ngIf="
+        wbsService.projectInfo?.project_status === '30' &&
+        wbsService.projectInfo?.approve_status !== 'N' &&
+        wbsService.editable
+      "
+      (click)="suspendProject()"
+    >
+      {{ 'dj-pcc-暂停专案' | translate }}
+    </div>
+    <div
+      *ngIf="
+        (wbsService.projectInfo?.project_status === '50' ||
+          (wbsService.projectInfo?.project_status === '30' &&
+            wbsService.projectInfo?.approve_status === 'N')) &&
+        wbsService.editable
+      "
+      (click)="continueProject()"
+    >
+      {{ 'dj-pcc-继续专案' | translate }}
+    </div>
+    <div (click)="lookGatte()">{{ 'dj-default-查看甘特图' | translate }}</div>
+    <div (click)="lookPert()">{{ 'dj-pcc-查看PERT图' | translate }}</div>
+    <div
+      *ngIf="wbsService.projectInfo.approve_status === 'N' && isShowApprove"
+      (click)="lookSignOffProgress()"
+    >
+      {{ 'dj-c-查看签核进度' | translate }}
+    </div>
+  </div>
+  <!-- wbs入口的头部信息 -->
+  <ng-template #projectTemplate>
+    <!-- wbs入口  可编辑状态 -->
+    <div *ngIf="source === Entry.card && wbsService.editable">
+      <div class="progress-tracking-operations use-template">
+        <div class="full-screen-box" [ngClass]="{ 'alldelay-disabled': isDisabled() }">
+          <span (click)="toFullScreen()">
+            <em class="icon" *ngIf="!wbsService.fullScreenStatus">
+              <svg class="iconfont" aria-hidden="true">
+                <use xlink:href="#iconquanpin"></use>
+              </svg>
+            </em>
+            <em class="icon" *ngIf="wbsService.fullScreenStatus">
+              <svg class="iconfont" aria-hidden="true">
+                <use xlink:href="#icontcqp"></use>
+              </svg>
+            </em>
+          </span>
+        </div>
+        <div [ngClass]="{ 'save-template-disabled': isDisabled() || accessibleStatus }">
+          <div class="save-template-box" (click)="saveToTemplate()">
+            {{ 'dj-default-保存为模板' | translate }}
+          </div>
+        </div>
+        <div [ngClass]="{ 'collaborative-disabled': isDisabled() }">
+          <div
+            *ngIf="!judgeForProjectPlanFlow1()"
+            class="collaborative-plan-box"
+            [ngClass]="{ 'collaborative-plan-disabled': judgeForProjectPlanFlow2() }"
+            (click)="collaborativePlan()"
+          >
+            {{ 'dj-pcc-协同计划排定' | translate }}
+          </div>
+        </div>
+        <nz-select
+          [nzDisabled]="isDisabledSelectTemplate()"
+          [nzPlaceHolder]="translateWord('选择模板')"
+          [nzOptions]="templateTypeOption"
+          (nzFocus)="templateTypeFocus()"
+          [(ngModel)]="selectedTemplateType"
+          (ngModelChange)="templateTypeChange($event)"
+        ></nz-select>
+        <div
+          class="alldelay"
+          [ngClass]="{
+            alldelayDisabled:
+              wbsService.projectInfo?.project_status !== '10' &&
+              wbsService.projectInfo?.project_status !== '30' &&
+              wbsService.projectInfo?.project_status !== '20'
+          }"
+        >
+          <div
+            [ngClass]="{
+              'alldelay-disabled':
+                wbsService.needRefresh ||
+                isDisabled() ||
+                (wbsService.projectInfo?.project_status !== '30' && wbsService.hasCollaborationCard)
+            }"
+          >
+            <p (click)="showDelayDays()">{{ 'dj-default-所有任务自动延展' | translate }}</p>
+          </div>
+        </div>
+        <div [ngClass]="{ 'alldelay-disabled': isDisabled() }">
+          <div class="alldelay pert" (click)="lookPert()">
+            {{ 'dj-pcc-查看PERT图' | translate }}
+          </div>
+        </div>
+        <div
+          class="uploadList"
+          *ngIf="wbsService.projectInfo?.project_status === '10' || wbsService.showExcel"
+        >
+          <app-upload (changeTemp)="changeTemp.emit()"> </app-upload>
+        </div>
+      </div>
+      <nz-modal
+        [(nzVisible)]="isUseEquipmentTemplateVisible"
+        nzWrapClassName="delay-modal-box"
+        nzClassName="template-box-home template160"
+      >
+        <ng-template nzModalContent>
+          <p>{{ 'dj-default-确定使用设备清单模板？' | translate }}</p>
+          <div class="button-box">
+            <button class="btn cancel" (click)="useTemplateHandleCancel()">
+              {{ 'dj-default-取消' | translate }}
+            </button>
+            <button class="btn active" (click)="useEquipmentTemplateHandleOk()">
+              {{ 'dj-default-确定' | translate }}
+            </button>
+          </div>
+        </ng-template>
+      </nz-modal>
+      <nz-modal
+        [(nzVisible)]="isUseTemplateVisible"
+        nzWrapClassName="delay-modal-box"
+        nzClassName="template-box-home template160"
+      >
+        <ng-template nzModalContent>
+          <p>{{ 'dj-default-使用模板将会覆盖现有的内容，是否使用模板？' | translate }}</p>
+          <div class="button-box">
+            <button class="btn cancel" (click)="useTemplateHandleCancel()">
+              {{ 'dj-default-取消' | translate }}
+            </button>
+            <button class="btn active" (click)="useTemplateHandleOk()">
+              {{ 'dj-default-确定' | translate }}
+            </button>
+          </div>
+        </ng-template>
+      </nz-modal>
+      <nz-modal [(nzVisible)]="isSaveModalVisible" nzClassName="template-box-home">
+        <ng-template nzModalContent>
+          <form nz-form [formGroup]="validateForm">
+            <p>{{ 'dj-default-请确认模板名称' | translate }}</p>
+            <div class="item-box">
+              <div>
+                *<span>{{ 'dj-default-模板名称' | translate }}</span>
+              </div>
+              <nz-form-item>
+                <nz-form-control>
+                  <input
+                    type="text"
+                    nz-input
+                    formControlName="project_template_name"
+                    [placeholder]="translateWord('必填')"
+                  />
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </form>
+          <div class="button-box">
+            <button class="btn cancel" (click)="cancelSaveTemplate()">
+              {{ 'dj-default-取消' | translate }}
+            </button>
+            <button
+              class="btn"
+              [ngClass]="validateForm.invalid ? 'submit' : 'active'"
+              (click)="certainSaveTemplate()"
+            >
+              {{ 'dj-default-确定' | translate }}
+            </button>
+          </div>
+        </ng-template>
+      </nz-modal>
+      <nz-modal
+        [(nzVisible)]="isCollaborativePlan"
+        nzWrapClassName="collaborate-modal-box"
+        nzClassName="collaborate-template-box"
+      >
+        <ng-template nzModalContent>
+          <p>{{ 'dj-default-请选择需要协同排定的一级计划：' | translate }}</p>
+          <div class="first-task-card-box">
+            <div class="select-all">
+              <label
+                nz-checkbox
+                [(ngModel)]="collaborativeAllChecked"
+                (ngModelChange)="updateAllChecked()"
+                [nzIndeterminate]="indeterminate"
+              >
+                {{ 'dj-default-全选' | translate }}
+              </label>
+            </div>
+            <nz-checkbox-group
+              [(ngModel)]="collaborativePlanCardList"
+              (ngModelChange)="changePlanCardList(collaborativePlanCardList)"
+            ></nz-checkbox-group>
+          </div>
+          <div class="button-box">
+            <button class="btn cancel" (click)="collaborativeHandleCancel()">
+              {{ 'dj-default-取消' | translate }}
+            </button>
+            <button class="btn active" (click)="createCollaborativePlan()">
+              {{ 'dj-default-确定' | translate }}
+            </button>
+          </div>
+        </ng-template>
+      </nz-modal>
+    </div>
+    <!-- wbs入口  不可编辑状态 -->
+    <div *ngIf="source === Entry.card && !wbsService.editable">
+      <div class="progress-tracking-operations use-template">
+        <div class="full-screen-box" [ngClass]="{ 'alldelay-disabled': isDisabled() }">
+          <span (click)="toFullScreen()">
+            <em class="icon" *ngIf="!wbsService.fullScreenStatus">
+              <svg class="iconfont" aria-hidden="true">
+                <use xlink:href="#iconquanpin"></use>
+              </svg>
+            </em>
+            <em class="icon" *ngIf="wbsService.fullScreenStatus">
+              <svg class="iconfont" aria-hidden="true">
+                <use xlink:href="#icontcqp"></use>
+              </svg>
+            </em>
+          </span>
+        </div>
+        <div [ngClass]="{ 'alldelay-disabled': isDisabled() }">
+          <div class="alldelay pert" (click)="lookPert()">
+            {{ 'dj-pcc-查看PERT图' | translate }}
+          </div>
+        </div>
+        <div
+          *ngIf="wbsService.projectInfo.approve_status === 'N' && isShowApprove"
+          class="alldelay pert"
+          (click)="lookSignOffProgress()"
+        >
+          {{ 'dj-c-查看签核进度' | translate }}
+        </div>
+        <div
+          class="uploadList"
+          *ngIf="wbsService.projectInfo?.project_status === '10' || wbsService.showExcel"
+        >
+          <app-upload (changeTemp)="changeTemp.emit()"> </app-upload>
+        </div>
+      </div>
+      <nz-modal
+        [(nzVisible)]="isUseEquipmentTemplateVisible"
+        nzWrapClassName="delay-modal-box"
+        nzClassName="template-box-home template160"
+      >
+        <ng-template nzModalContent>
+          <p>{{ 'dj-default-确定使用设备清单模板？' | translate }}</p>
+          <div class="button-box">
+            <button class="btn cancel" (click)="useTemplateHandleCancel()">
+              {{ 'dj-default-取消' | translate }}
+            </button>
+            <button class="btn active" (click)="useEquipmentTemplateHandleOk()">
+              {{ 'dj-default-确定' | translate }}
+            </button>
+          </div>
+        </ng-template>
+      </nz-modal>
+      <nz-modal
+        [(nzVisible)]="isUseTemplateVisible"
+        nzWrapClassName="delay-modal-box"
+        nzClassName="template-box-home template160"
+      >
+        <ng-template nzModalContent>
+          <p>{{ 'dj-default-使用模板将会覆盖现有的内容，是否使用模板？' | translate }}</p>
+          <div class="button-box">
+            <button class="btn cancel" (click)="useTemplateHandleCancel()">
+              {{ 'dj-default-取消' | translate }}
+            </button>
+            <button class="btn active" (click)="useTemplateHandleOk()">
+              {{ 'dj-default-确定' | translate }}
+            </button>
+          </div>
+        </ng-template>
+      </nz-modal>
+      <nz-modal [(nzVisible)]="isSaveModalVisible" nzClassName="template-box-home">
+        <ng-template nzModalContent>
+          <form nz-form [formGroup]="validateForm">
+            <p>{{ 'dj-default-请确认模板名称' | translate }}</p>
+            <div class="item-box">
+              <div>
+                *<span>{{ 'dj-default-模板名称' | translate }}</span>
+              </div>
+              <nz-form-item>
+                <nz-form-control>
+                  <input
+                    type="text"
+                    nz-input
+                    formControlName="project_template_name"
+                    [placeholder]="translateWord('必填')"
+                  />
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </form>
+          <div class="button-box">
+            <button class="btn cancel" (click)="cancelSaveTemplate()">
+              {{ 'dj-default-取消' | translate }}
+            </button>
+            <button
+              class="btn"
+              [ngClass]="validateForm.invalid ? 'submit' : 'active'"
+              (click)="certainSaveTemplate()"
+            >
+              {{ 'dj-default-确定' | translate }}
+            </button>
+          </div>
+        </ng-template>
+      </nz-modal>
+      <nz-modal
+        [(nzVisible)]="isCollaborativePlan"
+        nzWrapClassName="collaborate-modal-box"
+        nzClassName="collaborate-template-box"
+      >
+        <ng-template nzModalContent>
+          <p>{{ 'dj-default-请选择需要协同排定的一级计划：' | translate }}</p>
+          <div class="first-task-card-box">
+            <div class="select-all">
+              <label
+                nz-checkbox
+                [(ngModel)]="collaborativeAllChecked"
+                (ngModelChange)="updateAllChecked()"
+                [nzIndeterminate]="indeterminate"
+              >
+                {{ 'dj-default-全选' | translate }}
+              </label>
+            </div>
+            <nz-checkbox-group
+              [(ngModel)]="collaborativePlanCardList"
+              (ngModelChange)="changePlanCardList(collaborativePlanCardList)"
+            ></nz-checkbox-group>
+          </div>
+          <div class="button-box">
+            <button class="btn cancel" (click)="collaborativeHandleCancel()">
+              {{ 'dj-default-取消' | translate }}
+            </button>
+            <button class="btn active" (click)="createCollaborativePlan()">
+              {{ 'dj-default-确定' | translate }}
+            </button>
+          </div>
+        </ng-template>
+      </nz-modal>
+    </div>
+    <div *ngIf="source === Entry.maintain">
+      <div class="progress-tracking-operations use-template">
+        <div class="full-screen-box" (click)="toFullScreen()">
+          <em class="icon" *ngIf="!wbsService.fullScreenStatus">
+            <svg class="iconfont" aria-hidden="true">
+              <use xlink:href="#iconquanpin"></use>
+            </svg>
+          </em>
+          <em class="icon" *ngIf="wbsService.fullScreenStatus">
+            <svg class="iconfont" aria-hidden="true">
+              <use xlink:href="#icontcqp"></use>
+            </svg>
+          </em>
+        </div>
+        <div class="alldelay pert" (click)="lookPert()">
+          {{ 'dj-pcc-查看PERT图' | translate }}
+        </div>
+        <div class="uploadList">
+          <app-upload (changeTemp)="changeTemp.emit()" [source]="source"> </app-upload>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</div>
+
+<nz-modal
+  [(nzVisible)]="isContinueDelayDaysVisible"
+  nzWrapClassName="delay-modal-box"
+  nzClassName="template-box-home delay_new1"
+>
+  <ng-template nzModalContent>
+    <div class="delay-title">{{ 'dj-default-所有计划自动延展：' | translate }}</div>
+    <div class="delay-box-1">
+      <nz-select [(ngModel)]="isDelay">
+        <nz-option nzValue="-1" [nzLabel]="translateWord('提前')"></nz-option>
+        <nz-option nzValue="1" [nzLabel]="translateWord('延后')"></nz-option>
+      </nz-select>
+      <nz-input-group [nzSuffix]="suffixTemplateInfo">
+        <input #inputElement nz-input [ngModel]="delayDays" (ngModelChange)="extendDays($event)" />
+      </nz-input-group>
+      <ng-template #suffixTemplateInfo>
+        {{ 'dj-default-天' | translate }}
+      </ng-template>
+    </div>
+    <div class="button-box">
+      <button class="btn cancel" (click)="continueDelayDaysCancel()">
+        {{ 'dj-default-取消' | translate }}
+      </button>
+      <button class="btn active" (click)="continueDelayDays()">
+        {{ 'dj-default-确定' | translate }}
+      </button>
+    </div>
+  </ng-template>
+</nz-modal>
+
+<nz-modal
+  [(nzVisible)]="isUseTemplateDateVisible"
+  nzWrapClassName="delay-modal-box"
+  nzClassName="template-box-home template160"
+>
+  <ng-template nzModalContent>
+    <div class="delay-box template-box-home" *ngIf="isUseTemplateDateVisible">
+      <span>{{ 'dj-default-计划日期重排基准日期：' | translate }}</span>
+      <app-input-new
+        style="width: 160px; height: 34px"
+        name="delayStart"
+        [value]="planRearrangeBaseDate"
+        [placeholder]="translateWord('开始时间')"
+        [nzDisabledDate]="disabledDate"
+        (ngModelChange)="delayTimeChange($event)"
+        [nzAllowClear]="true"
+      >
+      </app-input-new>
+    </div>
+    <div class="button-box">
+      <button class="btn cancel" (click)="templateDateCancel()">
+        {{ 'dj-default-取消' | translate }}
+      </button>
+      <button class="btn active" (click)="templateDateConfirm()">
+        {{ 'dj-default-确定' | translate }}
+      </button>
+    </div>
+  </ng-template>
+</nz-modal>
+
+<!-- 变更原因输入 -->
+<app-change-reason
+  #changeReason
+  [title]="modalTitle"
+  [contentInfo]="modalContentInfo"
+  [isTextArea]="true"
+  (cancelInput)="reasonCancelInput(false)"
+  (confirmInput)="reasonInput($event)"
+>
+</app-change-reason>

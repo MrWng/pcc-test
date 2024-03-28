@@ -1,0 +1,306 @@
+<div class="fold-more" [class]="{ noForbidden: isForbidden }" (click)="changeFoldStatus()">
+  <!-- 【更多/收起】按钮 -->
+  <span>{{ foldContent }}</span>
+  <em class="icon">
+    <i athIcon [iconfont]="'icon-xiala'" *ngIf="foldStatus"></i>
+    <i athIcon [iconfont]="'icon-shangla'" *ngIf="!foldStatus"></i>
+  </em>
+</div>
+
+<div class="eoc-box" [hidden]="foldStatus">
+  <div nz-row class="row-box" [nzGutter]="24">
+    <!-- 公司编号 -->
+    <div nz-col class="gutter-row" nzSpan="12" [title]="translateWord('公司编号')">
+      <nz-form-item>
+        <nz-form-control>
+          <app-eoc-select
+            [eocCompanyInfo]="addSubProjectCardService.eocCompanyId"
+            [eocSiteId]="addSubProjectCardService.eocSiteId?.id || ''"
+            [eocRegionId]="addSubProjectCardService.eocRegionId?.id || ''"
+            [eocCompanyIds]="addSubProjectCardService.eocCompanyId?.id || ''"
+            [disbale]="addSubProjectCardService.currentCardInfo?.someEdit || eocMapDisabled"
+            (currentEocInfo)="currentEocInfo($event)"
+          ></app-eoc-select>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+
+    <!-- 据点编号 -->
+    <div nz-col class="gutter-row" nzSpan="12">
+      <nz-form-item>
+        <nz-form-control>
+          <ath-input-group [label]="translateWord('据点编号')" [innerLabel]="true">
+            <input
+              athInput
+              style="height: 34px"
+              type="text"
+              [disabled]="true"
+              [placeholder]="translateWord('据点编号')"
+              value="{{ addSubProjectCardService.eocSiteId?.name || '' }}{{
+                addSubProjectCardService.eocSiteId?.id || '—'
+              }}"
+            />
+          </ath-input-group>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+
+  <!-- 营运编号 -->
+  <div nz-row class="row-box" [nzGutter]="24">
+    <div nz-col class="gutter-row" nzSpan="12">
+      <nz-form-item>
+        <nz-form-control>
+          <ath-input-group [label]="translateWord('营运编号')" [innerLabel]="true">
+            <input
+              athInput
+              style="height: 34px"
+              [disabled]="true"
+              type="text"
+              [placeholder]="translateWord('营运编号')"
+              value="{{ addSubProjectCardService.eocRegionId?.name || '' }}{{
+                addSubProjectCardService.eocRegionId?.id || '—'
+              }}"
+            />
+          </ath-input-group>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+</div>
+
+<form nz-form [formGroup]="validateForm">
+  <div
+    class="inner-item-content-box"
+    *ngIf="addSubProjectCardService.taskTemplateName && !foldStatus"
+  >
+    <div nz-row class="row-box" [nzGutter]="24" style="padding-bottom: 5px">
+      <!-- 单别条件值 -->
+      <div nz-col class="gutter-row" nzSpan="8">
+        <ath-select
+          [nzDisabled]="isForbidden"
+          style="width: 100%; min-width: 100%"
+          formControlName="doc_type_info"
+          nzShowSearch
+          nzMode="multiple"
+          [nzMaxTagCount]="1"
+          [nzMaxTagPlaceholder]="tagPlaceHolderItem"
+          nzDropdownClassName="add-subproject-card-select"
+          [nzPlaceHolder]="translateWord('单别条件值')"
+          isInsideLabel
+          [label]="translateWord('单别条件值')"
+        >
+          <ath-option
+            *ngFor="let item of docTypeInfoList"
+            [nzValue]="item['doc_type_no']"
+            [nzLabel]="item.doc_type_no + item.doc_type_name"
+            nzCustomContent
+          >
+            <div class="add-subproject-card-select-option">
+              <input
+                type="checkbox"
+                [checked]="
+                  addSubProjectCardService.validateForm.value.doc_type_info
+                    ? addSubProjectCardService.validateForm.value.doc_type_info.includes(
+                        item.doc_type_no
+                      )
+                    : false
+                "
+              />
+              <label>{{ item.doc_type_no }}{{ item.doc_type_name }}</label>
+            </div>
+          </ath-option>
+        </ath-select>
+        <ng-template #tagPlaceHolderItem let-selectedList>
+          {{ 'dj-default-其他n笔' | translate : { n: selectedList?.length } }}
+        </ng-template>
+      </div>
+
+      <!-- 品号类别/群组 -->
+      <div nz-col class="gutter-row" nzSpan="8">
+        <nz-form-item>
+          <nz-form-control>
+            <ath-select
+              [nzDisabled]="isForbidden"
+              style="width: 100%; min-width: 100%"
+              formControlName="item_type"
+              [nzOptions]="listOfItemType"
+              [nzPlaceHolder]="translateWord('品号类别/群组')"
+              [nzAllowClear]="addSubProjectCardService.validateForm.value.item_type !==''"
+              isInsideLabel
+              [label]="translateWord('品号类别/群组')"
+            >
+            </ath-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <!-- 品号类别条件值 -->
+      <div nz-col class="gutter-row" nzSpan="8">
+        <nz-form-item>
+          <nz-form-control>
+            <ath-input-group [label]="translateWord('品号类别条件值')" [innerLabel]="true">
+              <input
+                formControlName="item_type_value"
+                athInput
+                style="height: 34px"
+                type="text"
+                [placeholder]="translateWord('品号类别条件值')"
+                [required]="addSubProjectCardService.validateForm.value.item_type === '0'"
+                [style.borderColor]="
+                  addSubProjectCardService.validateForm.value.item_type === '0' &&
+                  !addSubProjectCardService.validateForm.value.item_type_value
+                    ? '#ff4d4f'
+                    : ''
+                "
+              />
+            </ath-input-group>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+
+    <div nz-row class="row-box" [nzGutter]="24">
+      <!-- 料号运算符 -->
+      <div nz-col class="gutter-row" nzSpan="8">
+        <nz-form-item>
+          <nz-form-control>
+            <ath-select
+              [nzDisabled]="isForbidden"
+              style="width: 100%; min-width: 100%"
+              formControlName="item_operator"
+              [nzOptions]="listOfItemOperator"
+              [nzPlaceHolder]="translateWord('料号运算符')"
+              nzAllowClear
+              isInsideLabel
+              [label]="translateWord('料号运算符')"
+            ></ath-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <!-- 料号条件值 -->
+      <div nz-col class="gutter-row" nzSpan="16">
+        <nz-form-item>
+          <nz-form-control>
+            <ath-input-group [label]="translateWord('料号条件值')" [innerLabel]="true">
+              <input
+                formControlName="item_condition_value"
+                athInput
+                style="height: 34px"
+                type="text"
+                [placeholder]="translateWord('料号条件值')"
+              />
+            </ath-input-group>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+
+    <div nz-row class="row-box" [nzGutter]="24">
+      <!-- 单别 -->
+      <div nz-col class="gutter-row" nzSpan="8">
+        <nz-form-item>
+          <nz-form-control>
+            <ath-input-group [label]="translateWord('单别')" [innerLabel]="true">
+              <input
+                formControlName="doc_type_no"
+                athInput
+                style="height: 34px"
+                type="text"
+                [placeholder]="translateWord('单别')"
+              />
+            </ath-input-group>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <!-- 单号 -->
+      <div nz-col class="gutter-row" nzSpan="8">
+        <nz-form-item>
+          <nz-form-control>
+            <ath-input-group [label]="translateWord('单号')" [innerLabel]="true">
+              <input
+                formControlName="doc_no"
+                athInput
+                style="height: 34px"
+                type="text"
+                [placeholder]="translateWord('单号')"
+              />
+            </ath-input-group>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <!-- 序号 -->
+      <div nz-col class="gutter-row" nzSpan="8">
+        <nz-form-item>
+          <nz-form-control>
+            <ath-input-group [label]="translateWord('序号')" [innerLabel]="true">
+              <input
+                formControlName="seq"
+                athInput
+                style="height: 34px"
+                type="text"
+                [placeholder]="translateWord('序号')"
+              />
+            </ath-input-group>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+
+    <div nz-row class="row-box" [nzGutter]="24">
+      <!-- 类型条件值 -->
+      <div nz-col class="gutter-row" nzSpan="8">
+        <nz-form-item>
+          <nz-form-control>
+            <ath-input-group [label]="translateWord('类型条件值')" [innerLabel]="true">
+              <input
+                formControlName="type_condition_value"
+                athInput
+                style="height: 34px"
+                type="text"
+                [placeholder]="translateWord('类型条件值')"
+              />
+            </ath-input-group>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <!-- 次类型条件值 -->
+      <div nz-col class="gutter-row" nzSpan="8">
+        <nz-form-item>
+          <nz-form-control>
+            <ath-input-group [label]="translateWord('次类型条件值')" [innerLabel]="true">
+              <input
+                formControlName="sub_type_condition_value"
+                athInput
+                style="height: 34px"
+                type="text"
+                [placeholder]="translateWord('次类型条件值')"
+              />
+            </ath-input-group>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <!-- 托外条件值 -->
+      <div nz-col class="gutter-row" nzSpan="8">
+        <nz-form-item>
+          <nz-form-control>
+            <ath-input-group [label]="translateWord('托外条件值')" [innerLabel]="true">
+              <input
+                formControlName="outsourcing_condition_value"
+                athInput
+                style="height: 34px"
+                type="text"
+                [placeholder]="translateWord('托外条件值')"
+              />
+            </ath-input-group>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+  </div>
+</form>

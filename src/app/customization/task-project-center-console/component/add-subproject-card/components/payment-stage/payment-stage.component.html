@@ -1,0 +1,20 @@
+<nz-form-item>
+  <nz-form-control>
+    <div class="select-task" (click)="choosePaymentPeriod()">
+      <ath-input-group>
+        <input
+          [value]="addSubProjectCardService.arStageName"
+          style="height: 34px"
+          athInput
+          type="text"
+          [disabled]="isDisable"
+          readonly
+          [placeholder]="translateWord('款项阶段')"
+        />
+      </ath-input-group>
+      <div class="kaichuang">
+        <i athIcon [iconfont]="'icon-kaichuang'"></i>
+      </div>
+    </div>
+  </nz-form-control>
+</nz-form-item>

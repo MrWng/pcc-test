@@ -1,0 +1,180 @@
+.menu-bar {
+  display: flex;
+  align-items: center;
+  height: 44px;
+
+  list-style: none;
+  color: #fff;
+  background-color: #171e49;
+  .left {
+    flex: 0 0 auto;
+    width: 45vw;
+    color: #8e93b4;
+    display: flex;
+    align-items: center;
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      padding-left: 1rem;
+      padding-right: 2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+
+      img {
+        width: 22px;
+        height: auto;
+      }
+    }
+
+    .search {
+      max-width: 271px;
+      height: 32px;
+      flex: 1 1 auto;
+      color: #8e93b4;
+      nz-input-group {
+        // height: 28px;
+        background-color: #171e49;
+        border-radius: 30px;
+        cursor: pointer;
+
+        > input {
+          padding-right: 40px;
+          padding-left: 15px;
+          color: #8e93b4;
+          background-color: #171e49;
+          border-color: rgba(142, 147, 180, 0.5);
+          border-radius: 30px;
+        }
+      }
+
+      i {
+        margin-right: 7px;
+        color: #8e93b4;
+        font-size: 18px;
+        &:last-of-type {
+          margin-right: 0;
+        }
+      }
+
+      ul {
+        background: #8e93b4;
+        border-radius: 5px;
+        height: 5rem;
+        position: absolute;
+        z-index: 999;
+        width: 30vw;
+        color: #171e49;
+        box-shadow: 0 0 11px 0 #dde4ff;
+        margin-top: 5px !important;
+        li {
+          padding: 5px 15px;
+        }
+      }
+      .ant-input-search-enter-button input {
+        border-right: 1px solid rgba(142, 147, 180, 0.5);
+        font-size: 12px;
+      }
+      .ant-input:focus {
+        box-shadow: none;
+      }
+    }
+  }
+
+  .right {
+    flex: 0 0 auto;
+    width: 55vw;
+    color: #8e93b4;
+    padding-right: 24px;
+    text-align: right;
+
+    > div {
+      display: inline-block;
+      &:not(:first-child) {
+        margin-left: 3%;
+      }
+    }
+
+    .bell {
+      position: relative;
+      cursor: pointer;
+
+      img {
+        width: 1rem;
+        margin-top: -1px;
+      }
+      app-badge {
+        position: absolute;
+        top: -0.3rem;
+        right: -0.6rem;
+      }
+      span {
+        background: red;
+        color: #fff;
+        width: 1rem;
+        height: 1rem;
+        display: inline-block;
+        text-align: center;
+        font-size: 0.9em;
+        line-height: 1rem;
+        border-radius: 50%;
+        position: absolute;
+        top: -0.3rem;
+        right: -0.6rem;
+      }
+    }
+
+    .dropdown {
+      a {
+        color: #8e93b4;
+      }
+    }
+    .logout {
+      a {
+        color: #8e93b4;
+      }
+    }
+  }
+}
+li.tenantdrop {
+  font-size: 14px;
+  i {
+    color: #1890ff;
+    font-size: 14px;
+    margin-right: 5px;
+    margin-top: 4px;
+    display: inline-block;
+    width: 14px;
+    position: absolute;
+  }
+
+  span.tenantdrop-name {
+    font-size: 14px;
+    padding-left: 1.25rem;
+    color: #5b5b66;
+  }
+}
+
+li.link {
+  color: #1677fe;
+  font-size: 16px;
+}
+::ng-deep li.ant-dropdown-menu-item {
+  font-size: 16px;
+  letter-spacing: 0;
+  padding: 8px 14px;
+}
+.search-box input::placeholder {
+  color: #8e93b4;
+}
+.search-tip-title {
+  font-size: 10px;
+  color: #5b5b66;
+  letter-spacing: 0;
+}
+.search-tip-item {
+  font-size: 12px;
+  color: #34404b;
+  letter-spacing: 0;
+}

@@ -1,0 +1,194 @@
+<form nz-form [formGroup]="validateForm">
+  <div nz-row class="row-box" [nzGutter]="24">
+    <!-- 负责人 -->
+    <div nz-col class="gutter-row" nzSpan="12">
+      <nz-form-item [class]="{ noForbidden: isForbidden }">
+        <nz-form-control
+          [nzValidateStatus]="personLiable.employee_info?.length ? 'error' : 'success'"
+        >
+          <div>
+            <ath-select
+              class="select-width"
+              [(ngModel)]="liable_person_code_data"
+              nzShowSearch
+              nzServerSearch
+              (nzOnSearch)="searchPersonList($event, '1')"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="personInCharge($event)"
+              [nzPlaceHolder]="translateWord('请选择负责人')"
+              [nzCustomTemplate]="defaultTemplate"
+              [nzDisabled]="
+                addSubProjectCardService.currentCardInfo?.someEdit && designStatus !== 'notStart'
+              "
+              [nzAllowClear]="isAllowClear"
+              isInsideLabel
+              [label]="translateWord('负责人')"
+            >
+              <ath-option-group [nzLabel]="data.deptName" *ngFor="let data of personList">
+                <ath-option
+                  *ngFor="let item of data.list"
+                  [nzValue]="item"
+                  [nzLabel]="item.name"
+                ></ath-option>
+              </ath-option-group>
+              <ath-option
+                *ngFor="let option of liable_person_code_dataList"
+                [nzLabel]="option.name"
+                [nzValue]="option"
+                nzHide
+              >
+              </ath-option>
+            </ath-select>
+            <ng-template #defaultTemplate let-selected>
+              {{ selected.nzLabel }}
+              <span class="selectSubTitle">{{ selected.nzValue.deptName }}</span>
+            </ng-template>
+          </div>
+          <!-- 错误提示 -->
+          <div class="form-item-error" *ngIf="personLiable.employee_info?.length">
+            <div
+              class="nz-popover-box"
+              nz-popover
+              [nzPopoverOverlayClassName]="'form-item-error-person-in-popover'"
+              [nzPopoverContent]="contentTemplate"
+              [nzPopoverTrigger]="personLiable.error_msg?.length > 18 ? 'hover' : 'null'"
+              nzPopoverPlacement="leftBottom"
+            >
+              {{ personLiable.error_msg }}
+            </div>
+            <ng-template #contentTemplate>
+              <div>
+                <p>{{ personLiable.error_msg }}</p>
+              </div>
+            </ng-template>
+          </div>
+          <!-- </div> -->
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <!-- 执行人 -->
+    <div nz-col class="gutter-row" nzSpan="12">
+      <nz-form-item>
+        <nz-form-control
+          [nzErrorTip]="personLiable.error_msg && !executor.employee_info?.length"
+          [nzValidateStatus]="executor.employee_info?.length ? 'error' : 'success'"
+        >
+          <div
+            style="display: flex; align-items: center"
+            [ngClass]="{
+              noDelte: !isAllowClearForExecutor
+            }"
+          >
+            <div style="flex: 1">
+              <ath-select
+                [nzAllowClear]="isAllowClearForExecutor"
+                class="select-width"
+                formControlName="task_member_info"
+                nzShowSearch
+                nzServerSearch
+                (nzOnSearch)="searchPersonList($event, '2')"
+                nzMode="multiple"
+                [nzMaxTagCount]="1"
+                [nzMaxTagPlaceholder]="tagPlaceHolder"
+                [nzDropdownClassName]="!isAllowClearForExecutor ? 'not-allow-clear' : 'executor'"
+                [(ngModel)]="addSubProjectCardService.validateForm.value.task_member_info"
+                (ngModelChange)="personChanges($event)"
+                [nzPlaceHolder]="translateWord('请选择执行人')"
+                [nzDisabled]="!liable_person_code_data || isForbidden"
+                isInsideLabel
+                [label]="translateWordPcc('执行人')"
+              >
+                <ath-option-group [nzLabel]="data.deptName" *ngFor="let data of personList2">
+                  <ath-option
+                    *ngFor="let item of data.list"
+                    [nzValue]="item['bigId']"
+                    [nzLabel]="item.name"
+                    nzCustomContent
+                    [nzDisabled]="
+                      (item.taskDisabled && !isAllowClearForExecutor) || item.isSelected
+                    "
+                  >
+                    <div class="add-subproject-card-select-option" (click)="selectExecutor(item)">
+                      <input
+                        [disabled]="
+                          (item.taskDisabled && !isAllowClearForExecutor) || item.isSelected
+                        "
+                        type="checkbox"
+                        [checked]="item.check"
+                      />
+                      <label>{{ item.name }}</label>
+                    </div>
+                  </ath-option>
+                </ath-option-group>
+                <ath-option
+                  *ngFor="let option of task_member_infoList"
+                  [nzLabel]="option.name"
+                  [nzValue]="option.bigId"
+                  nzHide
+                ></ath-option>
+              </ath-select>
+              <ng-template #tagPlaceHolder>
+                {{
+                  'dj-default-其他n人'
+                    | translate
+                      : {
+                          n:
+                            addSubProjectCardService.validateForm.value.task_member_info?.length - 1
+                        }
+                }}
+              </ng-template>
+            </div>
+            <div
+              class="btn-event"
+              [class]="
+                addSubProjectCardService.currentCardInfo?.task_status == '10' &&
+                addSubProjectCardService.buttonType === 'EDIT'
+                  ? ''
+                  : 'dis-btn'
+              "
+              [class.dis-btn-event]="isDisable"
+              (click)="setSameValue('personnel', $event)"
+            >
+              {{ 'dj-pcc-人员同值' | translate }}
+            </div>
+          </div>
+          <!-- 错误提示 -->
+          <div class="form-item-error padding-left" *ngIf="athenaAuthorityTip.isShow">
+            <div
+              class="nz-popover-box"
+              nz-popover
+              [nzPopoverOverlayClassName]="'form-item-error-executor-in-popover'"
+              [nzPopoverContent]="contentTemplate"
+              [nzPopoverTrigger]="executor.error_msg?.length > 18 ? 'hover' : 'null'"
+              nzPopoverPlacement="topRight"
+            >
+              {{ athenaAuthorityTip.message }}
+            </div>
+            <ng-template #contentTemplate>
+              <div>
+                <p>{{ executor.message }}</p>
+              </div>
+            </ng-template>
+          </div>
+          <div class="form-item-error" *ngIf="executor.employee_info?.length">
+            <div
+              class="nz-popover-box"
+              nz-popover
+              [nzPopoverOverlayClassName]="'form-item-error-executor-in-popover'"
+              [nzPopoverContent]="contentTemplate"
+              [nzPopoverTrigger]="executor.error_msg?.length > 18 ? 'hover' : 'null'"
+              nzPopoverPlacement="topRight"
+            >
+              {{ executor.error_msg }}
+            </div>
+            <ng-template #contentTemplate>
+              <div>
+                <p>{{ executor.error_msg }}</p>
+              </div>
+            </ng-template>
+          </div>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+</form>

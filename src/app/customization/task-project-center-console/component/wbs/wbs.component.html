@@ -1,0 +1,231 @@
+<div
+  class="dynamic-wbs-container"
+  [ngClass]="{ 'full-dynamic-wbs-container': wbsService.fullScreenStatus }"
+>
+  <div class="mask" (click)="closeMask()" *ngIf="!!wbsService.taskDetail">
+    <app-task-detail></app-task-detail>
+  </div>
+
+  <app-wbs-header
+    [source]="source"
+    (initWbsData)="getTaskInfo()"
+    (changeTemp)="changeTemp()"
+    (changeWbsTaskCardProportion)="changeWbsTaskProportion()"
+  ></app-wbs-header>
+
+  <div
+    class="wbs project-plan"
+    [ngClass]="{ 'template-wbs': source !== Entry.card }"
+    *ngIf="!wbsService.showGantt && !wbsService.showPert"
+  >
+    <div class="wbs-title" *ngIf="source === Entry.card">
+      <div class="sub-title">
+        <div class="operate-info">
+          <span *ngIf="wbsService.needRefresh">
+            {{ wbsService.needRefresh }}
+          </span>
+        </div>
+        <div class="wbs-right">
+          <span
+            class="tip-content"
+            *ngIf="
+              wbsService.projectInfo?.project_status === '10' &&
+              !wbsService.projectInfo?.project_type_no
+            "
+          >
+            {{ 'dj-default-请维护项目类型，项目类型为空，不可进行计划维护/启动项目！' | translate }}
+          </span>
+          【{{ wbsService.projectInfo.project_no }}】 {{ wbsService.projectInfo.project_name }}
+          <div class="project_property">
+            <span>{{
+              wbsService.projectInfo.project_property === '10'
+                ? ('dj-default-潜在' | translate)
+                : ('dj-default-正式' | translate)
+            }}</span>
+          </div>
+          <div class="status">
+            <span>{{ switchProjectStatus(wbsService.projectInfo?.project_status) }}</span>
+          </div>
+          <span *ngIf="isApproveStatus">
+            【{{ switchApproveAction(wbsService.projectInfo?.approve_action)
+            }}{{ 'dj-pcc-签核中' | translate }}】
+          </span>
+          <div class="error_card" *ngIf="wbsService.taskProportionCheck?.projectInfoTip">
+            <span class="text">
+              {{
+                'dj-pcc-存在一级任务的任务比重 < 100%，则所有一级任务的任务比重累计必须等于100%！'
+                  | translate
+              }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="special-info" *ngIf="wbsService.projectInfo.remark">
+        {{ 'dj-default-特别资讯' | translate }}{{ wbsService.projectInfo.remark }}
+      </div>
+    </div>
+
+    <!-- 专案计划维护 -->
+    <div
+      class="wbs-content"
+      dCanvas
+      [ngClass]="{ disabled: getProjectStatustypeNo() }"
+      (click)="closeOperation(wbsService.pageDatas)"
+      *ngIf="!wbsService.isTrackPages; else trackingCardTemplate"
+    >
+      <app-wbs-drag
+        [ngStyle]="currentStyles"
+        class="wbs-drag"
+        [pageDatas]="wbsService?.pageDatas"
+        [isDragDropEnd]="isDragDropEnd()"
+        (dragDropEnd)="dragDropEnd($event)"
+      ></app-wbs-drag>
+      <div class="wbs-box">
+        <ul
+          class="corridor"
+          tDroppable
+          [disableDrop]="data.disabled || data.is_issue_task_card"
+          [nestingTargetRect]="{ height: 108, marginBottom: 20 }"
+          *ngFor="let data of wbsService.pageDatas; let i = index"
+          (dropEvent)="onDrop($event, data, i)"
+        >
+          <!-- 一组任务的任务卡片 -->
+          <app-project-plan-card
+            [source]="source"
+            [planCardList]="[data]"
+            recursive-root
+            [listIndex]="i"
+            [hasGroundEnd]="hasGroundEnd"
+            [hasT100]="hasT100"
+            (changeWbsTaskCardProportion)="changeWbsTaskProportion($event)"
+            [showAddIcon]="
+              wbsService.projectInfo?.project_status !== '10' || projectPlanningProcessType !== '2'
+            "
+          >
+          </app-project-plan-card>
+          <div
+            *ngIf="
+              (wbsService.projectInfo?.project_status !== '10' ||
+                projectPlanningProcessType !== '2') &&
+              !(getTaskProportionCheck() || hasTaskProportionCheck(data))
+            "
+          >
+            <div
+              class="add-child"
+              *ngIf="isNotEmpty(data) && wbsService.editable && !wbsService.needRefresh"
+              (click)="addSubItem(data)"
+              [userBehavior]="{ name: 'dj-default-添加子项', code: addSubItemCode }"
+            >
+              <em nz-icon nzType="plus" nzTheme="outline"></em>
+              {{ 'dj-default-添加子项' | translate }}
+            </div>
+          </div>
+          <div class="add-subproject-card-box"></div>
+        </ul>
+        <button
+          *ngIf="wbsService.editable && !wbsService.needRefresh && !getTaskProportionCheck()"
+          nzType="text"
+          nzBlock
+          nz-button
+          [nzSize]="'small'"
+          class="add-first-plan"
+          [class.pointer]="
+            wbsService.projectInfo?.project_status !== '10' ||
+            wbsService.projectInfo?.project_type_no
+          "
+          (click)="addFirstItem()"
+          [disabled]="
+            wbsService.projectInfo?.project_status === '10' &&
+            !wbsService.projectInfo?.project_type_no
+          "
+          nzType="link"
+          [userBehavior]="{ name: 'dj-default-新建一级计划', code: addFirstItemCode }"
+        >
+          <em nz-icon nzType="plus" nzTheme="outline"></em>
+          {{ 'dj-default-新建一级计划' | translate }}
+        </button>
+        <div class="add-subproject-card-box">
+          <app-add-subproject-card
+            *ngIf="addSubProjectCardService.showAddTaskCard"
+            class="add-subproject-card-box"
+            [source]="source"
+            (currentTaskInfo)="getAddTaskCardInfo($event, true)"
+          >
+          </app-add-subproject-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- 进度追踪 -->
+    <ng-template #trackingCardTemplate>
+      <div
+        class="wbs-content wbs-content-track"
+        [ngClass]="{ 'template-wbs-content': source !== Entry.card }"
+      >
+        <div class="corridor" *ngFor="let data of wbsService.pageDatas">
+          <app-progress-tracking-card
+            [progressTrackingList]="data"
+            recursive-root
+          ></app-progress-tracking-card>
+        </div>
+        <div class="add-first-plan"></div>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- 甘特图 -->
+  <div class="gantt-box" *ngIf="wbsService.showGantt">
+    <div class="back">
+      <div class="btn-wrap" (click)="wbsService.showGantt = false">
+        <svg class="iconfont" aria-hidden="true">
+          <use xlink:href="#iconmore2"></use>
+        </svg>
+        <span>{{ 'dj-default-甘特图' | translate }}</span>
+      </div>
+      <div class="selectDateType">
+        {{ 'dj-pcc-显示时距' | translate }}
+        <nz-select [(ngModel)]="scales">
+          <nz-option nzValue="day" [nzLabel]="translateWord('日')"></nz-option>
+          <nz-option nzValue="week" [nzLabel]="translateWord('周')"></nz-option>
+          <nz-option nzValue="month" [nzLabel]="translateWord('月')"></nz-option>
+        </nz-select>
+      </div>
+      <button class="btn-export-excel" nz-button (click)="export_data()" nzShape="round">
+        <span nz-icon nzType="download"></span>
+        {{ 'dj-default-导出excel' | translate }}
+      </button>
+    </div>
+    <app-dynamic-gantt
+      #dynamicGantt
+      [type]="'single'"
+      [ganttData]="ganttAndPertData"
+      [projectInfo]="wbsService.projectInfo"
+      [scales]="scales"
+      [criticalPath]="criticalPath"
+    ></app-dynamic-gantt>
+  </div>
+  <div class="gantt-box" *ngIf="wbsService.showPert">
+    <div class="back">
+      <div class="btn-wrap" (click)="wbsService.showPert = false">
+        <svg class="iconfont" aria-hidden="true">
+          <use xlink:href="#iconmore2"></use>
+        </svg>
+        <span>{{ 'dj-pcc-PERT图' | translate }}</span>
+      </div>
+    </div>
+    <app-pert
+      [ganttData]="ganttAndPertData"
+      [criticalPath]="criticalPath"
+      [dependencyInfo]="dependencyInfo"
+      [fullScreenStatus]="wbsService.fullScreenStatus"
+    ></app-pert>
+  </div>
+
+  <app-human-resource-load
+    [isVisible]="wbsService.showHRLoad"
+    [title]="translateWordPcc('人力资源负荷')"
+    [dateObject]="wbsService.dateObject"
+    [peopleObject]="wbsService.peopleObject"
+    (changeMaskStatus)="changeMaskStatus($event)"
+  ></app-human-resource-load>
+</div>

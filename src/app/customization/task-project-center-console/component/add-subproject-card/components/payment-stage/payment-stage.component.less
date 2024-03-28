@@ -1,0 +1,47 @@
+::ng-deep {
+  .gutter-row {
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+  }
+}
+
+:host {
+  .select-task {
+    width: 100%;
+    position: relative;
+    &:hover {
+      .deleteRelate {
+        display: flex;
+      }
+    }
+    .deleteRelate {
+      position: absolute;
+      top: 0;
+      right: 23px;
+      width: 32px;
+      height: 34px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 4;
+      cursor: pointer;
+      i {
+        color: #666;
+      }
+    }
+    .kaichuang {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 32px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3;
+      i {
+        color: #999;
+      }
+    }
+  }
+}

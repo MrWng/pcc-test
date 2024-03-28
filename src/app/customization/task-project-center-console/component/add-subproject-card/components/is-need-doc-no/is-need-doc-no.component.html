@@ -1,0 +1,32 @@
+<div
+  *ngIf="conditionTypeList.includes(taskTemplateInfo?.task_category)"
+  nz-row
+  class="gutter-row"
+  nzSpan="12"
+  [class]="{ forbidden: ['SFT'].includes(taskTemplateInfo?.task_category) }"
+>
+  <form nz-form [formGroup]="validateForm">
+    <nz-form-item>
+      <nz-form-control>
+        <div [class.select-task]="isDisable">
+          <label
+            ath-checkbox
+            [nzDisabled]="isDisable"
+            formControlName="is_need_doc_no"
+            (ngModelChange)="needDocNoChange()"
+          >
+            <span
+              *ngIf="
+                ['APC_O', 'MOOP', 'SFT'].includes(taskTemplateInfo?.task_category);
+                else otherBlock
+              "
+            >
+              {{ 'dj-pcc-需要单别及单号及序号' | translate }}
+            </span>
+            <ng-template #otherBlock>{{ 'dj-pcc-需要单别及单号' | translate }}</ng-template>
+          </label>
+        </div>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+</div>
