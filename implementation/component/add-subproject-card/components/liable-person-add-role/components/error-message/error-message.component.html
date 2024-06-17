@@ -1,4 +1,0 @@
-<li *ngFor="let info of messageInfo; let i = index">
-  <div *ngIf="i !== messageInfo.length - 1; else elseBlock">{{ info }};</div>
-  <ng-template #elseBlock>{{ info }}</ng-template>
-</li>

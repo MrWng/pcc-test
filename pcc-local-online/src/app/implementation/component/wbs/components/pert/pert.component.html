@@ -1,7 +1,0 @@
-<div class="process-perc" [ngClass]="{ 'full-pert': fullScreenStatus }">
-  <ath-spin [athSpinning]="loading" *ngIf="loading"></ath-spin>
-  <div echarts [options]="option" class="chart" [autoResize]="true" (chartInit)="onChartInit($event)"></div>
-  <div class="noData" *ngIf="!pagesData?.length && !loading">
-    {{ 'dj-pcc-该项目暂未设定前后置任务关系！' | translate }}
-  </div>
-</div>
