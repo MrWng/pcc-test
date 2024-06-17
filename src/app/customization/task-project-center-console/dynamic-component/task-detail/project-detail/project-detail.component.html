@@ -1,9 +1,0 @@
-<div class="projectDetail">
-  <span (click)="showWbsContent(true)">{{ 'dj-pcc-项目计划' | translate }}</span>
-  <div class="mask" *ngIf="showWbsCard">
-    <div class="close" (click)="showWbsContent(false)">
-      <em nz-icon nzType="close" nzTheme="outline"></em>
-    </div>
-    <app-dynamic-wbs-tabs [model]="model" [source]="Entry.plan" ></app-dynamic-wbs-tabs>
-  </div>
-</div>
