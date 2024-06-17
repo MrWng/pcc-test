@@ -1,0 +1,48 @@
+:host ::ng-deep {
+  display: block;
+  .text-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 90%;
+  }
+
+  nz-cascader {
+    // width: 100%;
+    .ant-cascader-picker-arrow,
+    .ant-cascader-picker-clear {
+      right: 0px;
+    }
+    .ant-cascader-picker-label {
+      // position: relative;
+      // margin-top: -26px;
+      // padding-left: 0;
+
+      // display: block;
+      // height: auto;
+      // min-height: 20px;
+    }
+    &:focus .ant-cascader-input {
+      box-shadow: none;
+    }
+    .ant-cascader-picker-arrow,
+    .ant-cascader-picker-clear {
+      right: 11px;
+    }
+  }
+  .ant-cascader-input.ant-input {
+    height: 34px;
+  }
+  .ant-input:hover {
+    border-color: #2012d9 !important;
+  }
+  .ant-cascader-picker:focus .ant-cascader-input,
+  .ant-cascader-picker:hover .ant-cascader-input {
+    border-color: #2012d9 !important;
+  }
+}
+span.id {
+  margin-left: 10px;
+  margin-right: 10px;
+  color: #999999;
+}

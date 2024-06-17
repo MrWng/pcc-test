@@ -1,0 +1,55 @@
+<div class="deliverable-attachment">
+  <ng-container *ngIf="!isPLMFile; else PLMFileEl">
+    <ng-container *ngIf="!disabled; else noEditable">
+      <ac-upload
+        #acUpload
+        (change)="uploadChangeChange($event)"
+        [disabled]="disabled"
+        [editable]="false"
+        [(fileList)]="fileList"
+        [multiple]="true"
+        [limit]="fileCount"
+        [limitCount]="fileCount"
+        [size]="fileSize"
+        [beforeUpload]="beforeUpload"
+        [dmcSettings]="commonService.uploadDmcSettings"
+        [remove]="removeFile"
+        [allRemove]="allRemoveFiles"
+        useBy="table"
+      ></ac-upload>
+    </ng-container>
+    <ng-template #noEditable>
+      <!-- 分PLM附件和普通附件 -->
+      <ac-upload
+        *ngIf="fileList.length; else empty"
+        (change)="uploadChangeChange($event)"
+        [disabled]="disabled"
+        [editable]="false"
+        [(fileList)]="fileList"
+        [multiple]="true"
+        [limit]="fileCount"
+        [size]="fileSize"
+        [beforeUpload]="beforeUpload"
+        [dmcSettings]="commonService.uploadDmcSettings"
+        useBy="table"
+      ></ac-upload>
+    </ng-template>
+  </ng-container>
+  <ng-template #PLMFileEl>
+    <ac-upload
+      *ngIf="fileList.length; else empty"
+      [disabled]="true"
+      [editable]="false"
+      [fileList]="fileList"
+      [multiple]="true"
+      [limit]="fileCount"
+      [limitCount]="fileCount"
+      [size]="fileSize"
+      [dmcSettings]="commonService.uploadDmcSettings"
+      useBy="table"
+      [preview]="PLMPreviewFile"
+      [download]="PLMDownloadFile"
+    ></ac-upload>
+  </ng-template>
+  <ng-template #empty> <span style="padding: 0 8px">—</span></ng-template>
+</div>

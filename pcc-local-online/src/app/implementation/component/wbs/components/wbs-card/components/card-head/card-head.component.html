@@ -1,0 +1,44 @@
+<div
+  class="project-top"
+  [class.no-track-pages]="!isTrackPages"
+  [ngStyle]="{ opacity: item.children && item.children.length ? 1 - item.level * 0.05 : 1 }"
+>
+  <div *ngIf="newAddCard" class="new-wrapper ce">
+    <div class="icon"></div>
+    <div class="txts ce">NEW</div>
+  </div>
+  <app-card-overdue-tag *ngIf="isTrackPages" [cardInfo]="cardInfo"></app-card-overdue-tag>
+  <!-- 尾阶 -->
+  <ng-container *ngIf="isLeaf; else noLeaf">
+    <div class="leaf-level">
+      <ath-tooltip-wrapper [content]="item.task_name">
+        <div class="task-name">{{ item.task_name }}</div>
+      </ath-tooltip-wrapper>
+      <ng-container *ngTemplateOutlet="workDate"></ng-container>
+    </div>
+  </ng-container>
+  <ng-template #noLeaf>
+    <!-- 首阶 -->
+    <ng-container *ngIf="upperLevel; else isMiddleLeaf">
+      <div class="head-level">
+        <ath-tooltip-wrapper [content]="item.task_name">
+          <div class="task-name">{{ item.task_name }}</div>
+        </ath-tooltip-wrapper>
+        <ng-container *ngTemplateOutlet="workDate"></ng-container>
+      </div>
+    </ng-container>
+    <!-- 中阶 -->
+    <ng-template #isMiddleLeaf>
+      <div class="middle-leaf">
+        <ath-tooltip-wrapper [content]="item.task_name">
+          <div class="task-name">{{ item.task_name }}</div>
+        </ath-tooltip-wrapper>
+        <ng-container *ngTemplateOutlet="workDate"></ng-container>
+      </div>
+    </ng-template>
+  </ng-template>
+  <ng-template #workDate>
+    <!-- 工期 -->
+    <app-card-work-date [cardInfo]="cardInfo"></app-card-work-date>
+  </ng-template>
+</div>

@@ -1,0 +1,13 @@
+<nz-form-item>
+  <nz-form-control class="reason-for-lost-order" nzSpan="24">
+    <ath-input-group [required]="true" label="{{ 'dj-pcc-丢单原因' | translate }}">
+      <ath-select [(ngModel)]="reason_for_lost_order" nzPlaceHolder="{{ 'dj-请选择' | translate }}">
+        <ath-option
+          *ngFor="let item of list"
+          [nzValue]="item.value"
+          [nzLabel]="item.label"
+        ></ath-option>
+      </ath-select>
+    </ath-input-group>
+  </nz-form-control>
+</nz-form-item>

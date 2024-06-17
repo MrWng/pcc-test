@@ -1,0 +1,705 @@
+{
+  "status": 200,
+  "statusDescription": "OK",
+  "response": {
+    "layout": [
+      {
+        "id": "a42d9303-70e4-41b6-b741-97027957b2e8",
+        "type": "ACTIVITY_TITLE",
+        "schema": "uiBot__activity"
+      },
+      {
+        "id": "772bed61-c7b8-4225-acc6-e40db953ff7b",
+        "type": "CONTENT_QUERY_BUTTON",
+        "supportShowInMaxedWindow": true,
+        "queryButtons": [
+          {
+            "defaultShow": true,
+            "dataStateCode": "waitting",
+            "dataSourceSet": {
+              "dataSourceList": [
+                {
+                  "title": "取得任务资讯",
+                  "name": "project_info",
+                  "dataKeys": ["project_no", "task_no"],
+                  "type": "ESP",
+                  "actionId": "esp_task.info.get",
+                  "action": {
+                    "title": "取得任务资讯",
+                    "actionId": "esp_task.info.get",
+                    "category": "ESP",
+                    "serviceId": {
+                      "tenant_id": "uc72008898",
+                      "prod": "PCC",
+                      "hostAcct": "athena",
+                      "name": "task.info.get"
+                    },
+                    "paras": {
+                      "project_info": [
+                        {
+                          "project_no": "3-20240403000004",
+                          "task_no": "2",
+                          "control_mode": "1"
+                        }
+                      ]
+                    },
+                    "businessUnit": {
+                      "eoc_company_id": "A01",
+                      "eoc_site_id": ""
+                    },
+                    "actionParams": [
+                      {
+                        "name": "project_info",
+                        "type": "PROCESS_VARIABLE",
+                        "value": "project_info",
+                        "required": false
+                      }
+                    ]
+                  },
+                  "dataSourceProcessors": [],
+                  "override": false,
+                  "extendedData": {
+                    "__workitemId": "1686614947779330048",
+                    "__processSerialNumber": "projectCenterConsole_userProject1685097195822419968",
+                    "__workitemSqlId": 426044454965312
+                  }
+                }
+              ],
+              "mainDatasource": "project_info",
+              "dataProcess": []
+            },
+            "showSubmitActions": true,
+            "operations": [],
+            "autoAppendShelvedDataState": true,
+            "tabs": [],
+            "version": "2.0",
+            "queryTitle": "待处理",
+            "rowSize": 1,
+            "type": "UI",
+            "startApproveActivityName": "",
+            "startApproveActivity": [],
+            "finished": false
+          }
+        ]
+      },
+      {
+        "id": "0d4e2510-0554-47b3-b385-cc1d1fefeda7",
+        "type": "UC_moma_DTD_Assignment-task-detail-waitting",
+        "schema": "customData",
+        "supportShowInMaxedWindow": true,
+        "stateCode": "waitting",
+        "finished": false
+      }
+    ],
+    "style": {},
+    "rules": [],
+    "pageData": {
+      "uiBot__activity": {
+        "taskStartTime": "2024-04-03 00:00:00",
+        "endTime": "2024-04-04 23:59:59",
+        "name": "moma2",
+        "taskEndTime": "2024-04-12 00:00:00",
+        "taskName": "3-20240403000004[DYSD]",
+        "readCount": 6,
+        "overdueDate": "3天",
+        "extendedFields": {
+          "signOffProgressData": {
+            "processInstances": [
+              {
+                "workitemId": 426044454965312,
+                "processSerialNumber": "projectCenterConsole_userProject1685097195822419968",
+                "tmActivityIds": ["UC_moma_DTD_Assignment"]
+              }
+            ],
+            "locale": "zh_CN"
+          }
+        },
+        "processSerialNumber": "projectCenterConsole_userProject1685097195822419968",
+        "workitemId": "1686614947779330048",
+        "processCreateTime": "2024-04-03 12:48:39",
+        "eocName": ["深圳市诚亿智能装备集团股份有限公司"],
+        "merge": false
+      },
+      "uiBot__content": {
+        "title": "moma2",
+        "subTitle": "moma2"
+      },
+      "uiBot__APPROVAL_DESCRIPTION": {
+        "overdue_days": "0",
+        "project_name": "DYSD",
+        "contract_no": "",
+        "sales_no": "",
+        "sales_name": "",
+        "project_leader_code": "001",
+        "project_leader_name": "员工01",
+        "business_info": "员工01",
+        "project_plan_start_date": "2024-04-03",
+        "project_plan_finish_date": "2024-04-12",
+        "projectPlanFinishDate": "2024-04-12",
+        "task_tag": "3",
+        "task_tag_description": "2024/04/12 3-20240403000004[DYSD]<br>完成率100% 员工01",
+        "before_task_complete_rate": 1,
+        "before_task_no": "",
+        "project_status": "30",
+        "before_task_status": "Y",
+        "total_work_hours": 0.0,
+        "root_task_no": "2",
+        "update_flag": false,
+        "project_no": "3-20240403000004",
+        "task_no": "2",
+        "task_name": "moma2",
+        "executor_display": "",
+        "upper_level_task_no": "2",
+        "task_status": "30",
+        "workload_qty": 2.0,
+        "workload_unit": "2",
+        "plan_start_date": "2024-04-03",
+        "plan_finish_date": "2024-04-04",
+        "actual_start_date": "2024-04-03",
+        "actual_finish_date": "2024-04-03",
+        "liable_person_code": "001",
+        "liable_person_name": "员工01",
+        "liable_person_department_code": "001",
+        "liable_person_department_name": "001",
+        "complete_rate": 1.0,
+        "task_category": "MOMA",
+        "new_complete_rate": 0,
+        "new_task_category": "",
+        "is_milepost": false,
+        "is_approve": false,
+        "is_attachment": false,
+        "sequence": 2.0,
+        "eoc_company_id": "A01",
+        "eoc_site_id": "",
+        "eoc_region_id": "",
+        "task_template_no": "4.0",
+        "task_template_name": "日期MOMA",
+        "company_no": "",
+        "attachment_remark": "",
+        "ar_stage_no": "",
+        "ar_stage_name": "",
+        "remarks": "",
+        "report_work_description": "",
+        "plan_work_hours": 16.0,
+        "is_equipment_list_unfold": false,
+        "display_project_no": "3-20240403000004",
+        "product_type": "",
+        "doc_condition_value": "",
+        "item_condition_value": "",
+        "is_doc_date": true,
+        "is_confirm_date": false,
+        "is_project_no": false,
+        "is_task_no": false,
+        "is_issue_task_card": true,
+        "complete_rate_method": "1",
+        "item_type": "",
+        "item_type_value": "",
+        "item_type_name": "",
+        "doc_type_no": "",
+        "doc_no": "",
+        "seq": "",
+        "type_field_code": "",
+        "sub_type_field_code": "",
+        "type_condition_value": "",
+        "sub_type_condition_value": "",
+        "outsourcing_field_code": "",
+        "outsourcing_condition_value": "",
+        "closed_stus": false,
+        "is_need_doc_no": false,
+        "milepost_desc": "",
+        "remark": "",
+        "required_task": false,
+        "task_classification_no": "",
+        "task_classification_name": "",
+        "main_unit": "0",
+        "second_unit": "0",
+        "plan_main_unit_value": 0.0,
+        "plan_second_unit_value": 0.0,
+        "complete_main_unit_value": 0.0,
+        "complete_second_unit_value": 0.0,
+        "main_unit_actual_value": 0,
+        "second_unit_actual_value": 0,
+        "standard_work_hours": 0.0,
+        "standard_days": 0.0,
+        "task_proportion": 1.0,
+        "difficulty_level_no": "",
+        "difficulty_level_name": "",
+        "difficulty_coefficient": 1,
+        "actual_days": 1.0,
+        "rework_drawing_qty": 0,
+        "rework_work_hours": 0,
+        "complete_rework_drawing_qty": 0.0,
+        "complete_rework_work_hours": 0.0,
+        "complete_rework_days": 0.0,
+        "item_operator": "",
+        "liable_person_role_no": "",
+        "liable_person_role_name": "",
+        "attachment": {
+          "data": [],
+          "row_data": "3-20240403000004;2"
+        },
+        "task_dependency_info": [],
+        "task_member_info": [],
+        "task_report_info": [],
+        "__DATA_KEY": "3-20240403000004;2;"
+      },
+      "customData": [],
+      "uiBot__prompt_message": "",
+      "project_info": [
+        {
+          "overdue_days": "0",
+          "project_name": "DYSD",
+          "contract_no": "",
+          "sales_no": "",
+          "sales_name": "",
+          "project_leader_code": "001",
+          "project_leader_name": "员工01",
+          "business_info": "员工01",
+          "project_plan_start_date": "2024-04-03",
+          "project_plan_finish_date": "2024-04-12",
+          "projectPlanFinishDate": "2024-04-12",
+          "task_tag": "3",
+          "task_tag_description": "2024/04/12 3-20240403000004[DYSD]<br>完成率100% 员工01",
+          "before_task_complete_rate": 1,
+          "before_task_no": "",
+          "project_status": "30",
+          "before_task_status": "Y",
+          "total_work_hours": 0.0,
+          "root_task_no": "2",
+          "update_flag": false,
+          "project_no": "3-20240403000004",
+          "task_no": "2",
+          "task_name": "moma2",
+          "executor_display": "",
+          "upper_level_task_no": "2",
+          "task_status": "30",
+          "workload_qty": 2.0,
+          "workload_unit": "2",
+          "plan_start_date": "2024-04-03",
+          "plan_finish_date": "2024-04-04",
+          "actual_start_date": "2024-04-03",
+          "actual_finish_date": "2024-04-03",
+          "liable_person_code": "001",
+          "liable_person_name": "员工01",
+          "liable_person_department_code": "001",
+          "liable_person_department_name": "001",
+          "complete_rate": 1.0,
+          "task_category": "MOMA",
+          "new_complete_rate": 0,
+          "new_task_category": "",
+          "is_milepost": false,
+          "is_approve": false,
+          "is_attachment": false,
+          "sequence": 2.0,
+          "eoc_company_id": "A01",
+          "eoc_site_id": "",
+          "eoc_region_id": "",
+          "task_template_no": "4.0",
+          "task_template_name": "日期MOMA",
+          "company_no": "",
+          "attachment_remark": "",
+          "ar_stage_no": "",
+          "ar_stage_name": "",
+          "remarks": "",
+          "report_work_description": "",
+          "plan_work_hours": 16.0,
+          "is_equipment_list_unfold": false,
+          "display_project_no": "3-20240403000004",
+          "product_type": "",
+          "doc_condition_value": "",
+          "item_condition_value": "",
+          "is_doc_date": true,
+          "is_confirm_date": false,
+          "is_project_no": false,
+          "is_task_no": false,
+          "is_issue_task_card": true,
+          "complete_rate_method": "1",
+          "item_type": "",
+          "item_type_value": "",
+          "item_type_name": "",
+          "doc_type_no": "",
+          "doc_no": "",
+          "seq": "",
+          "type_field_code": "",
+          "sub_type_field_code": "",
+          "type_condition_value": "",
+          "sub_type_condition_value": "",
+          "outsourcing_field_code": "",
+          "outsourcing_condition_value": "",
+          "closed_stus": false,
+          "is_need_doc_no": false,
+          "milepost_desc": "",
+          "remark": "",
+          "required_task": false,
+          "task_classification_no": "",
+          "task_classification_name": "",
+          "main_unit": "0",
+          "second_unit": "0",
+          "plan_main_unit_value": 0.0,
+          "plan_second_unit_value": 0.0,
+          "complete_main_unit_value": 0.0,
+          "complete_second_unit_value": 0.0,
+          "main_unit_actual_value": 0,
+          "second_unit_actual_value": 0,
+          "standard_work_hours": 0.0,
+          "standard_days": 0.0,
+          "task_proportion": 1.0,
+          "difficulty_level_no": "",
+          "difficulty_level_name": "",
+          "difficulty_coefficient": 1,
+          "actual_days": 1.0,
+          "rework_drawing_qty": 0,
+          "rework_work_hours": 0,
+          "complete_rework_drawing_qty": 0.0,
+          "complete_rework_work_hours": 0.0,
+          "complete_rework_days": 0.0,
+          "item_operator": "",
+          "liable_person_role_no": "",
+          "liable_person_role_name": "",
+          "attachment": {
+            "data": [],
+            "row_data": "3-20240403000004;2"
+          },
+          "task_dependency_info": [],
+          "task_member_info": [],
+          "task_report_info": [],
+          "__DATA_KEY": "3-20240403000004;2;"
+        }
+      ]
+    },
+    "pageDataKeys": {
+      "project_info": ["project_no", "task_no"]
+    },
+    "finished": false,
+    "executeContext": {
+      "locale": "zh_CN",
+      "clientAgent": "webplatform",
+      "agentType": "standardweb",
+      "identity": "performer",
+      "tmProjectId": "projectCenterConsole_userProject",
+      "chargeId": "uc72007605a",
+      "taskWithBacklogData": {
+        "bpmData": {
+          "doc_info": [
+            {
+              "type_condition_value": "",
+              "doc_type_no": "",
+              "item_type_name": "",
+              "actual_start_date": "2024-04-03",
+              "item_type": "",
+              "doc_no": "",
+              "eoc_site_id": "",
+              "complete_rate_method": "1",
+              "doc_condition_value": "",
+              "type_field_code": "",
+              "outsourcing_condition_value": "",
+              "eoc_region_id": "",
+              "is_doc_date": true,
+              "item_operator": "",
+              "public_material_times": 30,
+              "plan_start_date": "2024-04-03",
+              "contract_no": "",
+              "is_project_no": false,
+              "task_status": "10",
+              "task_no": "2",
+              "outsourcing_field_code": "",
+              "instalment_stage": "",
+              "is_task_no": false,
+              "item_type_value": "",
+              "item_condition_value": "",
+              "special_material_times": 10,
+              "plan_finish_date": "2024-04-04",
+              "project_no": "3-20240403000004",
+              "eoc_company_id": "A01",
+              "is_confirm_date": false,
+              "sub_type_field_code": "",
+              "sub_type_condition_value": "",
+              "receive_rate": "0.8",
+              "task_category": "MOMA",
+              "enable_material_picking_count": false
+            }
+          ],
+          "_planEndTime": "2024-04-07 17:19:39",
+          "task_d_info": [
+            {
+              "project_no": "3-20240403000004",
+              "task_no": "2"
+            }
+          ],
+          "_in": [
+            {
+              "project_no": "3-20240403000004",
+              "task_no": "2"
+            }
+          ],
+          "atmcTaskName": "moma2",
+          "atmcTaskStartTime": "2024-04-03 00:00:00",
+          "process_EOC": {
+            "eoc_company_id": "A01",
+            "eoc_site_id": ""
+          },
+          "project_info": [
+            {
+              "project_no": "3-20240403000004",
+              "task_no": "2"
+            }
+          ],
+          "atmcTaskEndTime": "2024-04-04 23:59:59"
+        },
+        "businessUnit": {
+          "eoc_company_id": "A01",
+          "eoc_site_id": ""
+        },
+        "eocName": ["深圳市诚亿智能装备集团股份有限公司"],
+        "tmActivityId": "UC_moma_DTD_Assignment",
+        "tmActivityName": "个案-工单发料任务",
+        "tmCategory": "PROCESS",
+        "tmPattern": "BUSINESS",
+        "bpmActivityId": "moma_83a9a20a-bed3-4f15-95fd-dfda6255cbd5",
+        "proxyToken": "",
+        "processSerialNumber": "projectCenterConsole_userProject1685097195822419968",
+        "bpmActivityType": "UserTask",
+        "backlog": [
+          {
+            "backlogId": 426044454965312,
+            "submitId": 0,
+            "backlogName": "moma2",
+            "targetTenantId": "uc72008898",
+            "performerId": "uc72007605a",
+            "performerName": "uc72007605a",
+            "readCount": 6,
+            "startTime": "2024-04-07 17:19:39",
+            "planEndTime": "2024-04-04 23:59:59",
+            "overdueDate": "3天",
+            "workitemList": [
+              {
+                "id": 426044454965312,
+                "activityStepId": 426044454903872,
+                "createTime": "2024-04-07 17:19:39",
+                "performerId": "uc72007605a",
+                "performerName": "uc72007605a",
+                "workitemId": "1686614947779330048",
+                "comment": "",
+                "state": 1,
+                "agentPerformerId": "",
+                "agentPerformerName": "",
+                "performerType": 0,
+                "readCount": 6,
+                "subState": 0,
+                "createType": 0,
+                "approvalState": "",
+                "fromWorkitemId": "",
+                "groupId": 426044454965312,
+                "targetTenantId": "uc72008898",
+                "importance": 0,
+                "importanceSource": "self"
+              }
+            ],
+            "closed": false,
+            "bpmSignReason": "",
+            "ptmBacklogId": 426044454973504,
+            "ptmWorkItemId": 426044454965312,
+            "merge": false,
+            "backlogPerformId": "uc72007605a"
+          }
+        ],
+        "traceId": "2a4a9125-9ff4-0df8-3777-3e656bc43ea7",
+        "taskUid": "1686614946768498688"
+      },
+      "allBpmData": [
+        {
+          "doc_info": [
+            {
+              "type_condition_value": "",
+              "doc_type_no": "",
+              "item_type_name": "",
+              "actual_start_date": "2024-04-03",
+              "item_type": "",
+              "doc_no": "",
+              "eoc_site_id": "",
+              "complete_rate_method": "1",
+              "doc_condition_value": "",
+              "type_field_code": "",
+              "outsourcing_condition_value": "",
+              "eoc_region_id": "",
+              "is_doc_date": true,
+              "item_operator": "",
+              "public_material_times": 30,
+              "plan_start_date": "2024-04-03",
+              "contract_no": "",
+              "is_project_no": false,
+              "task_status": "10",
+              "task_no": "2",
+              "outsourcing_field_code": "",
+              "instalment_stage": "",
+              "is_task_no": false,
+              "item_type_value": "",
+              "item_condition_value": "",
+              "special_material_times": 10,
+              "plan_finish_date": "2024-04-04",
+              "project_no": "3-20240403000004",
+              "eoc_company_id": "A01",
+              "is_confirm_date": false,
+              "sub_type_field_code": "",
+              "sub_type_condition_value": "",
+              "receive_rate": "0.8",
+              "task_category": "MOMA",
+              "enable_material_picking_count": false
+            }
+          ],
+          "_planEndTime": "2024-04-07 17:19:39",
+          "task_d_info": [
+            {
+              "project_no": "3-20240403000004",
+              "task_no": "2"
+            }
+          ],
+          "_in": [
+            {
+              "project_no": "3-20240403000004",
+              "task_no": "2"
+            }
+          ],
+          "atmcTaskName": "moma2",
+          "atmcTaskStartTime": "2024-04-03 00:00:00",
+          "process_EOC": {
+            "eoc_company_id": "A01",
+            "eoc_site_id": ""
+          },
+          "project_info": [
+            {
+              "project_no": "3-20240403000004",
+              "task_no": "2"
+            }
+          ],
+          "atmcTaskEndTime": "2024-04-04 23:59:59"
+        }
+      ],
+      "taskType": 1,
+      "backlogId": 426044454965312,
+      "ptmBacklogId": "426044454973504",
+      "abnormalWorkitemId": 426044454973504,
+      "approvalInfo": {},
+      "tmActivityId": "UC_moma_DTD_Assignment",
+      "tmActivityName": "个案-工单发料任务",
+      "tenantId": "uc72008898",
+      "pageCode": "task-detail",
+      "pattern": "CUSTOM",
+      "category": "PROCESS",
+      "relationTag": {
+        "identity": "performer",
+        "activityId": "UC_moma_DTD_Assignment"
+      },
+      "businessUnit": {
+        "eoc_company_id": "A01",
+        "eoc_site_id": ""
+      },
+      "isShared": false,
+      "enableSimplifyPack": false,
+      "isCustomize": true,
+      "traceId": "2a4a9125-9ff4-0df8-3777-3e656bc43ea7",
+      "dataFrom": "PTM",
+      "bpmData": {
+        "doc_info": [
+          {
+            "type_condition_value": "",
+            "doc_type_no": "",
+            "item_type_name": "",
+            "actual_start_date": "2024-04-03",
+            "item_type": "",
+            "doc_no": "",
+            "eoc_site_id": "",
+            "complete_rate_method": "1",
+            "doc_condition_value": "",
+            "type_field_code": "",
+            "outsourcing_condition_value": "",
+            "eoc_region_id": "",
+            "is_doc_date": true,
+            "item_operator": "",
+            "public_material_times": 30,
+            "plan_start_date": "2024-04-03",
+            "contract_no": "",
+            "is_project_no": false,
+            "task_status": "10",
+            "task_no": "2",
+            "outsourcing_field_code": "",
+            "instalment_stage": "",
+            "is_task_no": false,
+            "item_type_value": "",
+            "item_condition_value": "",
+            "special_material_times": 10,
+            "plan_finish_date": "2024-04-04",
+            "project_no": "3-20240403000004",
+            "eoc_company_id": "A01",
+            "is_confirm_date": false,
+            "sub_type_field_code": "",
+            "sub_type_condition_value": "",
+            "receive_rate": "0.8",
+            "task_category": "MOMA",
+            "enable_material_picking_count": false
+          }
+        ],
+        "_planEndTime": "2024-04-07 17:19:39",
+        "task_d_info": [
+          {
+            "project_no": "3-20240403000004",
+            "task_no": "2"
+          }
+        ],
+        "_in": [
+          {
+            "project_no": "3-20240403000004",
+            "task_no": "2"
+          }
+        ],
+        "atmcTaskName": "moma2",
+        "atmcTaskStartTime": "2024-04-03 00:00:00",
+        "process_EOC": {
+          "eoc_company_id": "A01",
+          "eoc_site_id": ""
+        },
+        "project_info": [
+          {
+            "project_no": "3-20240403000004",
+            "task_no": "2"
+          }
+        ],
+        "atmcTaskEndTime": "2024-04-04 23:59:59"
+      },
+      "projectBpmData": {
+        "data": [
+          {
+            "project_no": "3-20240403000004"
+          }
+        ],
+        "importance": 0,
+        "dueDate": "2024-04-12",
+        "project_data": [
+          {
+            "project_no": "3-20240403000004"
+          }
+        ],
+        "imBusinessKey": "3-20240403000004",
+        "atmcProjectEndDate": "2024-04-12",
+        "personInChargeName": "uc72007605a",
+        "processEmergency": 50,
+        "atmcProjectStartDate": "2024-04-03",
+        "atmcProjectName": "3-20240403000004[DYSD]",
+        "project_d_info": [
+          {
+            "project_no": "3-20240403000004"
+          }
+        ],
+        "sourceIds": "3-20240403000004",
+        "personInCharge": "uc72007605a",
+        "process_EOC": {
+          "eoc_company_id": "A01"
+        }
+      },
+      "submitId": 0,
+      "isSuperAdmin": false,
+      "isTaskEngine": true
+    },
+    "pageCountSize": 1
+  }
+}

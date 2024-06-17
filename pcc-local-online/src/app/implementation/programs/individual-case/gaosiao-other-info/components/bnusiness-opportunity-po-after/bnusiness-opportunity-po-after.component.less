@@ -1,0 +1,44 @@
+.bnusiness-opportunity-po-after {
+  // padding: 0 40px;
+  .table-wrapper.t-a {
+    .table-cell {
+      border-bottom: none;
+      &:nth-child(2n) {
+        width: 35%;
+      }
+      &:nth-child(2n + 1) {
+        text-align: right;
+        width: 15%;
+      }
+      ::ng-deep .ant-select {
+        min-width: initial;
+      }
+    }
+  }
+  .table-wrapper.t-b {
+    .table-cell {
+      &.cell-title {
+        text-align: center;
+      }
+      ::ng-deep .ath-date-picker {
+        width: 100%;
+        input {
+          text-align: center;
+        }
+      }
+      ::ng-deep .ant-select {
+        min-width: initial;
+      }
+      ::ng-deep .ant-select-disabled {
+        .ant-select-selector {
+          color: unset;
+          background-color: #fff;
+          cursor: initial;
+        }
+        .athena-select-arrow {
+          display: none;
+        }
+      }
+    }
+  }
+}

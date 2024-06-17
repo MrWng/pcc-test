@@ -1,0 +1,374 @@
+{
+  "status": 200,
+  "statusDescription": "OK",
+  "response": {
+    "layout": [
+      {
+        "id": "9e35f5fe-51f4-408c-a7f7-0a2cfca6be0c",
+        "type": "maintenanceProject_DTD-project-detail",
+        "schema": "customData",
+        "supportShowInMaxedWindow": true,
+        "stateCode": "uibot__data__state__00000"
+      }
+    ],
+    "style": {},
+    "rules": [],
+    "pageData": {
+      "customData": []
+    },
+    "executeContext": {
+      "locale": "zh_CN",
+      "clientAgent": "webplatform",
+      "identity": "charge",
+      "tmProjectId": "projectCenterConsole_userProject",
+      "taskWithBacklogData": {
+        "bpmData": {
+          "_inName": "project_info",
+          "coordinate_arrange_days": 3,
+          "enableInstalment": true,
+          "_in": [
+            {
+              "project_no": "202023092601"
+            }
+          ],
+          "project_data": [
+            {
+              "project_no": "202023092601"
+            }
+          ],
+          "project_info": [
+            {
+              "project_no": "202023092601"
+            }
+          ],
+          "_planEndTime": "2023-09-27 14:58:22",
+          "projectPlanningProcessType": "3",
+          "hasGroundEnd": "Y",
+          "isNewProcess": "Y",
+          "checkReviewTaskPlanned": false,
+          "project_d_info": [
+            {
+              "project_no": "202023092601"
+            }
+          ],
+          "process_EOC": {
+            "eoc_company_id": "AutoTestWF40"
+          },
+          "attachment_project_info": [
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "manual_DTD_Assignment",
+              "category": "manualAssignmentDelivery"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "manual_DTD_Assignment",
+              "category": "manualAssignmentAttachment"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "manual_DTD_AssignmentApproval",
+              "category": "manualAssignmentDelivery"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "manual_DTD_AssignmentApproval2",
+              "category": "manualAssignmentDelivery"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "manual_DTD_AssignmentApproval",
+              "category": "manualAssignmentAttachment"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "manual_DTD_AssignmentApproval2",
+              "category": "manualAssignmentAttachment"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "moh_DTD_Assignment",
+              "category": "mohDeliverable"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "moh_DTD_Assignment",
+              "category": "mohAttachment"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "moh_DTD_AssignmentApproval",
+              "category": "mohDeliverable"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "moh_DTD_AssignmentApproval2",
+              "category": "mohDeliverable"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "moh_DTD_AssignmentApproval",
+              "category": "mohAttachment"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "moh_DTD_AssignmentApproval2",
+              "category": "mohAttachment"
+            },
+            {
+              "project_no": "202023092601",
+              "category": "manualAssignmentSampleDelivery"
+            },
+            {
+              "project_no": "202023092601",
+              "category": "athena_LaunchSpecialProject_create"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "uc_manual_DTD_Assignment",
+              "category": "manualAssignmentDelivery"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "uc_manual_DTD_Assignment",
+              "category": "manualAssignmentAttachment"
+            }
+          ]
+        },
+        "businessUnit": {
+          "eoc_company_id": "AutoTestWF40"
+        },
+        "eocName": ["自动化测试租户(云端）"],
+        "tmActivityId": "maintenanceProject_DTD",
+        "tmCategory": "CUSTOM",
+        "tmPattern": "CUSTOM",
+        "proxyToken": "",
+        "processSerialNumber": "projectCenterConsole_userProject1616276144003223552",
+        "bpmActivityType": "WaitingTask",
+        "backlog": [
+          {
+            "backlogId": 357354225758464,
+            "performerId": "Athena",
+            "performerName": "Athena",
+            "startTime": "2023-09-26 14:58:22",
+            "planEndTime": "2023-09-27 14:58:22",
+            "overdueDate": "21天",
+            "workitemList": [
+              {
+                "id": 357354225758464,
+                "performerId": "Athena",
+                "performerName": "Athena",
+                "workitemId": "1616276145861300224",
+                "comment": "",
+                "state": 1,
+                "agentPerformerId": "",
+                "agentPerformerName": "",
+                "subState": 0,
+                "createType": 0,
+                "groupId": 0
+              }
+            ],
+            "closed": false,
+            "ptmWorkItemId": 357354225758464,
+            "merge": false
+          }
+        ],
+        "traceId": "4a8f90ec-4292-42ef-bcbf-2b6597a2ecc3",
+        "taskUid": "1616276145018245120"
+      },
+      "allBpmData": [
+        {
+          "_inName": "project_info",
+          "coordinate_arrange_days": 3,
+          "enableInstalment": true,
+          "_in": [
+            {
+              "project_no": "202023092601"
+            }
+          ],
+          "project_data": [
+            {
+              "project_no": "202023092601"
+            }
+          ],
+          "project_info": [
+            {
+              "project_no": "202023092601"
+            }
+          ],
+          "_planEndTime": "2023-09-27 14:58:22",
+          "projectPlanningProcessType": "3",
+          "hasGroundEnd": "Y",
+          "isNewProcess": "Y",
+          "checkReviewTaskPlanned": false,
+          "project_d_info": [
+            {
+              "project_no": "202023092601"
+            }
+          ],
+          "process_EOC": {
+            "eoc_company_id": "AutoTestWF40"
+          },
+          "attachment_project_info": [
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "manual_DTD_Assignment",
+              "category": "manualAssignmentDelivery"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "manual_DTD_Assignment",
+              "category": "manualAssignmentAttachment"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "manual_DTD_AssignmentApproval",
+              "category": "manualAssignmentDelivery"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "manual_DTD_AssignmentApproval2",
+              "category": "manualAssignmentDelivery"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "manual_DTD_AssignmentApproval",
+              "category": "manualAssignmentAttachment"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "manual_DTD_AssignmentApproval2",
+              "category": "manualAssignmentAttachment"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "moh_DTD_Assignment",
+              "category": "mohDeliverable"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "moh_DTD_Assignment",
+              "category": "mohAttachment"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "moh_DTD_AssignmentApproval",
+              "category": "mohDeliverable"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "moh_DTD_AssignmentApproval2",
+              "category": "mohDeliverable"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "moh_DTD_AssignmentApproval",
+              "category": "mohAttachment"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "moh_DTD_AssignmentApproval2",
+              "category": "mohAttachment"
+            },
+            {
+              "project_no": "202023092601",
+              "category": "manualAssignmentSampleDelivery"
+            },
+            {
+              "project_no": "202023092601",
+              "category": "athena_LaunchSpecialProject_create"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "uc_manual_DTD_Assignment",
+              "category": "manualAssignmentDelivery"
+            },
+            {
+              "project_no": "202023092601",
+              "project_id": "projectCenterConsole_userProject",
+              "task_id": "uc_manual_DTD_Assignment",
+              "category": "manualAssignmentAttachment"
+            }
+          ]
+        }
+      ],
+      "backlogId": 357354225758464,
+      "tmActivityId": "maintenanceProject_DTD",
+      "tmActivityName": "项目计划维护",
+      "tenantId": "WF40AutoTest",
+      "pageCode": "project-detail",
+      "dataStateCode": "uibot__data__state__00000",
+      "pattern": "CUSTOM",
+      "category": "CUSTOM",
+      "relationTag": {
+        "identity": "charge",
+        "activityId": "maintenanceProject_DTD"
+      },
+      "businessUnit": {
+        "eoc_company_id": "AutoTestWF40"
+      },
+      "isShared": false,
+      "isCustomize": true,
+      "traceId": "4a8f90ec-4292-42ef-bcbf-2b6597a2ecc3",
+      "projectBpmData": {
+        "data": [
+          {
+            "project_no": "202023092601"
+          }
+        ],
+        "importance": 0,
+        "dueDate": "2023-10-15",
+        "project_data": [
+          {
+            "project_no": "202023092601"
+          }
+        ],
+        "imBusinessKey": "202023092601",
+        "atmcProjectEndDate": "2023-10-15",
+        "personInChargeName": "采购主管A",
+        "processEmergency": 50,
+        "atmcProjectStartDate": "2023-09-26",
+        "atmcProjectName": "202023092601[发誓的人方式]",
+        "project_d_info": [
+          {
+            "project_no": "202023092601"
+          }
+        ],
+        "sourceIds": "202023092601",
+        "personInCharge": "WF40Test001",
+        "process_EOC": {
+          "eoc_company_id": "AutoTestWF40"
+        }
+      },
+      "isTaskEngine": true
+    },
+    "pageCountSize": 0
+  }
+}

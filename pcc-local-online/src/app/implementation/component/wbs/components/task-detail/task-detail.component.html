@@ -1,0 +1,95 @@
+<div
+  #contentTaskDetail
+  class="content task_detail"
+  [class.isChengYiIndCase]="
+    dynamicCustomizedService.isChengYiIndCase && this.wbsService.taskDetail.task_category === 'MOMA'
+  "
+  (click)="clickContent($event)"
+  [ngClass]="{ fullContent: fullScreenStatus }"
+>
+  <ng-container *ngIf="!chengyiTaskDetailDynamicModel; else chengyiInd">
+    <div class="fullBox" (click)="toFullScreen()">
+      <em class="icon" *ngIf="!fullScreenStatus">
+        <svg class="iconfont" aria-hidden="true">
+          <use xlink:href="#iconquanpin"></use>
+        </svg>
+      </em>
+      <em class="icon" *ngIf="fullScreenStatus">
+        <svg class="iconfont" aria-hidden="true">
+          <use xlink:href="#icontcqp"></use>
+        </svg>
+      </em>
+    </div>
+    <div class="spin-box" *ngIf="isShowSpin">
+      <nz-spin nzSimple></nz-spin>
+    </div>
+    <div class="table-box" [class.setMaxHeight]="fullScreenStatus" *ngIf="!isShowSpin">
+      <ac-tabset [nzTabBarExtraContent]="wbsService.taskDetail?.is_approve ? nzTabBarExtraContent : null" [(nzSelectedIndex)]="tabSelectedIndex"
+      (nzSelectedIndexChange)="selectedIndexChange()">
+        <div *ngIf="!['REVIEW', 'PCM'].includes(this.wbsService.taskDetail.task_category)">
+          <ac-tab [nzTitle]="tab.label | translate : { n: tab.sum }" *ngFor="let tab of tabList"></ac-tab>
+        </div>
+        <div *ngIf="this.wbsService.taskDetail.task_category === 'REVIEW'">
+          <ac-tab [nzTitle]="tab.label | translate" *ngFor="let tab of reviewTabList"></ac-tab>
+        </div>
+      </ac-tabset>
+
+      <div class="table">
+        <div class="table-content" *ngIf="dynamicGroup && list.length; else svgTemplate">
+          <button
+            *ngIf="isSHowExport()"
+            class="taskDetailExportExcel"
+            ath-toolbar-button
+            (click)="export()"
+          >
+            {{ 'dj-default-导出' | translate }}
+          </button>
+          <div
+            dynamic-ant-form
+            class="table-content"
+            [group]="dynamicGroup"
+            [model]="dynamicModel"
+            *ngIf="
+              !['PLM_PROJECT', 'MES', 'ASSC_ISA_ORDER'].includes(
+                wbsService.taskDetail.task_category
+              )
+            "
+          ></div>
+          <app-plmProject
+            [list]="list"
+            *ngIf="['PLM_PROJECT'].includes(wbsService.taskDetail.task_category)"
+          ></app-plmProject>
+          <app-assc-isa-order
+            [list]="list"
+            *ngIf="['ASSC_ISA_ORDER'].includes(wbsService.taskDetail.task_category)"
+          ></app-assc-isa-order>
+          <app-mes-project
+            [list]="list"
+            [compneyId]="wbsService.taskDetail.eoc_company_id"
+            *ngIf="wbsService.taskDetail.task_category === 'MES'"
+          ></app-mes-project>
+        </div>
+        <ng-template #svgTemplate>
+          <div class="no-data-box">
+            <div>
+              <app-svg-file [type]="'noData'"></app-svg-file>
+              <p>{{ 'dj-c-暂无数据' | translate }}</p>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </ng-container>
+  <ng-template #nzTabBarExtraContent>
+    <div class="open-sign-off-progress" (click)="openWindow()" *ngIf="this.wbsService.taskDetail?.is_approve">
+      {{ ('dj-pcc-查看签核进度' | translate) + ' >' }}
+    </div>
+  </ng-template>
+  <!-- 诚亿个案 -->
+  <ng-template #chengyiInd>
+    <ath-dynamic-customized
+      style="flex: 1"
+      [dynamicModel]="chengyiTaskDetailDynamicModel"
+    ></ath-dynamic-customized>
+  </ng-template>
+</div>

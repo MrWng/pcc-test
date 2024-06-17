@@ -1,0 +1,24 @@
+{
+  "status": 200,
+  "statusDescription": "OK",
+  "response": {
+    "layout": [
+      {
+        "id": "62a48f59-1e67-474d-bb7d-7b6fd2b4d0ee",
+        "type": "pcc-risk-maintenance-table-add-project-detail",
+        "schema": "customData",
+        "supportShowInMaxedWindow": true
+      }
+    ],
+    "style": {},
+    "rules": [],
+    "pageData": {
+      "customData": []
+    },
+    "pageDataIndex": {},
+    "pageDataKeys": {},
+    "content": {},
+    "executeContext": {},
+    "pageCountSize": 1
+  }
+}

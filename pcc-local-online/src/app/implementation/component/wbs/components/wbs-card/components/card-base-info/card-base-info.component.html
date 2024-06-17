@@ -1,0 +1,42 @@
+<ng-container *ngIf="cardInfo">
+  <p class="pcc-card-base-info-item" [class.normal-mode]="mode === '2'">
+    <span class="title">{{ 'dj-pcc-负责人' | translate }}：</span>
+    <span *ngIf="cardInfo.liable_person_name; else emptyLpn">{{
+      cardInfo.liable_person_name
+    }}</span>
+    <ng-template #emptyLpn>
+      <span class="empty-text">—</span>
+    </ng-template>
+  </p>
+  <p class="pcc-card-base-info-item exec" [class.normal-mode]="mode === '2'">
+    <span class="title">{{ 'dj-pcc-执行人' | translate }}：</span>
+    <ng-container *ngIf="mode === '2'; else conciseMode">
+      <span *ngIf="taskMemberInfo; else emptyExec">{{ taskMemberInfo }}</span>
+    </ng-container>
+    <ng-template #conciseMode>
+      <ath-tooltip-wrapper [content]="taskMemberInfo">
+        <span *ngIf="taskMemberInfo; else emptyExec"> {{ taskMemberInfo }}</span>
+      </ath-tooltip-wrapper>
+      <!-- <span
+        appCardPersonDisplay
+        athTooltip
+        #execPersonEl
+        *ngIf="taskMemberInfo; else emptyExec"
+        [athTooltipTitle]="execPersonEl?.classList?.contains('is-ellipsis') ? taskMemberInfo : ''"
+        [athTooltipTrigger]="null"
+        [athTooltipVisible]="showExecPeopleTooltip"
+        (mouseenter)="showExecPeopleTooltip = true"
+        (mouseleave)="showExecPeopleTooltip = false"
+      >
+        {{ taskMemberInfo }}
+      </span> -->
+    </ng-template>
+    <ng-template #emptyExec>
+      <span class="empty-text">—</span>
+    </ng-template>
+  </p>
+  <p *ngIf="mode !== '1'" class="pcc-card-base-info-item" [class.normal-mode]="mode === '2'">
+    <span class="title">{{ 'dj-pcc-任务类型' | translate }}</span>
+    <span>{{ taskName }}</span>
+  </p>
+</ng-container>

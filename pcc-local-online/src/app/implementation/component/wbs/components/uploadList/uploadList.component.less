@@ -1,0 +1,55 @@
+.wbs_upload{
+  height: 32px;
+  display: flex;
+  justify-content: cneter;
+  align-items: center;
+  position: relative;
+  ::ng-deep .ant-btn{
+    //color: #2012d9;
+    margin-left: 16px;
+  }
+  .upload{
+    margin-left: 8px;
+  }
+  .disable{
+    color: #ddd;
+  }
+}
+::ng-deep .wbsUploadModal{
+  .ant-modal-body{
+      padding: 10px 102px;
+      height: 104px;
+      display: flex;
+      align-items: center;
+  }
+  .ant-modal-footer{
+    border-top: 0 solid #000;
+    padding:0 16px 24px 16px;
+    .wbs_upload_btn{
+      display: flex;
+      justify-content: center;
+      .ant-btn{
+        width: 88px;
+      }
+      .submitBtn{
+        margin-left: 36px;
+        position: relative;
+        overflow: hidden;
+        input{
+          position: absolute;
+          left: 0;
+          top: 0;
+          right: 0;
+          height: 32px;
+          z-index: 999;
+          opacity: 0;
+        }
+      }
+    }
+  }
+}
+::ng-deep .uploadErrorModal{
+  .ant-btn-primary{
+    width: 88px;
+  }
+}

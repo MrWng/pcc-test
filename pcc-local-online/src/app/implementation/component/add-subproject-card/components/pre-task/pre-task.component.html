@@ -1,0 +1,134 @@
+<div
+  [class]="{ noForbidden: isForbidden }"
+  class="fold-more fold-before-task"
+  (click)="changeBeforeStatusFoldStatus()"
+>
+  <span>{{ 'dj-default-前置任务' | translate }}</span>
+  <em class="icon">
+    <i athIcon [iconfont]="'icon-xiala'" *ngIf="!isShowBeforeTaskStatus"></i>
+    <i athIcon [iconfont]="'icon-shangla'" *ngIf="isShowBeforeTaskStatus"></i>
+  </em>
+</div>
+
+<form nz-form [formGroup]="validateForm" *ngIf="isShowBeforeTaskStatus">
+  <div class="before-task-box" formArrayName="preTaskList">
+    <div
+      class="item-multi-task-box"
+      *ngFor="let item of preTaskList.controls; let i = index"
+      [formGroupName]="i"
+    >
+    <div nz-row [nzGutter]="24" class="row-box">
+      <div nz-col class="gutter-row" nzSpan="6">
+        <nz-form-item >
+          <nz-form-control>
+            <div style="width: 125px;">
+              <ath-tree-select
+                style="width: 100%; min-width: 100%"
+                [nzDefaultExpandAll]="false"
+                [nzNodes]="preTaskNumList"
+                [nzDisplayWith]="displayWith"
+                nzShowSearch
+                [nzBackdrop]="true"
+                [nzPlaceHolder]="translateWord('请选择前置任务')"
+                [nzAllowClear]="!addSubProjectCardService.currentCardInfo?.someEdit"
+                formControlName="before_task_no"
+                [nzDisabled]="addSubProjectCardService.isPreview || addSubProjectCardService.currentCardInfo?.someEdit"
+                [label]="translateWord('前置任务')"
+                [isInsideLabel]="true"
+              >
+                <ng-template #nzTreeTemplate let-node>
+                  <span class="ant-tree-node-content-wrapper">
+                    <span [title]='node.title' style="width: 100%; overflow: hidden; text-overflow: ellipsis;white-space: nowrap;">
+                      <em class="icon" *ngIf="node.level === 0">
+                        <svg class="iconfont" aria-hidden="true">
+                          <use xlink:href="#iconshebeizong"></use>
+                        </svg>
+                      </em>
+                      <em class="icon" *ngIf="node.level === 1">
+                        <svg class="iconfont" aria-hidden="true">
+                          <use xlink:href="#iconxingzhuang"></use>
+                        </svg>
+                      </em>
+                      <em class="icon" *ngIf="node.level > 1">
+                        <svg class="iconfont" aria-hidden="true">
+                          <use xlink:href="#iconzuixiaocengjiicon"></use>
+                        </svg>
+                      </em>
+                      {{ node.title }}
+                    </span>
+                  </span>
+                </ng-template>
+              </ath-tree-select>
+            </div>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col class="gutter-row" nzSpan="6">
+        <nz-form-item >
+          <nz-form-control>
+            <ath-select
+              style="width: 100%; min-width: 100px"
+              formControlName="dependency_type"
+              [nzPlaceHolder]="translateWord('请选择依赖关系')"
+              [nzDisabled]="addSubProjectCardService.isPreview || addSubProjectCardService.currentCardInfo?.someEdit"
+              isInsideLabel
+              [label]="translateWord('依赖关系')"
+              [nzAllowClear]="false"
+            >
+              <ath-option nzValue="FF" [nzLabel]="translateWord('完成才完成')"></ath-option>
+              <ath-option nzValue="FS" [nzLabel]="translateWord('完成才开始')"></ath-option>
+              <ath-option nzValue="SS" [nzLabel]="translateWord('开始才开始')"></ath-option>
+            </ath-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col class="gutter-row" nzSpan="6">
+        <nz-form-item >
+          <nz-form-control>
+            <ath-select
+              style="width: 100%; min-width: 100px"
+              formControlName="advance_lag_type"
+              [nzPlaceHolder]="translateWord('请选择')"
+              [nzOptions]="advanceLagTypeOfOption"
+              [nzDisabled]="addSubProjectCardService.isPreview || addSubProjectCardService.currentCardInfo?.someEdit"
+              isInsideLabel
+              [label]="translateWord('提前/滞后')"
+              [nzAllowClear]="false"
+            >
+            </ath-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col class="gutter-row" nzSpan="4">
+        <nz-form-item >
+          <nz-form-control>
+            <ath-input-number
+              [placeholder]="translateWord('天数')"
+              formControlName="advance_lag_days"
+              [disabled]="addSubProjectCardService.isPreview || addSubProjectCardService.currentCardInfo?.someEdit"
+              [innerLabel]="true"
+              [label]="translateWord('天数')"
+            ></ath-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col class="gutter-row delete-icon-box" zSpan="2">
+        <em
+          class="icon delete-icon"
+          (click)="deleteBeforeTask(i)"
+          *ngIf="addSubProjectCardService.isPreview ? false : !addSubProjectCardService.currentCardInfo?.someEdit"
+        >
+          <i athIcon [iconfont]="'icon-shanchu'"></i>
+        </em>
+      </div>
+      </div>
+    </div>
+    <p
+      class="add-before-task"
+      (click)="addFormArrayItem()"
+      *ngIf="addSubProjectCardService.isPreview ? false : !addSubProjectCardService.currentCardInfo?.someEdit"
+    >
+      <span>+</span>{{ 'dj-pcc-新增前置任务' | translate }}
+    </p>
+  </div>
+</form>

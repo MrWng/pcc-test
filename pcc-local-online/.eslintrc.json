@@ -1,0 +1,177 @@
+{
+  "root": true,
+  "ignorePatterns": [
+    "projects/**/*",
+    "src/test.ts",
+    "**/*.spec.ts"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "*.ts"
+      ],
+      "parserOptions": {
+        "project": [
+          "tsconfig.json"
+        ],
+        "createDefaultProgram": true
+      },
+      "extends": [
+        "plugin:@angular-eslint/recommended",
+        "plugin:@angular-eslint/template/process-inline-templates"
+      ],
+      "rules": {
+        "spaced-comment": [
+          "error",
+          "always",
+          {
+            "line": {
+              "markers": [
+                "/"
+              ],
+              "exceptions": [
+                "-",
+                "+"
+              ]
+            },
+            "block": {
+              "markers": [
+                "!"
+              ],
+              "exceptions": [
+                "*"
+              ],
+              "balanced": true
+            }
+          }
+        ],
+        "curly": [
+          "error",
+          "all"
+        ],
+        "eol-last": "error",
+        "guard-for-in": "error",
+        "indent": [
+          "error",
+          2,
+          {
+            "SwitchCase": 1
+          }
+        ],
+        "no-labels": "error",
+        "max-len": [
+          "error",
+          140,
+          4
+        ],
+        "no-caller": "error",
+        "no-bitwise": "error",
+        "no-console": "off",
+        "no-restricted-syntax": [
+          "error",
+          {
+            "selector": "CallExpression[callee.object.name=\"console\"][callee.property.name!=/^(log|warn|error|info|trace)$/]",
+            "message": "Unexpected property on console object was called"
+          }
+        ],
+        "no-new-wrappers": "error",
+        "no-debugger": "error",
+        "no-empty": "off",
+        "no-eval": "error",
+        "no-shadow": [
+          "error",
+          {
+            "hoist": "functions"
+          }
+        ],
+        "no-throw-literal": "error",
+        "no-fallthrough": "error",
+        "no-trailing-spaces": "error",
+        "no-unused-expressions": [
+          "error",
+          {
+            "allowTernary": true
+          }
+        ],
+        "no-var": "error",
+        "prefer-const": [
+          "error",
+          {
+            "destructuring": "any",
+            "ignoreReadBeforeAssign": false
+          }
+        ],
+        "quotes": [
+          "error",
+          "single",
+          {
+            "allowTemplateLiterals": true,
+            "avoidEscape": true
+          }
+        ],
+        "radix": "error",
+        "semi": [
+          "error",
+          "always"
+        ],
+        "eqeqeq": [
+          "error",
+          "allow-null"
+        ],
+        "camelcase": "off",
+        "@angular-eslint/directive-selector": [
+          "error",
+          {
+            "type": "attribute",
+            "prefix": [
+              "app",
+              "cust"
+            ],
+            "style": "camelCase"
+          }
+        ],
+        "@angular-eslint/component-selector": [
+          "error",
+          {
+            "type": "element",
+            "prefix": [
+              "app",
+              "cust"
+            ],
+            "style": "kebab-case"
+          }
+        ],
+        "@angular-eslint/no-inputs-metadata-property": "error",
+        "@angular-eslint/no-outputs-metadata-property": "error",
+        "@angular-eslint/no-host-metadata-property": "error",
+        "@angular-eslint/no-input-rename": "error",
+        "@angular-eslint/no-output-rename": "error",
+        "@angular-eslint/use-lifecycle-interface": "error",
+        "@angular-eslint/use-pipe-transform-interface": "error",
+        "@angular-eslint/component-class-suffix": "error",
+        "@angular-eslint/directive-class-suffix": "error",
+        "@angular-eslint/use-component-view-encapsulation": "off",
+        "@angular-eslint/no-attribute-decorator": "error",
+        "@angular-eslint/no-output-native": "error",
+        "@angular-eslint/no-output-on-prefix": "error",
+        "@angular-eslint/no-forward-ref": "off",
+        "@angular-eslint/no-unused-css": "off",
+        "@angular-eslint/contextual-lifecycle": "error",
+        "@angular-eslint/no-pipe-impure": "error",
+        "@angular-eslint/no-empty-lifecycle-method": [
+          "off"
+        ],
+        "@angular-eslint/no-conflicting-lifecycle": "off"
+      }
+    },
+    {
+      "files": [
+        "*.html"
+      ],
+      "extends": [
+        "plugin:@angular-eslint/template/recommended"
+      ],
+      "rules": {}
+    }
+  ]
+}

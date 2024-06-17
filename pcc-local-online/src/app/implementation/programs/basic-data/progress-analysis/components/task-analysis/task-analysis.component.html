@@ -1,0 +1,107 @@
+<div class="spin-box" *ngIf="progressAnalysisService.taskAnalysisSpin">
+  <nz-spin nzSimple></nz-spin>
+</div>
+<div class="task-analysis-box" *ngIf="!progressAnalysisService.taskAnalysisSpin">
+  <div class="project-info-box">
+    <div class="project-info-base">
+      <div>
+        {{ 'dj-default-项目名称：' | translate }}
+        <nz-select
+          nzShowSearch
+          [(ngModel)]="projectInfo"
+          [nzOptions]="allProjectList"
+          (ngModelChange)="projectInfoChange($event)"
+          nzAllowClear
+        >
+        </nz-select>
+      </div>
+      <div *ngIf="projectLeaderName">
+        {{ 'dj-default-项目经理：' | translate }}
+        <span>{{ projectLeaderName }}</span>
+      </div>
+      <div *ngIf="planFinishDate">
+        {{ 'dj-default-预计完成日：' | translate }}
+        <span>{{ planFinishDate }}</span>
+      </div>
+    </div>
+    <div class="project-info-detail">
+      <div class="compare-left">
+        <div class="rate rate-left">
+          <div class="current-status">
+            <p class="title">{{ 'dj-default-完成率' | translate }}</p>
+            <app-current-status
+              *ngIf="taskAnalysisInfo?.currentStatus !== 0"
+              [currentStatus]="taskAnalysisInfo?.currentStatus"
+            ></app-current-status>
+          </div>
+          <div class="line-box">
+            <p>{{ 'dj-default-实际:' | translate }}</p>
+            <app-task-progress-line
+              [type]="'rate'"
+              [rate]="taskAnalysisInfo?.actual_complete_rate"
+              [currentStatus]="taskAnalysisInfo?.currentStatus"
+            >
+            </app-task-progress-line>
+          </div>
+          <div class="line-box">
+            <p>{{ 'dj-default-预计:' | translate }}</p>
+            <app-task-progress-line [type]="'rate'" [rate]="taskAnalysisInfo?.plan_complete_rate">
+            </app-task-progress-line>
+          </div>
+        </div>
+        <div class="line"></div>
+        <div class="rate rate-center">
+          <p class="title">{{ 'dj-default-完成任务数' | translate }}</p>
+          <div class="line-box">
+            <p>{{ 'dj-default-实际:' | translate }}</p>
+            <app-task-progress-line
+              [type]="'count'"
+              [rate]="taskAnalysisInfo?.actual_complete_rate"
+              [taskCount]="taskAnalysisInfo?.actual_complete_task_count"
+              [currentStatus]="taskAnalysisInfo?.currentStatus"
+            >
+            </app-task-progress-line>
+          </div>
+          <div class="line-box">
+            <p>{{ 'dj-default-预计:' | translate }}</p>
+            <app-task-progress-line
+              [type]="'count'"
+              [rate]="taskAnalysisInfo?.plan_complete_rate"
+              [taskCount]="taskAnalysisInfo?.plan_complete_task_count"
+            >
+            </app-task-progress-line>
+          </div>
+        </div>
+        <div class="line"></div>
+        <div class="rate rate-right">
+          <p class="title">{{ 'dj-default-计划总任务数' | translate }}</p>
+          <p class="total-num">{{ taskAnalysisInfo?.totoal_task_count }}</p>
+        </div>
+      </div>
+      <div class="record-right">
+        <p class="title">
+          <em class="icon">
+            <svg class="iconfont" aria-hidden="true">
+              <use xlink:href="#iconyingwanchengshengyugongshi"></use>
+            </svg>
+          </em>
+          <span>{{ 'dj-default-应完工剩余工时' | translate }}</span>
+        </p>
+        <p class="num">
+          {{ taskAnalysisInfo?.total_remaining_work_hours
+          }}<span>{{ 'dj-default-小时' | translate }}</span>
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="gantt-container">
+    <div class="gantt-spin" *ngIf="!progressAnalysisService.ganttStatus">
+      <nz-spin nzSimple></nz-spin>
+    </div>
+    <app-dynamic-gantt
+      *ngIf="progressAnalysisService.ganttStatus"
+      [type]="'multiple'"
+      [ganttData]="getGanttData()"
+    ></app-dynamic-gantt>
+  </div>
+</div>

@@ -1,0 +1,43 @@
+:host {
+  .pcc-status-content {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    line-height: 16px;
+    .status-icon-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+      flex: 0 0 calc(50% - 5px);
+      &:nth-last-child(2),
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+    .status-icon {
+      width: 16px;
+      height: 16px;
+      margin-right: 5px;
+      background-repeat: none;
+    }
+    .icon-description {
+      color: #666666;
+      font-size: 14px;
+      text-align: left;
+    }
+  }
+  .pcc-status-content.concise-mode {
+    justify-content: initial;
+    align-items: center;
+    padding-right: 4px;
+    flex-wrap: nowrap;
+    .status-icon {
+      margin-right: 4px;
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+  }
+}

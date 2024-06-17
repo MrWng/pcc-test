@@ -1,0 +1,231 @@
+<!-- <ul #operationContainer class="operation-container">
+  <li class="eidt">
+    <button
+      [nzLoading]="editBtnLoading"
+      [userBehavior]="{ name: 'dj-default-编辑一级计划', code: editCode }"
+      (click)="edit(item, $event); $event.stopPropagation()"
+      class="operation-btn"
+      ath-button
+      athType="icon"
+      [disabled]="
+        commonService?.content?.finished ||
+        !hasAuth ||
+        !mainOperateConditionAggregation(item) ||
+        !item.canEdit
+      "
+    >
+      <svg
+        t="1707719661616"
+        class="icon"
+        viewBox="0 0 1024 1024"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        p-id="4033"
+        width="200"
+        height="200"
+      >
+        <path
+          d="M859.428571 804.571429a36.571429 36.571429 0 1 1 0 73.142857h-658.285714a36.571429 36.571429 0 1 1 0-73.142857h658.285714zM626.834286 157.037714a36.571429 36.571429 0 0 1 51.712 0l133.632 133.632a36.571429 36.571429 0 0 1 0 51.712L433.956571 720.676571a36.571429 36.571429 0 0 1-25.892571 10.752H274.285714a36.571429 36.571429 0 0 1-36.571428-36.571428V561.737143a36.571429 36.571429 0 0 1 10.678857-25.819429l378.441143-378.88z m25.892571 77.531429L310.857143 576.804571V658.285714h81.993143l341.723428-341.869714-81.846857-81.846857z"
+          p-id="4034"
+        ></path>
+      </svg>
+    </button>
+  </li>
+  <li class="view">
+    <button
+      class="operation-btn"
+      ath-button
+      athType="icon"
+      (click)="preview(item, $event); $event.stopPropagation()"
+    >
+      <svg
+        t="1707719703007"
+        class="icon"
+        viewBox="0 0 1024 1024"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        p-id="4167"
+        width="200"
+        height="200"
+      >
+        <path
+          d="M942.208 486.208c-94.784-199.68-238.08-300.16-430.208-300.16-192.192 0-335.36 100.48-430.208 300.224a60.288 60.288 0 0 0 0 51.52c94.784 199.68 238.08 300.16 430.208 300.16 192.192 0 335.36-100.48 430.208-300.224a60.288 60.288 0 0 0 0-51.52zM512 766.016c-161.28 0-279.424-81.792-362.688-254.016C232.576 339.84 350.72 257.984 512 257.984S791.424 339.84 874.688 512c-83.2 172.16-201.28 254.016-362.688 254.016zM507.968 336a176 176 0 1 0 0 352 176 176 0 0 0 0-352z m0 288a112 112 0 1 1 0-224 112 112 0 1 1 0 224z"
+          p-id="4168"
+        ></path>
+      </svg>
+    </button>
+  </li>
+  <li class="add">
+    <button
+      #addBtn
+      [nzLoading]="addBtnLoading"
+      (click)="addSubProjectCard(item, addBtn); $event.preventDefault(); $event.stopPropagation()"
+      class="operation-btn"
+      ath-button
+      athType="icon"
+      [disabled]="
+        commonService?.content?.finished ||
+        !hasAuth ||
+        !addChildConditionAggregation(item) ||
+        !isHiddenAdd(item)
+      "
+    >
+      <svg
+        t="1707719728312"
+        class="icon"
+        viewBox="0 0 1024 1024"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        p-id="4301"
+        width="200"
+        height="200"
+      >
+        <path
+          d="M513.170286 219.428571a36.571429 36.571429 0 0 1 36.571428 36.571429l-0.365714 219.428571H768a36.571429 36.571429 0 0 1 35.986286 29.988572L804.571429 512a36.571429 36.571429 0 0 1-36.571429 36.571429H549.229714l-0.219428 219.428571a36.571429 36.571429 0 0 1-29.988572 35.986286l-6.582857 0.585143a36.571429 36.571429 0 0 1-36.571428-36.571429l0.292571-219.428571H256a36.571429 36.571429 0 0 1-35.986286-29.988572L219.428571 512a36.571429 36.571429 0 0 1 36.571429-36.571429h220.233143l0.292571-219.428571a36.571429 36.571429 0 0 1 29.988572-35.986286L513.170286 219.428571z"
+          p-id="4302"
+        ></path>
+      </svg>
+    </button>
+  </li>
+  <ng-container *ngIf="!commonService?.content?.finished; else readonlyMore">
+    <li
+      class="more"
+      nz-dropdown
+      nzTrigger="click"
+      [nzDropdownMenu]="menu"
+      [(nzVisible)]="visibleMenu"
+      [nzClickHide]="false"
+    >
+      <svg
+        t="1707719755949"
+        class="icon"
+        viewBox="0 0 1024 1024"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        p-id="4435"
+        width="200"
+        height="200"
+      >
+        <path
+          d="M219.428571 585.142857a73.142857 73.142857 0 1 0 0-146.285714 73.142857 73.142857 0 0 0 0 146.285714z m292.571429 0a73.142857 73.142857 0 1 0 0-146.285714 73.142857 73.142857 0 0 0 0 146.285714z m292.571429 0a73.142857 73.142857 0 1 0 0-146.285714 73.142857 73.142857 0 0 0 0 146.285714z"
+          p-id="4436"
+        ></path>
+      </svg>
+    </li>
+  </ng-container>
+  <ng-template #readonlyMore>
+    <li class="more card-op-more-disabled">
+      <svg
+        t="1707719755949"
+        class="icon"
+        viewBox="0 0 1024 1024"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        p-id="4435"
+        width="200"
+        height="200"
+      >
+        <path
+          d="M219.428571 585.142857a73.142857 73.142857 0 1 0 0-146.285714 73.142857 73.142857 0 0 0 0 146.285714z m292.571429 0a73.142857 73.142857 0 1 0 0-146.285714 73.142857 73.142857 0 0 0 0 146.285714z m292.571429 0a73.142857 73.142857 0 1 0 0-146.285714 73.142857 73.142857 0 0 0 0 146.285714z"
+          p-id="4436"
+        ></path>
+      </svg>
+    </li>
+  </ng-template>
+</ul>
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <ul
+    class="wbs-card-menu-wrapper"
+    nz-menu
+    (mouseenter)="noHidden = true"
+    (mouseleave)="menuWrapperMouseleave($event)"
+  >
+    <li #wbsCardMenuItem class="wbs-card-menu-item" nz-menu-item>
+      <button
+        [nzLoading]="removeBtnLoading"
+        class="operation-btn"
+        ath-button
+        [disabled]="
+          commonService?.content?.finished ||
+          !hasAuth ||
+          !mainOperateConditionAggregation(item) ||
+          isDisableDeleteButton(item)
+        "
+        (click)="delete(item, $event, wbsCardMenuItem); cardLeave()"
+      >
+        {{ 'dj-default-删除' | translate }}
+      </button>
+    </li>
+    <li *ngIf="canCancelCollaboration" class="wbs-card-menu-item" nz-menu-item>
+      <app-cancel-collaboration
+        #$cancelCollaboration
+        [sourceData]="item"
+        (cancelSuccess)="cancelCollaborationSuccess()"
+        (cancelFullFail)="cancelCollaborationFullFail($event)"
+      ></app-cancel-collaboration>
+    </li>
+  </ul>
+</nz-dropdown-menu> -->
+<div class="pcc-operation-container">
+  <div class="operation-header">
+    <div class="task-name">
+      {{ cardInfo.task_name }}
+    </div>
+    <app-card-work-date [cardInfo]="cardInfo"></app-card-work-date>
+    <app-card-overdue-tag *ngIf="isTrackPages" [cardInfo]="cardInfo"></app-card-overdue-tag>
+  </div>
+  <div class="operation-body">
+    <div class="base-info">
+      <app-card-base-info [cardInfo]="cardInfo" mode="2"></app-card-base-info>
+
+      <app-card-process
+        *ngIf="isTrackPages && !cardExecutionStatusInfo.hidden"
+        [cardExecutionStatusInfo]="cardExecutionStatusInfo"
+      ></app-card-process>
+    </div>
+    <app-card-status
+      #cardStatus
+      [source]="source"
+      [sourceRealy]="sourceRealy"
+      [cardInfo]="cardInfo"
+      mode="2"
+    ></app-card-status>
+  </div>
+  <div class="operation-footer">
+    <ng-container *ngFor="let btnItem of operationBtn">
+      <ng-container
+        *ngIf="btnItem.btnText !== translatePccWord('取消协同'); else loadCancelCollaborationComp"
+      >
+        <button
+          #btnDom
+          *ngIf="!btnItem.hidden"
+          ath-button
+          nzSize="small"
+          [nzLoading]="btnItem.btnLoading"
+          [disabled]="btnItem.disabled"
+          [userBehavior]="btnItem.userBehavior"
+          (click)="
+            btnItem.handler(cardInfo, btnDom); $event.preventDefault(); $event.stopPropagation()
+          "
+        >
+          {{ btnItem.btnText }}
+        </button>
+      </ng-container>
+      <ng-template #loadCancelCollaborationComp>
+        <app-cancel-collaboration
+          *ngIf="!btnItem.hidden && !wbsService['cancelCollaborationSuccessFlag']"
+          #$cancelCollaboration
+          btnSize="small"
+          athType="default"
+          [sourceData]="cardInfo"
+          [nzPopover]="nzPopover"
+          useBy="wbs-card"
+          [needRefreshDirectly]="true"
+          (cancelSuccess)="cancelCollaborationSuccess()"
+          (cancelFullFail)="cancelCollaborationFullFail($event)"
+          (confirmVisibleChange)="cancelCollaborationConfirmVisibleChange($event)"
+        ></app-cancel-collaboration>
+      </ng-template>
+    </ng-container>
+  </div>
+</div>

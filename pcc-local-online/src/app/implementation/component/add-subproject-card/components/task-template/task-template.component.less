@@ -1,0 +1,50 @@
+.select-task {
+  width: 100%;
+  position: relative;
+  .ant-input-disabled::placeholder {
+    color: #999;
+  }
+  &:hover {
+    .deleteRelate {
+      display: flex;
+    }
+  }
+  .deleteRelate {
+    position: absolute;
+    top: 0;
+    right: 23px;
+    width: 32px;
+    height: 34px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 4;
+    cursor: pointer;
+    i {
+      color: #666;
+    }
+  }
+  .kaichuang {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 32px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    i {
+      color: #999;
+    }
+  }
+}
+
+:host {
+  ::ng-deep .ath-input-group-wrapper .ath-input-group-cocoon.ath-input-inner-label {
+    height: 34px;
+    section {
+      height: 34px;
+    }
+  }
+}

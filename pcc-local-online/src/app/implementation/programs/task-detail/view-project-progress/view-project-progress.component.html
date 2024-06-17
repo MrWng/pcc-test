@@ -1,0 +1,12 @@
+<div class="view-project-progress">
+  <span (click)="showModal()">{{ 'dj-pcc-查看项目进度' | translate }}</span>
+  <ac-modal [nzSize]="'xxl'" [(nzVisible)]="isVisible" [nzTitle]="title" 
+    [nzBodyStyle]="{'min-height': '320px'}" [nzMaskClosable]="false"
+    (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()" [nzClassName]="'progress-none-footer'">
+    <ng-container *acModalContent>
+      <nz-spin [nzSpinning]="isShowSpin" style="height: 100%">
+        <app-dynamic-wbs *ngIf="project_info" [source]="Entry.card"></app-dynamic-wbs>
+      </nz-spin>
+    </ng-container>
+  </ac-modal>
+</div>

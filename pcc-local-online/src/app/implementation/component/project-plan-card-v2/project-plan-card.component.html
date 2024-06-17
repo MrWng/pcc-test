@@ -1,0 +1,152 @@
+<ul>
+  <li
+    tDraggable
+    *ngFor="let item of planCardList; let i = index"
+    [nestingTargetRect]="{ marginBottom: cardMarginBottom }"
+    [dragData]="{ item: item, parentList: planCardList, index: i }"
+    [dragDisabled]="item.level === 0"
+    (dragStartEvent)="isDragging = true"
+    (dragEndEvent)="isDragging = false"
+    class="project-info"
+    [class.first-level]="item.level === 0"
+    [ngStyle]="{ width: 248 - item.level * 8 + 'px' }"
+  >
+    <div
+      #cardWrapper
+      class="card-wrapper"
+      [ngClass]="{ 'sub-card-wrapper': item.level !== 0 }"
+      [draggable]="
+        hasAuth && !item.disabled && !wbsService.hasTaskProportionForThisTree(item.task_no)
+      "
+    >
+      <app-wbs-card
+        #wbsCardCop
+        [addFirstPlanStartDrag]="addFirstPlanStartDrag"
+        [source]="source"
+        [isDragging]="isDragging"
+        [sourceRealy]="sourceRealy"
+        [cardInfo]="item"
+        [hasAuth]="hasAuth"
+        [signOff]="signOff"
+        [taskChildrenNos]="taskChildrenNos"
+        [root_task_card]="root_task_card"
+        [showAddIcon]="showAddIcon"
+        [change_status]="change_status"
+        [old_task_status]="old_task_status"
+        [currentCard]="currentCard"
+        [triggerConfirmDeleteVisible]="triggerConfirmDeleteVisible.bind(this)"
+        [parentWbsCardCop]="parentWbsCardCop"
+        (rendered)="onCardRendered($event)"
+      >
+      </app-wbs-card>
+      <div
+        class="next-level-num"
+        *ngIf="item.children && item.children.length"
+        (click)="showOrHideChildren(item, wbsCardCop); $event.stopPropagation()"
+        [style]="{
+          bottom: wbsCardCop.getCardOtherInfo('cardShowAndHiddenBtnPositionBottom') + 'px'
+        }"
+      >
+        <svg
+          *ngIf="item.isChildrenshow; else unfold"
+          t="1708413531832"
+          class="icon"
+          viewBox="0 0 1024 1024"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          p-id="34278"
+          width="200"
+          height="200"
+        >
+          <path
+            d="M512 512m-512 0a512 512 0 1 0 1024 0 512 512 0 1 0-1024 0Z"
+            fill="#ABADC4"
+            p-id="34279"
+          ></path>
+          <path
+            d="M219.428571 438.857143m73.142858 0l438.857142 0q73.142857 0 73.142858 73.142857l0 0q0 73.142857-73.142858 73.142857l-438.857142 0q-73.142857 0-73.142858-73.142857l0 0q0-73.142857 73.142858-73.142857Z"
+            fill="#FFFFFF"
+            p-id="34280"
+          ></path>
+        </svg>
+        <ng-template #unfold>
+          <svg
+            t="1708413557756"
+            class="icon"
+            viewBox="0 0 1024 1024"
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            p-id="34424"
+            width="200"
+            height="200"
+          >
+            <path
+              d="M512 512m512 0a512 512 0 1 0-1024 0 512 512 0 1 0 1024 0Z"
+              fill="#ABADC4"
+              p-id="34425"
+            ></path>
+            <path
+              d="M328.777143 621.348571a51.2 51.2 0 0 1-77.824-66.048l5.412571-6.363428 219.428572-219.428572a51.2 51.2 0 0 1 66.048-5.412571l6.363428 5.412571 219.428572 219.428572a51.2 51.2 0 0 1-66.048 77.824l-6.363429-5.412572L512 438.052571l-183.222857 183.296z"
+              fill="#FAFAFA"
+              p-id="34426"
+            ></path>
+          </svg>
+        </ng-template>
+      </div>
+      <div
+        #connection
+        class="connection"
+        [hidden]="!(item.children && item.children.length && item.isChildrenshow)"
+        [style]="{
+          height: wbsCardCop.getCardOtherInfo('connectHeight') + 'px',
+          bottom:
+            -wbsCardCop.getCardOtherInfo('connectHeight') +
+            wbsCardCop.getCardOtherInfo('cardShowAndHiddenBtnPositionBottom') +
+            'px'
+        }"
+      ></div>
+    </div>
+    <ng-container *ngIf="item.children?.length">
+      <ul
+        tDroppable
+        [disableDrop]="
+          item.disabled || isIssueTaskCard(item) || isCollaborationCardNoMove(item.task_no)
+        "
+        [hidden]="!item.isChildrenshow"
+        [allowDropOnItem]="true"
+        [nestingTargetRect]="{ height: 148, marginBottom: cardMarginBottom }"
+        (dropEvent)="onDrop($event, item)"
+      >
+        <!-- ul---{{item.disabled}} -->
+        <!-- 非一级任务卡片，即，下级任务的卡片任务，嵌套使用 -->
+        <app-project-plan-card-v2
+          [parentWbsCardCop]="wbsCardCop"
+          [hidden]="!item.isChildrenshow"
+          [parentNode]="item"
+          [addFirstPlanStartDrag]="addFirstPlanStartDrag"
+          [source]="source"
+          [sourceRealy]="sourceRealy"
+          [signOff]="signOff"
+          [root_task_card]="root_task_card"
+          [taskChildrenNos]="taskChildrenNos?.length ? taskChildrenNos : []"
+          [planCardList]="item.children"
+          [hasAuth]="hasAuth"
+          recursive-root
+          (changeWbsTaskCardProportion)="changeTaskCardProportion()"
+        ></app-project-plan-card-v2>
+      </ul>
+    </ng-container>
+  </li>
+</ul>
+<!-- 变更原因输入 -->
+<app-change-reason #changeReason (confirmInput)="changeReasonOk($event)"></app-change-reason>
+<nz-modal
+  [(nzVisible)]="confirmDeleteVisible"
+  [nzTitle]="translateWord('提示')"
+  [nzOkText]="translateWord('确定')"
+  [nzCancelText]="translateWord('取消')"
+  (nzOnOk)="handleOk()"
+  (nzOnCancel)="handleCancel()"
+>
+  <ng-container *nzModalContent> {{ 'dj-default-确定删除么？' | translate }} </ng-container>
+</nz-modal>

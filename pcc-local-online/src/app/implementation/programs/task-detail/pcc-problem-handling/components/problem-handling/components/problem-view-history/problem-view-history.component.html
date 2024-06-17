@@ -1,0 +1,10 @@
+<button
+  class="view-journeys"
+  [nzLoading]="btnLoading"
+  ath-button
+  nzSize="small"
+  (click)="viewJourneys()"
+>
+  <i *ngIf="!btnLoading" athIcon iconfont="iconqiangzhibaogong"></i>
+  {{ 'dj-pcc-查看历程' | translate }}
+</button>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="26px" height="26px" viewBox="0 0 26 26" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <filter x="-71.9%" y="-71.9%" width="243.8%" height="243.8%" filterUnits="objectBoundingBox" id="filter-1">
+            <feOffset dx="0" dy="4" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="4" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0.380392157   0 0 0 0 0.403921569   0 0 0 0 0.8  0 0 0 0.2 0" type="matrix" in="shadowBlurOuter1" result="shadowMatrixOuter1"></feColorMatrix>
+            <feMerge>
+                <feMergeNode in="shadowMatrixOuter1"></feMergeNode>
+                <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+        </filter>
+    </defs>
+    <g id="I05" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="03-状态切图" transform="translate(-89.000000, -767.000000)" fill="#666666" fill-rule="nonzero">
+            <g id="编组-46备份" filter="url(#filter-1)" transform="translate(86.000000, 760.000000)">
+                <path d="M16.00005,8.99995601 C16.5523347,8.99995601 17.00005,9.44767126 17.00005,9.99995601 L16.999056,14.998956 L22.000044,14.99995 C22.5523287,14.99995 23.000044,15.4476653 23.000044,15.99995 C23.000044,16.5522347 22.5523287,16.99995 22.000044,16.99995 L16.999056,16.998956 L17.00005,21.999944 C17.00005,22.5522287 16.5523347,22.999944 16.00005,22.999944 C15.4477653,22.999944 15.00005,22.5522287 15.00005,21.999944 L14.999056,16.998956 L10.000056,16.99995 C9.44777126,16.99995 9.00005601,16.5522347 9.00005601,15.99995 C9.00005601,15.4476653 9.44777126,14.99995 10.000056,14.99995 L14.999056,14.998956 L15.00005,9.99995601 C15.00005,9.44767126 15.4477653,8.99995601 16.00005,8.99995601 Z" id="形状结合"></path>
+            </g>
+        </g>
+    </g>
+</svg>

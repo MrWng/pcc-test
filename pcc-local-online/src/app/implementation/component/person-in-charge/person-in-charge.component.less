@@ -1,0 +1,34 @@
+.personInCharge {
+  ::ng-deep {
+    .ant-select-selector {
+      height: 30px !important;
+      line-height: 30px !important;
+      border: none !important;
+    }
+    .ant-select-item {
+      margin: 0 4px 0 0 !important;
+      font-size: 13px;
+      padding-left: 8px !important;
+      padding-right: 8px !important;
+    }
+    .ant-select-selection-item {
+      font-size: 13px;
+    }
+    .ant-select-selector .ant-select-selection-placeholder {
+      line-height: 30px !important;
+    }
+  }
+}
+::ng-deep .cus-pcc-add-role {
+  &.personInCharge-maintain {
+    ac-tree-node-switcher {
+      display: none;
+    }
+  }
+  .ant-select-tree-switcher[class~='ant-select-tree-switcher_open'] ~ .ant-select-tree-checkbox {
+    display: none !important;
+  }
+  .ant-select-tree-switcher[class~='ant-select-tree-switcher_close'] ~ .ant-select-tree-checkbox {
+    display: none !important;
+  }
+}

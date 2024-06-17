@@ -1,0 +1,20 @@
+<ng-container *ngIf="btnLoading; else show">
+  <div
+    #attachmentView
+    class="view-attachment"
+    dynamic-ant-form
+    [group]="problemHandlingService.uploadGroup"
+    [layout]="problemHandlingService.uploadLayout"
+    [model]="problemHandlingService.uploadModel"
+  ></div>
+</ng-container>
+<ng-template #show>
+  <div
+    #attachmentView
+    class="view-attachment"
+    dynamic-ant-form
+    [group]="problemHandlingService.uploadGroup"
+    [layout]="problemHandlingService.uploadLayout"
+    [model]="problemHandlingService.uploadModel"
+  ></div>
+</ng-template>

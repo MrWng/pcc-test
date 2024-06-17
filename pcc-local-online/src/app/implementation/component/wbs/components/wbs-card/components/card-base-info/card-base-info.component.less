@@ -1,0 +1,35 @@
+@itemHeight: 12px;
+:host {
+  .pcc-card-base-info-item {
+    font-size: 12px;
+    color: #333;
+    line-height: @itemHeight;
+    padding-bottom: 10px;
+    position: relative;
+    display: flex;
+    ::ng-deep .ath-tooltip-wrapper-inner {
+      width: 100%;
+    }
+    &.normal-mode {
+      line-height: 20px;
+      padding-bottom: 5px;
+    }
+    &:last-child {
+      padding-bottom: 0;
+    }
+    .title {
+      color: #999999;
+      //   width: 48px;
+    }
+    .empty-text {
+      color: #666;
+    }
+    :nth-child(1) {
+      flex-shrink: 0;
+    }
+    :nth-child(2) {
+      overflow: hidden;
+      flex: 1;
+    }
+  }
+}

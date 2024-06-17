@@ -1,0 +1,151 @@
+:host {
+  .all-is-image {
+    .file-item {
+      .image-thumbnail {
+        width: 65px;
+      }
+    }
+  }
+}
+.file-item {
+  width: 100%;
+  display: flex;
+  margin-bottom: 5px;
+  align-items: center;
+  justify-content: flex-start;
+
+  .item {
+    width: 100px;
+    display: flex;
+    .file-name {
+      width: auto;
+      max-width: 100px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      line-height: 14px;
+      font-size: 14px;
+      color: #333333;
+    }
+  }
+  .image-thumbnail {
+    width: 100px;
+    .image-thumbnail-container {
+      width: 100%;
+      overflow: hidden;
+      img {
+        height: 40px;
+        cursor: pointer;
+      }
+    }
+  }
+  .file-size {
+    width: 75px;
+    font-size: 14px;
+    color: #666666;
+    margin-left: 5px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    &.show-all {
+      overflow: visible;
+    }
+  }
+  .item:hover {
+    cursor: pointer;
+    color: var(--secondary-color);
+  }
+
+  .item.actived {
+    color: var(--main-color);
+  }
+
+  .item-name {
+    max-width: 70%;
+    width: fit-content;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  .font-color {
+    color: var(--main-color);
+
+    &:hover {
+      color: var(--secondary-color);
+    }
+  }
+}
+
+.tip-title {
+  color: #34404b;
+  font-size: 14px;
+}
+
+.tip-subtitle {
+  color: #5b5b66;
+  font-size: 12px;
+}
+
+.file-delete-btn,
+.file-download-btn,
+.file-upload-btn,
+.file-preview-btn {
+  border: none;
+  color: var(--main-color);
+  background: transparent;
+  padding: 0;
+  border-radius: 4px;
+  width: 20px;
+  height: 20px;
+  margin: -3px 5px 0 5px;
+
+  &:hover {
+    color: #4754ff;
+    background: #f5f5f5;
+  }
+}
+
+.file-delete-btn,
+.file-download-btn,
+.file-preview-btn {
+  color: var(--main-color);
+  .iconfont {
+    width: 14px;
+    height: 14px;
+    font-size: 14px;
+    vertical-align: 1px;
+  }
+}
+
+.file-download-btn,
+.file-preview-btn {
+  margin: 5px 5px 0 5px;
+}
+
+.file-preview-btn {
+  .iconfont {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    vertical-align: 1px;
+  }
+}
+
+.file-upload-tip {
+  color: #9b9b9b;
+}
+
+::ng-deep .cdk-overlay-pane {
+  margin-top: -5px;
+}
+
+::ng-deep .file-upload-pop .ant-popover-inner {
+  box-shadow: none;
+  border: 1px solid #f5f5f5;
+  border-radius: 8px;
+}
+
+::ng-deep .file-upload-pop .ant-popover-arrow {
+  visibility: hidden;
+}

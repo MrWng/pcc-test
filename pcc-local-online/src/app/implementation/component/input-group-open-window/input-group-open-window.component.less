@@ -1,0 +1,47 @@
+.input-group-div-box {
+  position: relative;
+
+  .ant-input-disabled::placeholder {
+    color: #999;
+  }
+  &:hover {
+    .delete-icon {
+      display: flex;
+    }
+  }
+  .delete-icon, .open-window-icon {
+    position: absolute;
+    top: 0px;
+    width: 32px;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    cursor: pointer;
+  }
+  .delete-icon {
+    right: 23px;
+    display: none;
+    
+    i {
+      color: #666;
+    }
+  }
+  .open-window-icon {
+    right: 0;
+    display: flex;
+
+    i {
+      color: #999;
+    }
+  }
+}
+
+::ng-deep .input-group-div-box {
+  .ath-input-group-wrapper .ath-input-group-cocoon.ath-input-inner-label {
+    padding-top: 0px !important;
+  }
+  section.ant-input-group {
+    height: 100%;
+  }
+}

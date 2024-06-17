@@ -1,0 +1,104 @@
+<div
+  class="project-operations"
+  *ngIf="
+    (wbsService.projectInfo?.project_status === '10' ||
+      wbsService.projectInfo?.project_status === '30') &&
+    wbsService.editable
+  "
+>
+  <p
+    class="baseButtonStyle"
+    (click)="transferToFormal()"
+    [ngClass]="{ 'potential-disabled': wbsService.projectInfo?.project_status === 50 }"
+    *ngIf="isShowTransferToFormal()"
+  >
+    <em class="icon">
+      <i athIcon [iconfont]="'iconbiangengqingdan1'"></i>
+    </em>
+    {{ 'dj-pcc-转为正式专案' | translate }}
+  </p>
+  <p
+    class="baseButtonStyle"
+    (click)="cancelTransfer()"
+    *ngIf="wbsTabsService.potentialStatus === 1"
+  >
+    <em class="icon">
+      <i athIcon [iconfont]="'iconquxiao'"></i>
+    </em>
+    {{ 'dj-default-取消' | translate }}
+  </p>
+  <div [ngClass]="{ 'save-template-disabled': getProjectStatustypeNo() }">
+    <!-- 项目未启动，任务比重校验不通过，置灰 -->
+    <p
+      class="baseButtonStyle"
+      [ngClass]="{
+        'start-disable': wbsTabsService.potentialStatus === 1 || wbsService.taskProportionCheck?.tip
+      }"
+      (click)="onStartProject($event)"
+      *ngIf="isShowStart"
+    >
+      <em class="icon">
+        <i athIcon [iconfont]="'iconqidongxiangmu'"></i>
+      </em>
+      {{ 'dj-pcc-启动专案' | translate }}
+    </p>
+  </div>
+
+  <p
+    class="baseButtonStyle"
+    *ngIf="isShowInitiateProjectChangesBtn"
+    (click)="callIinitiateProjectChanges()"
+  >
+    <em class="icon">
+      <i athIcon [iconfont]="'iconbiangengqingdan'"></i>
+    </em>
+    {{ 'dj-pcc-发起项目变更' | translate }}
+  </p>
+
+  <p
+    class="baseButtonStyle"
+    [ngClass]="{
+      'delete-box': true,
+      gray: wbsService.projectInfo?.project_status !== '10' || !isCanDelete
+    }"
+    (click)="onDeleteProject()"
+  >
+    <em class="icon">
+      <i athIcon [iconfont]="'icondelete3'"></i>
+    </em>
+    {{ 'dj-pcc-项目删除' | translate }}
+  </p>
+</div>
+<!-- 变更原因输入 -->
+<nz-modal
+  [(nzVisible)]="isShowChangeInfo"
+  [nzMaskClosable]="false"
+  class="confirm-modal-center-sty modal-content-center"
+  (nzOnCancel)="changeReasonCancel()"
+  (nzOnOk)="changeReasonOk()"
+>
+  <ng-template nzModalContent>
+    <div>
+      <label ath-checkbox [(ngModel)]="synchronizeChangeTasks">
+        <span>{{ 'dj-pcc-同步变更任务' | translate }}</span>
+      </label>
+
+      <div class="change-reason-box">
+        <nz-form-item>
+          <nz-form-control nzSpan="24">
+            <ath-input-group [required]="true" [label]="translateWordPcc('变更原因')">
+              <textarea
+                class="text-area"
+                athInput
+                [autosize]="{ minRows: 1 }"
+                [maxlength]="255"
+                [placeholder]="translateWordPcc('请输入')"
+                [(ngModel)]="changeReasonInfo"
+              ></textarea>
+            </ath-input-group>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+  </ng-template>
+</nz-modal>
