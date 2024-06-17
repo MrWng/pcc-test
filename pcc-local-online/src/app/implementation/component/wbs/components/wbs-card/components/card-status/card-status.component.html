@@ -1,0 +1,32 @@
+<div *ngIf="!needHide" class="pcc-status-content" [class.concise-mode]="mode === '1'">
+  <ng-container *ngIf="mode === '1'; else commonMode">
+    <ng-container *ngFor="let item of cardStatusInfo">
+      <i
+        *ngIf="!item.hidden"
+        class="status-icon"
+        athTooltip
+        [athTooltipVisible]="item.tooltipVisible"
+        [nzTooltipTrigger]="null"
+        [athTooltipTitle]="item.text"
+        (mouseleave)="item.tooltipVisible = false"
+        (mouseenter)="item.tooltipVisible = true"
+        [style]="{
+          backgroundImage: 'url(' + item.icon + ')'
+        }"
+      ></i>
+    </ng-container>
+  </ng-container>
+  <ng-template #commonMode>
+    <ng-container *ngFor="let item of cardStatusInfo">
+      <div class="status-icon-group" *ngIf="!item.hidden">
+        <i
+          class="status-icon"
+          [style]="{
+            backgroundImage: 'url(' + item.icon + ')'
+          }"
+        ></i>
+        <span class="icon-description">{{ item.text }}</span>
+      </div>
+    </ng-container>
+  </ng-template>
+</div>

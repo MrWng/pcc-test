@@ -1,0 +1,31 @@
+<ng-template #modalBody>
+  <nz-spin [nzSpinning]="loading">
+    <div
+      style="height: 100%"
+      dynamic-ant-form
+      *ngIf="formGroup"
+      #dynamic
+      [group]="formGroup"
+      [layout]="formLayout"
+      [model]="formModel"
+      (change)="getChanges($event)"
+    ></div>
+  </nz-spin>
+</ng-template>
+<ng-template #modalFooter>
+  <div class="btn-group">
+    <button ath-button (click)="onCancel()" nzSize="large" nzType="default" class="delete">
+      {{ 'dj-default-取消' | translate }}
+    </button>
+    <button
+      ath-button
+      (click)="onConfirm()"
+      [noSubmit]="!formGroup.valid"
+      nzSize="large"
+      nzType="primary"
+      class="save"
+    >
+      {{ 'dj-default-确认' | translate }}
+    </button>
+  </div>
+</ng-template>

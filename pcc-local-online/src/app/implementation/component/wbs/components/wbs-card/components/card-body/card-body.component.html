@@ -1,0 +1,13 @@
+<!-- 显示任务信息 -- begin -->
+<div
+  class="info"
+  [ngClass]="{ 'info-is-track-pages': isTrackPages, 'no-process': cardExecutionStatusInfo.hidden }"
+>
+  <div class="left-content" [class]="cardExecutionStatusInfo.className">
+    <app-card-base-info [cardInfo]="cardInfo"></app-card-base-info>
+  </div>
+  <div class="right-content" *ngIf="isTrackPages && !cardExecutionStatusInfo.hidden">
+    <app-card-process [cardExecutionStatusInfo]="cardExecutionStatusInfo"></app-card-process>
+  </div>
+</div>
+<!-- 显示任务信息 -- end -->

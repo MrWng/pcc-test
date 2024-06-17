@@ -1,0 +1,18 @@
+<ac-table-cell [showMsg]="showMsg" [errorMessage]="errorMessage">
+  <ath-input-number
+    class='pcc-workload'
+    style='height: 100%; min-height: 32px'
+    [(ngModel)]="value"
+    [placeholder]="nzPlaceHolder"
+    (ngModelChange)="onChange($event)"
+    [precision]='precision'
+    [disabled]="_disable"
+    step='1'
+    min='0'
+    (focus)='onFocus($event)'
+    (blur)='onBlur($event)'
+  ></ath-input-number>
+  <div style='position: absolute;right:0;top:0' *ngIf='infoCheck'>
+    {{infoCheck}}
+  </div>
+</ac-table-cell>

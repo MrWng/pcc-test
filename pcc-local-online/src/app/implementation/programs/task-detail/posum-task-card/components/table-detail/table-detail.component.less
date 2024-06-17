@@ -1,0 +1,31 @@
+.moop-table {
+  padding-top: 10px;
+  position: relative;
+  min-height: 300px;
+  ::ng-deep.table-container {
+    margin: auto 0;
+    .cdk-cell {
+      background: #fff;
+    }
+  }
+  .empty-data {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #999;
+  }
+
+  // 修改平台表格的最大高度
+  // ::ng-deep.table-container.ng-star-inserted{
+  //   max-height:500px!important;
+  // }
+  // 修改平台表格的最大高度
+  ::ng-deep.ng-dynamic-forms-grid_table {
+    max-height: 500px !important;
+  }
+}

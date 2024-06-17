@@ -1,0 +1,46 @@
+<div class="list-of-deliverable-container">
+  <div
+    class="no-data-box"
+    *ngIf="
+      !loading &&
+        !projectAttachment.length &&
+        (source !== Entry.collaborate ? !taskAttachment.length : true) &&
+        !projectChangeAttachment.length;
+      else hasData
+    "
+  >
+    <div>
+      <app-svg-file [type]="'noData'"></app-svg-file>
+      <p>{{ 'dj-c-暂无数据' | translate }}</p>
+    </div>
+  </div>
+  <ng-template #hasData>
+    <ac-tabset
+      *ngIf="!loading"
+      [(nzSelectedIndex)]="tabSelecedIndex"
+      (nzSelectedIndexChange)="onTabChange($event)"
+      [nzTabBarExtraContent]="nzTabBarExtraContent"
+    >
+      <ac-tab *ngFor="let tab of tabs; let i = index" [nzTitle]="tab.title">
+        <ng-container>
+          <ng-container *ngComponentOutlet="tab.componentRef; injector: tab.props"></ng-container>
+        </ng-container>
+      </ac-tab>
+      <ng-template #nzTabBarExtraContent>
+        <div class="downLoad-box">
+          <button
+            class="downLoad"
+            ath-toolbar-button
+            [nzLoading]="downloadLoading"
+            (click)="downLoadAll()"
+          >
+            <span *ngIf="!downloadLoading" nz-icon nzType="download"></span>
+
+            {{ 'dj-pcc-批量下载' | translate }}
+          </button>
+        </div>
+      </ng-template>
+    </ac-tabset>
+  </ng-template>
+  <ath-spin athSimple *ngIf="loading"></ath-spin>
+</div>

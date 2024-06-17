@@ -1,0 +1,47 @@
+
+  <div class="taskDetailBox" *ngIf="!isMaxTable; else table">
+    <div class="spin-box" *ngIf="isShowSpin">
+      <nz-spin nzSimple></nz-spin>
+    </div>
+    <div class="table-box" *ngIf="!isShowSpin">
+      <div class="tabs">
+        <div
+          *ngFor="let tab of tabList"
+          [class]="{ on: state === tab.code }"
+          (click)="changeTab(tab.code)"
+        >
+          {{ tab.label | translate: { n: tab.sum } }}
+        </div>
+      </div>
+      <div class="table">
+        <div class="table-content" *ngIf="dynamicGroup">
+          <div
+            dynamic-ant-form
+            [group]="dynamicGroup"
+            [model]="dynamicModel"
+            (change)="onChange($event)"
+          ></div>
+        </div>
+        <div class="btnList" [ngClass]="{ disabled: !activeBtn }" *ngIf="showBtn && state === '1'">
+          <button nz-button nzType="primary" (click)="submit()">
+            {{ 'dj-default-提交' | translate }}
+          </button>
+        </div>
+        <ng-template #svgTemplate>
+          <div class="no-data-box">
+            <div>
+              <app-svg-file [type]="'noData'"></app-svg-file>
+              <p>{{ 'dj-c-暂无数据' | translate }}</p>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+  <ng-template #table>
+    <div class="taskDetailBox">
+      <app-task-card-tablle [group]="formLayout" [model]="model" [taskInfo]="taskInfo">
+      </app-task-card-tablle>
+    </div>
+  </ng-template>
+

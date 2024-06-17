@@ -1,0 +1,123 @@
+<div class="info-maintain">
+  <form class="project-info-maintain" nz-form>
+    <div nz-row>
+      <nz-form-item nz-col nzSpan="12">
+        <nz-form-control>
+          <div class="item-box">
+            <div class="title">
+              <span class="in-need">*</span>
+              {{ 'dj-default-项目集编号' | translate }}
+            </div>
+            <div>
+              <input
+                nz-input
+                [ngModel]="programInfo?.project_set_no"
+                name="number"
+                [disabled]="true"
+                [title]="programInfo?.project_set_no"
+              />
+            </div>
+          </div>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item nz-col nzSpan="12">
+        <nz-form-control>
+          <div class="item-box">
+            <div class="title">
+              <span>*</span>
+              {{ 'dj-default-项目集名称' | translate }}
+            </div>
+            <div>
+              <input
+                nz-input
+                [ngModel]="programInfo?.project_set_name"
+                name="name"
+                [disabled]="true"
+                [title]="programInfo?.project_set_name"
+              />
+            </div>
+          </div>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-row>
+      <nz-form-item nz-col nzSpan="12">
+        <nz-form-control>
+          <div class="item-box">
+            <div class="title">
+              <span>*</span>
+              {{ 'dj-default-项目集负责人' | translate }}
+            </div>
+            <div>
+              <input
+                nz-input
+                [ngModel]="programInfo?.leader_name"
+                name="eader_name"
+                [disabled]="true"
+                [title]="programInfo?.leader_name"
+              />
+            </div>
+          </div>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item nz-col nzSpan="12">
+        <nz-form-control>
+          <div class="item-box">
+            <div class="title">
+              <span>*</span>
+              {{ 'dj-default-计划起讫时间' | translate }}
+            </div>
+            <app-input-new
+              [nzDisabled]="hasPermission"
+              name="cardStart"
+              [value]="programInfo?.plan_start_date"
+              [placeholder]="'dj-default-开始时间' | translate"
+              (ngModelChange)="changeTime($event, 'plan_start_date')"
+              [nzDisabledDate]="disabledStartDate"
+              [nzAllowClear]="true"
+              [title]="programInfo?.plan_start_date"
+            >
+              >
+            </app-input-new>
+            一
+            <app-input-new
+              [nzDisabled]="hasPermission"
+              name="cardEnd"
+              [value]="programInfo?.plan_finish_date"
+              [placeholder]="'dj-default-结束时间' | translate"
+              (ngModelChange)="changeTime($event, 'plan_finish_date')"
+              [nzDisabledDate]="disabledEndDate"
+              [nzAllowClear]="true"
+              [title]="programInfo?.plan_finish_date"
+            >
+            </app-input-new>
+          </div>
+        </nz-form-control>
+        <div class="tip" *ngIf="tipMessage.has('plan_finish_date_warning')">
+          <span>{{ tipMessage.get('plan_finish_date_warning') }}</span>
+        </div>
+        <div
+          class="tip"
+          [style]="
+            tipMessage.has('plan_finish_date_warning')
+              ? {
+                  'margin-top': '20px'
+                }
+              : ''
+          "
+          *ngIf="tipMessage.has('plan_start_date_warning')"
+        >
+          <span>{{ tipMessage.get('plan_start_date_warning') }}</span>
+        </div>
+        <div class="tip error" *ngIf="tipMessage.has('plan_finish_date_error')">
+          <span>{{ tipMessage.get('plan_finish_date_error') }}</span>
+        </div>
+      </nz-form-item>
+    </div>
+  </form>
+</div>
+<div class="btn-box">
+  <button ath-button [disabled]="!isActive()" athType="primary" (click)="submit()">
+    {{ 'dj-default-提交' | translate }}
+  </button>
+</div>

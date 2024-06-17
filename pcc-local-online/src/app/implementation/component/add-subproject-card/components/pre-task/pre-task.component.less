@@ -1,0 +1,101 @@
+.before-task-box {
+  margin-top: 5px;
+}
+.item-multi-task-box {
+  height: 50px;
+  width: 99%;
+  margin-left: 10px;
+  .delete-icon {
+    height: 34px;
+    display: block;
+    margin-top: -3px;
+    cursor: pointer;
+    i {
+      color: #666;
+      font-size: 15px;
+    }
+    &:hover {
+      i {
+        color: #2012d9;
+      }
+    }
+  }
+
+  .deleteRelateIcon {
+    cursor: pointer;
+    font-size: 16px;
+  }
+}
+
+.delete-icon-box {
+  text-align: center;
+  line-height: 38px;
+}
+
+.fold-more {
+  width: 100px;
+  height: 25px;
+  line-height: 22px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
+  .icon {
+    display: flex;
+    width: 14px;
+    height: 14px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #999;
+    border-radius: 50%;
+    margin-left: 3px;
+    // font-size: 0;
+    .iconfont {
+      font-size: 16px;
+      line-height: 16px;
+    }
+    i {
+      font-size: 12px;
+      color: #999;
+    }
+  }
+  span {
+    display: inline-block;
+    height: 22px;
+    font-size: 12px;
+    color: #333;
+  }
+  &:hover {
+    .icon {
+      border-color: #2012d9;
+      i {
+        color: #2012d9;
+      }
+    }
+  }
+}
+
+.add-before-task {
+  padding: 0 0 16px;
+  color: #333;
+  font-size: 12px;
+  cursor: pointer;
+  span {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    line-height: 9px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    margin-right: 3px;
+  }
+  &:hover {
+    color: #2012d9;
+    span {
+      color: #333;
+    }
+  }
+}

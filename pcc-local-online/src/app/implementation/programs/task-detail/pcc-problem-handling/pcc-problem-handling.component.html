@@ -1,0 +1,78 @@
+<!-- 主内容 -->
+<div
+  class="pcc-problem-handling"
+  [style]="{ height: pageHeight ? pageHeight + 'px' : '100%' }"
+  *ngIf="model.useType === 'default'"
+>
+  <app-problem-handling [copModel]="model" (change)="change.emit($event)"></app-problem-handling>
+</div>
+<!-- 附件 -->
+<ng-container *ngIf="model.useType === 'attachment'">
+  <ng-container *ngIf="control?.get('data')?.value?.length; else noFile">
+    <ac-upload
+      [disabled]="true"
+      [editable]="false"
+      [fileList]="control.get('data').value"
+      [dmcSettings]="commonService.uploadDmcSettings"
+      useBy="table"
+    ></ac-upload>
+  </ng-container>
+  <ng-template #noFile>—</ng-template>
+</ng-container>
+<!-- 状态 -->
+<ng-container *ngIf="model.useType === 'status'">
+  <ng-container [ngSwitch]="control.value">
+    <nz-tag class="pcc-status-sucess" *ngSwitchCase="QuestDoStatus.DONE">{{
+      'dj-default-已完成' | translate
+    }}</nz-tag>
+    <nz-tag
+      class="pcc-status-to-be-continued"
+      nzColor="magenta"
+      *ngSwitchCase="QuestDoStatus.INCOMPLETION"
+      >{{ 'dj-pcc-未完成' | translate }}</nz-tag
+    >
+    <nz-tag
+      class="pcc-status-transferred-tasks"
+      nzColor="magenta"
+      *ngSwitchCase="QuestDoStatus.TRANSFERRED_TASKS"
+      >{{ 'dj-pcc-已转任务' | translate }}</nz-tag
+    >
+  </ng-container>
+</ng-container>
+<!-- 操作 -->
+<ng-container *ngIf="model.useType === 'operate'">
+  <div class="pcc-problem-btn-group" *ngIf="!isConversionTask">
+    <button
+      class="pcc-problem-hd-edit"
+      ath-button
+      athType="text"
+      [nzLoading]="editLoading"
+      (click)="editTableCell()"
+    >
+      {{ 'dj-default-编辑' | translate }}
+    </button>
+    <button
+      class="pcc-problem-hd-del"
+      ath-button
+      athType="text"
+      [nzLoading]="delLoading"
+      nz-popconfirm
+      nzPopconfirmTitle="{{ 'dj-pcc-是否删除当前数据' | translate }}"
+      (nzOnConfirm)="delTableCell()"
+    >
+      {{ 'dj-default-删除' | translate }}
+    </button>
+    <button
+      *ngIf="showTransTaskBtn"
+      class="pcc-problem-hd-task"
+      ath-button
+      athType="text"
+      [nzLoading]="transTaskLoading"
+      nz-popconfirm
+      nzPopconfirmTitle="{{ 'dj-pcc-转任务后不可编辑，是否继续？' | translate }}"
+      (nzOnConfirm)="transTaskHandler()"
+    >
+      {{ 'dj-pcc-转任务' | translate }}
+    </button>
+  </div>
+</ng-container>

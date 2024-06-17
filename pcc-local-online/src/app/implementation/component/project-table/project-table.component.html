@@ -1,0 +1,31 @@
+<div class="pcc-project-table">
+  <ac-editable-table
+    [dynamicForms]="false"
+    [rowHeight]="36"
+    [frameworkComponents]="frameworkComponents"
+    [dataSource]="dataSource"
+    [columnDefs]="columnDefs"
+    [editable]="false"
+    [athTableProps]="athTableProps"
+  >
+  </ac-editable-table>
+  <ng-template #customIconTemplate>
+    <span
+      athTooltip
+      [athTooltipTitle]="translateWord('新建一级计划')"
+      (click)="addFirstItem()"
+      class="ag-icon ag-icon-xinzeng1 pcc-add-level-one"
+    ></span>
+  </ng-template>
+  <!-- 变更原因输入 -->
+  <app-change-reason
+    #changeReason
+    [source]="source"
+    [showUploadFile]="true"
+    (cancelInput)="changeReasonCancel()"
+    (confirmInput)="changeReasonOk($event)"
+  ></app-change-reason>
+  <div *ngIf="loading" class="pcc-table-loading">
+    <nz-spin class="spinLoading" nzSimple></nz-spin>
+  </div>
+</div>

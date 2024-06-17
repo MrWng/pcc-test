@@ -1,0 +1,910 @@
+{
+  "status": 200,
+  "statusDescription": "OK",
+  "response": {
+    "layout": [
+      {
+        "id": "84b06961-58f6-4595-8b85-1207dfdf010a",
+        "type": "ACTIVITY_TITLE",
+        "schema": "uiBot__activity",
+        "important": false,
+        "isNavigate": false
+      },
+      {
+        "id": "5b14b027-deb8-418f-88c0-4695114cfa37",
+        "type": "APPROVAL_DESCRIPTION",
+        "schema": "uiBot__APPROVAL_DESCRIPTION",
+        "important": false,
+        "isNavigate": false,
+        "group": [
+          {
+            "id": "project_no",
+            "type": "LABEL",
+            "schema": "project_no",
+            "headerName": "项目编号",
+            "path": "project_info",
+            "disabled": true,
+            "editable": false,
+            "dataType": "string",
+            "sortable": true,
+            "filterable": true,
+            "rowGroupable": true,
+            "tagDefinitions": [
+              {
+                "code": "TYPE_STRING",
+                "name": "数据组件",
+                "description": "数据组件",
+                "category": "DATATYPE",
+                "interpreterServiceName": "typeStringTagInterpreter",
+                "customize": false,
+                "themeMapTag": {
+                  "id": 500030,
+                  "name": "xxxx",
+                  "code": "ACTIVITY_DESCRIPTION_title",
+                  "category": "BUSINESS",
+                  "uiBotCode": "ACTIVITY_DESCRIPTION_title"
+                },
+                "append": false
+              }
+            ],
+            "enableTrim": true,
+            "isFocusDisplay": false,
+            "relationSchemas": [
+              "project_no"
+            ],
+            "important": false,
+            "isNavigate": false
+          },
+          {
+            "id": "project_name",
+            "type": "LABEL",
+            "schema": "project_name",
+            "headerName": "项目名称",
+            "path": "project_info",
+            "disabled": true,
+            "editable": false,
+            "dataType": "string",
+            "sortable": true,
+            "filterable": true,
+            "rowGroupable": true,
+            "tagDefinitions": [
+              {
+                "code": "TYPE_STRING",
+                "name": "数据组件",
+                "description": "数据组件",
+                "category": "DATATYPE",
+                "interpreterServiceName": "typeStringTagInterpreter",
+                "customize": false,
+                "themeMapTag": {
+                  "id": 500030,
+                  "name": "xxxx",
+                  "code": "ACTIVITY_DESCRIPTION_title",
+                  "category": "BUSINESS",
+                  "uiBotCode": "ACTIVITY_DESCRIPTION_title"
+                },
+                "append": false
+              }
+            ],
+            "enableTrim": true,
+            "isFocusDisplay": false,
+            "relationSchemas": [
+              "project_name"
+            ],
+            "important": false,
+            "isNavigate": false
+          },
+          {
+            "id": "project_leader_name",
+            "type": "LABEL",
+            "schema": "project_leader_name",
+            "headerName": "项目负责人名称",
+            "path": "project_info",
+            "disabled": true,
+            "editable": false,
+            "dataType": "string",
+            "sortable": true,
+            "filterable": true,
+            "rowGroupable": true,
+            "tagDefinitions": [
+              {
+                "code": "TYPE_STRING",
+                "name": "数据组件",
+                "description": "数据组件",
+                "category": "DATATYPE",
+                "interpreterServiceName": "typeStringTagInterpreter",
+                "customize": false,
+                "themeMapTag": {
+                  "id": 500030,
+                  "name": "xxxx",
+                  "code": "ACTIVITY_DESCRIPTION_title",
+                  "category": "BUSINESS",
+                  "uiBotCode": "ACTIVITY_DESCRIPTION_title"
+                },
+                "append": false
+              }
+            ],
+            "enableTrim": true,
+            "isFocusDisplay": false,
+            "relationSchemas": [
+              "project_leader_name"
+            ],
+            "important": false,
+            "isNavigate": false
+          },
+          {
+            "id": "project_plan_start_date",
+            "type": "LABEL",
+            "schema": "project_plan_start_date",
+            "headerName": "项目预计开始日",
+            "title": "项目预计开始日",
+            "path": "project_info",
+            "disabled": true,
+            "editable": false,
+            "dataType": "date",
+            "sortable": true,
+            "filterable": true,
+            "rowGroupable": true,
+            "tagDefinitions": [
+              {
+                "code": "TYPE_DATE",
+                "name": "数据组件",
+                "description": "数据组件",
+                "category": "DATATYPE",
+                "interpreterServiceName": "typeDateTagInterpreter",
+                "customize": false,
+                "themeMapTag": {
+                  "id": 500044,
+                  "name": "xxxx",
+                  "code": "ORDER_5",
+                  "category": "ORDER",
+                  "value": "5",
+                  "uiBotCode": "ORDER"
+                },
+                "append": false
+              }
+            ],
+            "relationSchemas": [
+              "project_plan_start_date"
+            ],
+            "important": false,
+            "isNavigate": false
+          },
+          {
+            "id": "project_plan_finish_date",
+            "type": "LABEL",
+            "schema": "project_plan_finish_date",
+            "headerName": "项目预计完成日",
+            "title": "项目预计完成日",
+            "path": "project_info",
+            "disabled": true,
+            "editable": false,
+            "dataType": "date",
+            "sortable": true,
+            "filterable": true,
+            "rowGroupable": true,
+            "tagDefinitions": [
+              {
+                "code": "TYPE_DATE",
+                "name": "数据组件",
+                "description": "数据组件",
+                "category": "DATATYPE",
+                "interpreterServiceName": "typeDateTagInterpreter",
+                "customize": false,
+                "themeMapTag": {
+                  "id": 500045,
+                  "name": "xxxx",
+                  "code": "ORDER_6",
+                  "category": "ORDER",
+                  "value": "6",
+                  "uiBotCode": "ORDER"
+                },
+                "append": false
+              }
+            ],
+            "relationSchemas": [
+              "project_plan_finish_date"
+            ],
+            "important": false,
+            "isNavigate": false
+          }
+        ]
+      },
+      {
+        "id": "5689a948-1783-47d1-a860-0fdc40f2b117",
+        "type": "CONTENT_QUERY_BUTTON",
+        "supportShowInMaxedWindow": true,
+        "important": false,
+        "isNavigate": false,
+        "queryButtons": [
+          {
+            "defaultShow": true,
+            "dataStateCode": "all",
+            "dataSourceSet": {
+              "dataSourceList": [
+                {
+                  "title": "取得任务资讯",
+                  "name": "project_info",
+                  "dataKeys": [
+                    "project_no",
+                    "task_no"
+                  ],
+                  "type": "ESP",
+                  "actionId": "esp_task.info.get",
+                  "action": {
+                    "title": "取得任务资讯",
+                    "actionId": "esp_task.info.get",
+                    "category": "ESP",
+                    "serviceId": {
+                      "tenant_id": "E10ATHENA6003",
+                      "prod": "PCC",
+                      "hostAcct": "athena",
+                      "name": "task.info.get"
+                    },
+                    "paras": {
+                      "project_info": [
+                        {
+                          "project_no": "T-202302070001",
+                          "task_no": "14",
+                          "control_mode": "1"
+                        }
+                      ]
+                    },
+                    "businessUnit": {
+                      "eoc_company_id": "1",
+                      "eoc_site_id": "p1"
+                    },
+                    "actionParams": [
+                      {
+                        "name": "project_info",
+                        "type": "PROCESS_VARIABLE",
+                        "value": "project_info",
+                        "required": false
+                      }
+                    ]
+                  },
+                  "dataSourceProcessors": [],
+                  "override": false,
+                  "extendedData": {
+                    "__workitemId": "1565181746549379072",
+                    "__processSerialNumber": "projectCenterConsole_userProject1532669133861187584",
+                    "__workitemSqlId": 307457344897216
+                  }
+                }
+              ],
+              "mainDatasource": "project_info",
+              "dataProcess": []
+            },
+            "showSubmitActions": true,
+            "mechnismConfig": {
+              "rules": []
+            },
+            "autoAppendShelvedDataState": true,
+            "version": "2.0",
+            "queryTitle": "全部",
+            "rowSize": 1,
+            "type": "UI",
+            "finished": true,
+            "finishedActionId": "uibot_action_id_finished",
+            "finishedTitle": "已结束"
+          }
+        ]
+      },
+      {
+        "id": "afac27f4-7f40-4f3e-a0e8-119d08ce961d",
+        "type": "purchaseRequestSum_DTD_Assignment-task-detail-all",
+        "schema": "customData",
+        "supportShowInMaxedWindow": true,
+        "important": false,
+        "isNavigate": false,
+        "stateCode": "all",
+        "finished": true,
+        "finishedTitle": "已结束"
+      }
+    ],
+    "style": {},
+    "rules": [],
+    "pageData": {
+      "uiBot__activity": {
+        "taskStartTime": "2023-02-07 00:00:00",
+        "endTime": "2023-04-08 23:59:59",
+        "name": "0098",
+        "taskEndTime": "2023-04-08 23:59:59",
+        "taskName": "T-202302070001[测试任务追踪报表跳转]",
+        "readCount": 3,
+        "extendedFields": {
+          "signOffProgressData": {
+            "processInstances": [
+              {
+                "workitemId": 307457344897216,
+                "processSerialNumber": "projectCenterConsole_userProject1532669133861187584",
+                "tmActivityIds": [
+                  "purchaseRequestSum_DTD_Assignment"
+                ]
+              }
+            ],
+            "locale": "zh_CN"
+          }
+        },
+        "processSerialNumber": "projectCenterConsole_userProject1532669133861187584",
+        "workitemId": "1565181746549379072",
+        "processCreateTime": "2023-02-07 21:53:57",
+        "eocName": [
+          "南京**公司（测试区）"
+        ],
+        "merge": false
+      },
+      "uiBot__content": {
+        "title": "0098",
+        "subTitle": "0098"
+      },
+      "uiBot__APPROVAL_DESCRIPTION": {
+        "overdue_days": "29天",
+        "project_name": "测试任务追踪报表跳转",
+        "contract_no": "",
+        "sales_no": "",
+        "sales_name": "",
+        "project_leader_code": "tech004",
+        "project_leader_name": "ERP技术主管2",
+        "business_info": "ERP技术主管2",
+        "project_plan_start_date": "2023-02-07",
+        "project_plan_finish_date": "2023-04-08",
+        "task_tag": "3",
+        "task_tag_description": "完成率0%",
+        "before_task_complete_rate": 1,
+        "before_task_no": "",
+        "project_status": "30",
+        "before_task_status": "Y",
+        "project_no": "T-202302070001",
+        "task_no": "14",
+        "task_name": "0098",
+        "upper_level_task_no": "14",
+        "task_status": "10",
+        "workload_qty": 3,
+        "workload_unit": "2",
+        "plan_start_date": "2023-04-06",
+        "plan_finish_date": "2023-04-08",
+        "actual_start_date": "",
+        "actual_finish_date": "",
+        "liable_person_code": "tech004",
+        "liable_person_name": "ERP技术主管2",
+        "liable_person_department_code": "03",
+        "liable_person_department_name": "技术部",
+        "complete_rate": 0,
+        "task_category": "PRSUM",
+        "new_complete_rate": 0,
+        "new_task_category": "",
+        "is_milepost": false,
+        "is_approve": false,
+        "is_attachment": false,
+        "sequence": 14,
+        "eoc_company_id": "1",
+        "eoc_site_id": "p1",
+        "eoc_region_id": "1",
+        "task_template_no": "173.0",
+        "task_template_name": "请购汇总错误",
+        "company_no": "",
+        "attachment_remark": "",
+        "ar_stage_no": "",
+        "ar_stage_name": "",
+        "remarks": "",
+        "report_work_description": "",
+        "total_work_hours": 0,
+        "plan_work_hours": 24,
+        "is_equipment_list_unfold": false,
+        "display_project_no": "T-202302070001",
+        "product_type": "",
+        "doc_condition_value": "",
+        "item_condition_value": "",
+        "is_doc_date": false,
+        "is_confirm_date": false,
+        "is_project_no": true,
+        "is_task_no": false,
+        "is_issue_task_card": true,
+        "complete_rate_method": "1",
+        "item_type": "",
+        "item_type_value": "",
+        "item_type_name": "",
+        "doc_type_no": "",
+        "doc_no": "",
+        "seq": "",
+        "type_field_code": "",
+        "sub_type_field_code": "fff",
+        "type_condition_value": "",
+        "sub_type_condition_value": "",
+        "outsourcing_field_code": "",
+        "outsourcing_condition_value": "",
+        "closed_stus": false,
+        "is_need_doc_no": true,
+        "milepost_desc": "",
+        "remark": "",
+        "required_task": false,
+        "task_classification_no": "",
+        "task_classification_name": "",
+        "main_unit": "0",
+        "second_unit": "0",
+        "plan_main_unit_value": 0,
+        "plan_second_unit_value": 0,
+        "complete_main_unit_value": 0,
+        "complete_second_unit_value": 0,
+        "main_unit_actual_value": 0,
+        "second_unit_actual_value": 0,
+        "standard_work_hours": 0,
+        "standard_days": 0,
+        "task_proportion": 1,
+        "difficulty_level_no": "",
+        "difficulty_level_name": "",
+        "difficulty_coefficient": 1,
+        "actual_days": 0,
+        "rework_drawing_qty": 0,
+        "rework_work_hours": 0,
+        "complete_rework_drawing_qty": 0,
+        "complete_rework_work_hours": 0,
+        "complete_rework_days": 0,
+        "item_operator": "",
+        "liable_person_role_no": "",
+        "liable_person_role_name": "",
+        "attachment": {
+          "data": [],
+          "row_data": "T-202302070001;14"
+        },
+        "task_dependency_info": [],
+        "task_member_info": [],
+        "task_report_info": [
+          {
+            "report_source": "10",
+            "project_no": "T-202302070001",
+            "report_complete_rate": 0,
+            "task_no": "14",
+            "report_seq": 1,
+            "report_work_hours": 0,
+            "report_datetime": "2023-05-08",
+            "reporter_no": "tech004"
+          }
+        ],
+        "__DATA_KEY": "T-202302070001;14;"
+      },
+      "customData": [],
+      "uiBot__prompt_message": "",
+      "project_info": [
+        {
+          "overdue_days": "29天",
+          "project_name": "测试任务追踪报表跳转",
+          "contract_no": "",
+          "sales_no": "",
+          "sales_name": "",
+          "project_leader_code": "tech004",
+          "project_leader_name": "ERP技术主管2",
+          "business_info": "ERP技术主管2",
+          "project_plan_start_date": "2023-02-07",
+          "project_plan_finish_date": "2023-04-08",
+          "task_tag": "3",
+          "task_tag_description": "完成率0%",
+          "before_task_complete_rate": 1,
+          "before_task_no": "",
+          "project_status": "30",
+          "before_task_status": "Y",
+          "project_no": "T-202302070001",
+          "task_no": "14",
+          "task_name": "0098",
+          "upper_level_task_no": "14",
+          "task_status": "10",
+          "workload_qty": 3,
+          "workload_unit": "2",
+          "plan_start_date": "2023-04-06",
+          "plan_finish_date": "2023-04-08",
+          "actual_start_date": "",
+          "actual_finish_date": "",
+          "liable_person_code": "tech004",
+          "liable_person_name": "ERP技术主管2",
+          "liable_person_department_code": "03",
+          "liable_person_department_name": "技术部",
+          "complete_rate": 0,
+          "task_category": "PRSUM",
+          "new_complete_rate": 0,
+          "new_task_category": "",
+          "is_milepost": false,
+          "is_approve": false,
+          "is_attachment": false,
+          "sequence": 14,
+          "eoc_company_id": "1",
+          "eoc_site_id": "p1",
+          "eoc_region_id": "1",
+          "task_template_no": "173.0",
+          "task_template_name": "请购汇总错误",
+          "company_no": "",
+          "attachment_remark": "",
+          "ar_stage_no": "",
+          "ar_stage_name": "",
+          "remarks": "",
+          "report_work_description": "",
+          "total_work_hours": 0,
+          "plan_work_hours": 24,
+          "is_equipment_list_unfold": false,
+          "display_project_no": "T-202302070001",
+          "product_type": "",
+          "doc_condition_value": "",
+          "item_condition_value": "",
+          "is_doc_date": false,
+          "is_confirm_date": false,
+          "is_project_no": true,
+          "is_task_no": false,
+          "is_issue_task_card": true,
+          "complete_rate_method": "1",
+          "item_type": "",
+          "item_type_value": "",
+          "item_type_name": "",
+          "doc_type_no": "",
+          "doc_no": "",
+          "seq": "",
+          "type_field_code": "",
+          "sub_type_field_code": "fff",
+          "type_condition_value": "",
+          "sub_type_condition_value": "",
+          "outsourcing_field_code": "",
+          "outsourcing_condition_value": "",
+          "closed_stus": false,
+          "is_need_doc_no": true,
+          "milepost_desc": "",
+          "remark": "",
+          "required_task": false,
+          "task_classification_no": "",
+          "task_classification_name": "",
+          "main_unit": "0",
+          "second_unit": "0",
+          "plan_main_unit_value": 0,
+          "plan_second_unit_value": 0,
+          "complete_main_unit_value": 0,
+          "complete_second_unit_value": 0,
+          "main_unit_actual_value": 0,
+          "second_unit_actual_value": 0,
+          "standard_work_hours": 0,
+          "standard_days": 0,
+          "task_proportion": 1,
+          "difficulty_level_no": "",
+          "difficulty_level_name": "",
+          "difficulty_coefficient": 1,
+          "actual_days": 0,
+          "rework_drawing_qty": 0,
+          "rework_work_hours": 0,
+          "complete_rework_drawing_qty": 0,
+          "complete_rework_work_hours": 0,
+          "complete_rework_days": 0,
+          "item_operator": "",
+          "liable_person_role_no": "",
+          "liable_person_role_name": "",
+          "attachment": {
+            "data": [],
+            "row_data": "T-202302070001;14"
+          },
+          "task_dependency_info": [],
+          "task_member_info": [],
+          "task_report_info": [
+            {
+              "report_source": "10",
+              "project_no": "T-202302070001",
+              "report_complete_rate": 0,
+              "task_no": "14",
+              "report_seq": 1,
+              "report_work_hours": 0,
+              "report_datetime": "2023-05-08",
+              "reporter_no": "tech004"
+            }
+          ],
+          "__DATA_KEY": "T-202302070001;14;"
+        }
+      ]
+    },
+    "pageDataKeys": {
+      "project_info": [
+        "project_no",
+        "task_no",
+        "project_no",
+        "task_no"
+      ]
+    },
+    "finished": true,
+    "finishedTitle": "已结束",
+    "executeContext": {
+      "locale": "zh_CN",
+      "clientAgent": "webplatform",
+      "identity": "performer",
+      "tmProjectId": "projectCenterConsole_userProject",
+      "taskWithBacklogData": {
+        "bpmData": {
+          "doc_info": [
+            {
+              "type_condition_value": "",
+              "doc_type_no": "",
+              "item_type_name": "",
+              "actual_start_date": "2023-02-07",
+              "item_type": "",
+              "doc_no": "",
+              "eoc_site_id": "p1",
+              "doc_condition_value": "",
+              "type_field_code": "",
+              "outsourcing_condition_value": "",
+              "eoc_region_id": "1",
+              "is_doc_date": false,
+              "item_operator": "",
+              "public_material_times": 30,
+              "plan_start_date": "2023-04-06",
+              "contract_no": "",
+              "is_project_no": true,
+              "task_status": "10",
+              "task_no": "14",
+              "outsourcing_field_code": "",
+              "instalment_stage": "",
+              "is_task_no": false,
+              "item_type_value": "",
+              "item_condition_value": "",
+              "complete_rate_method\t": "1",
+              "special_material_times": 10,
+              "plan_finish_date": "2023-04-08",
+              "project_no": "T-202302070001",
+              "eoc_company_id": "1",
+              "is_confirm_date": false,
+              "sub_type_field_code": "fff",
+              "sub_type_condition_value": "",
+              "receive_rate": 0.8,
+              "task_category": "PRSUM",
+              "enable_material_picking_count": false
+            }
+          ],
+          "_planEndTime": "2023-05-09 15:07:28",
+          "task_d_info": [
+            {
+              "project_no": "T-202302070001",
+              "task_no": "14"
+            }
+          ],
+          "_in": [
+            {
+              "project_no": "T-202302070001",
+              "task_no": "14"
+            }
+          ],
+          "atmcTaskName": "0098",
+          "imBusinessKey": "E10ATHENA6003;T-202302070001;14",
+          "atmcTaskStartTime": "2023-04-06 00:00:00",
+          "process_EOC": {
+            "eoc_company_id": "1",
+            "eoc_site_id": "p1"
+          },
+          "project_info": [
+            {
+              "project_no": "T-202302070001",
+              "task_no": "14"
+            }
+          ],
+          "atmcTaskEndTime": "2023-04-08 23:59:59"
+        },
+        "businessUnit": {
+          "eoc_company_id": "1",
+          "eoc_site_id": "p1"
+        },
+        "eocName": [
+          "南京**公司（测试区）"
+        ],
+        "tmActivityId": "purchaseRequestSum_DTD_Assignment",
+        "tmActivityName": "请购汇总任务",
+        "tmCategory": "PROCESS",
+        "tmPattern": "BUSINESS",
+        "bpmActivityId": "purchaseRequestSum_DTD_Assignment",
+        "proxyToken": "",
+        "processSerialNumber": "projectCenterConsole_userProject1532669133861187584",
+        "bpmActivityType": "UserTask",
+        "backlog": [
+          {
+            "backlogId": 307457344897216,
+            "backlogName": "0098",
+            "performerId": "tech004",
+            "performerName": "生管",
+            "readCount": 3,
+            "startTime": "2023-05-08 15:07:27",
+            "planEndTime": "2023-04-08 23:59:59",
+            "endTime": "2023-05-08 15:28:38",
+            "workitemList": [
+              {
+                "id": 307457344897216,
+                "activityStepId": 307457344843968,
+                "createTime": "2023-05-08 15:07:28",
+                "closedTime": "2023-05-08 15:28:38",
+                "performerId": "tech004",
+                "performerName": "生管",
+                "workitemId": "1565181746549379072",
+                "comment": "",
+                "state": 3,
+                "agentPerformerId": "",
+                "agentPerformerName": "",
+                "performerType": 0,
+                "readCount": 3,
+                "subState": 220,
+                "createType": 0,
+                "approvalState": "",
+                "fromWorkitemId": "",
+                "groupId": 307457344897216,
+                "targetTenantId": "E10ATHENA6003",
+                "importance": 0,
+                "importanceSource": "self"
+              }
+            ],
+            "finishedActionId": "uibot_action_id_finished",
+            "closed": true,
+            "bpmSignReason": "",
+            "ptmBacklogId": 307457344901312,
+            "ptmWorkItemId": 307457344897216,
+            "merge": false
+          }
+        ],
+        "traceId": "9aef7f08-d05f-42bf-ad8c-f0d05d63f8b4",
+        "taskUid": "1565181745886679040"
+      },
+      "allBpmData": [
+        {
+          "doc_info": [
+            {
+              "type_condition_value": "",
+              "doc_type_no": "",
+              "item_type_name": "",
+              "actual_start_date": "2023-02-07",
+              "item_type": "",
+              "doc_no": "",
+              "eoc_site_id": "p1",
+              "doc_condition_value": "",
+              "type_field_code": "",
+              "outsourcing_condition_value": "",
+              "eoc_region_id": "1",
+              "is_doc_date": false,
+              "item_operator": "",
+              "public_material_times": 30,
+              "plan_start_date": "2023-04-06",
+              "contract_no": "",
+              "is_project_no": true,
+              "task_status": "10",
+              "task_no": "14",
+              "outsourcing_field_code": "",
+              "instalment_stage": "",
+              "is_task_no": false,
+              "item_type_value": "",
+              "item_condition_value": "",
+              "complete_rate_method\t": "1",
+              "special_material_times": 10,
+              "plan_finish_date": "2023-04-08",
+              "project_no": "T-202302070001",
+              "eoc_company_id": "1",
+              "is_confirm_date": false,
+              "sub_type_field_code": "fff",
+              "sub_type_condition_value": "",
+              "receive_rate": 0.8,
+              "task_category": "PRSUM",
+              "enable_material_picking_count": false
+            }
+          ],
+          "_planEndTime": "2023-05-09 15:07:28",
+          "task_d_info": [
+            {
+              "project_no": "T-202302070001",
+              "task_no": "14"
+            }
+          ],
+          "_in": [
+            {
+              "project_no": "T-202302070001",
+              "task_no": "14"
+            }
+          ],
+          "atmcTaskName": "0098",
+          "imBusinessKey": "E10ATHENA6003;T-202302070001;14",
+          "atmcTaskStartTime": "2023-04-06 00:00:00",
+          "process_EOC": {
+            "eoc_company_id": "1",
+            "eoc_site_id": "p1"
+          },
+          "project_info": [
+            {
+              "project_no": "T-202302070001",
+              "task_no": "14"
+            }
+          ],
+          "atmcTaskEndTime": "2023-04-08 23:59:59"
+        }
+      ],
+      "taskType": 1,
+      "backlogId": 307457344897216,
+      "abnormalWorkitemId": 307457344901312,
+      "approvalInfo": {},
+      "tmActivityId": "purchaseRequestSum_DTD_Assignment",
+      "tmActivityName": "请购汇总任务",
+      "tenantId": "E10ATHENA6003",
+      "pageCode": "task-detail",
+      "pattern": "CUSTOM",
+      "category": "PROCESS",
+      "relationTag": {
+        "identity": "performer",
+        "activityId": "purchaseRequestSum_DTD_Assignment"
+      },
+      "businessUnit": {
+        "eoc_company_id": "1",
+        "eoc_site_id": "p1"
+      },
+      "isShared": false,
+      "isCustomize": true,
+      "traceId": "9aef7f08-d05f-42bf-ad8c-f0d05d63f8b4",
+      "dataFrom": "PTM",
+      "bpmData": {
+        "doc_info": [
+          {
+            "type_condition_value": "",
+            "doc_type_no": "",
+            "item_type_name": "",
+            "actual_start_date": "2023-02-07",
+            "item_type": "",
+            "doc_no": "",
+            "eoc_site_id": "p1",
+            "doc_condition_value": "",
+            "type_field_code": "",
+            "outsourcing_condition_value": "",
+            "eoc_region_id": "1",
+            "is_doc_date": false,
+            "item_operator": "",
+            "public_material_times": 30,
+            "plan_start_date": "2023-04-06",
+            "contract_no": "",
+            "is_project_no": true,
+            "task_status": "10",
+            "task_no": "14",
+            "outsourcing_field_code": "",
+            "instalment_stage": "",
+            "is_task_no": false,
+            "item_type_value": "",
+            "item_condition_value": "",
+            "complete_rate_method\t": "1",
+            "special_material_times": 10,
+            "plan_finish_date": "2023-04-08",
+            "project_no": "T-202302070001",
+            "eoc_company_id": "1",
+            "is_confirm_date": false,
+            "sub_type_field_code": "fff",
+            "sub_type_condition_value": "",
+            "receive_rate": 0.8,
+            "task_category": "PRSUM",
+            "enable_material_picking_count": false
+          }
+        ],
+        "_planEndTime": "2023-05-09 15:07:28",
+        "task_d_info": [
+          {
+            "project_no": "T-202302070001",
+            "task_no": "14"
+          }
+        ],
+        "_in": [
+          {
+            "project_no": "T-202302070001",
+            "task_no": "14"
+          }
+        ],
+        "atmcTaskName": "0098",
+        "imBusinessKey": "E10ATHENA6003;T-202302070001;14",
+        "atmcTaskStartTime": "2023-04-06 00:00:00",
+        "process_EOC": {
+          "eoc_company_id": "1",
+          "eoc_site_id": "p1"
+        },
+        "project_info": [
+          {
+            "project_no": "T-202302070001",
+            "task_no": "14"
+          }
+        ],
+        "atmcTaskEndTime": "2023-04-08 23:59:59"
+      },
+      "isSuperAdmin": false,
+      "isTaskEngine": true
+    },
+    "pageCountSize": 1,
+    "mechnismConfig": {
+      "rules": []
+    }
+  }
+}

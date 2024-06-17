@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../out-tsc/app",
+    "module": "esnext",
+    "types": ["node"]
+  },
+  "exclude": [
+    "test.ts",
+    "**/*.spec.ts",
+    "assets/api/**/*.json",
+    "assets/api/*.json"
+  ]
+}

@@ -1,0 +1,215 @@
+<div class="department">
+  <div
+    class="check-message"
+    *ngIf="check_data && !wbsService.projectChangeStatus['check_type_list']"
+  >
+    <i class="item-icon" athIcon [iconfont]="'iconchenggong'"></i>
+    <span class="item-message">{{ check_data }}</span>
+  </div>
+  <div class="department_container">
+    <div class="departmentBox">
+      <div class="departmentBox_left">
+        <nz-spin [nzSpinning]="allPersonLoading" style="height: 100%">
+          <div class="title title-left">{{ 'dj-pcc-所有部门与人员' | translate }}</div>
+          <div class="content">
+            <nz-input-group [nzSuffix]="suffixIcon">
+              <input
+                type="text"
+                nz-input
+                [placeholder]="translateWord('请输入部门或人员名称')"
+                [(ngModel)]="searchValue"
+              />
+            </nz-input-group>
+            <ng-template #suffixIcon>
+              <em athIcon iconfont="iconsousuo5" style="font-size: 14px; color: #999999"></em>
+            </ng-template>
+            <ac-tree
+              [(nzData)]="roleGroup"
+              [nzSearchValue]="searchValue"
+              #normalFormComponent
+              [nzCheckable]="wbsService.projectChangeStatus['check_type_list']"
+              nzMultiple
+              [nzCheckedKeys]="defaultCheckedKeys"
+              (nzCheckBoxChange)="checkBoxChange($event)"
+            ></ac-tree>
+          </div>
+        </nz-spin>
+      </div>
+      <div class="departmentBox_right">
+        <nz-spin [nzSpinning]="selectedPersonLoading" style="height: 100%">
+          <div class="title title-right" [ngClass]="{ disable: !personTree?.length }">
+            <span>{{ 'dj-pcc-已选部门与人员' | translate }}</span>
+            <a
+              class="save"
+              [ngClass]="{ disabled: !activeStatus }"
+              (click)="updateSubmit()"
+              *ngIf="
+                source === enumEntry.projectChange &&
+                wbsService.editable &&
+                wbsService.projectChangeStatus['check_type_list']
+              "
+              >{{ 'dj-pcc-保存' | translate }}</a
+            >
+            <a
+              class="reset"
+              [ngClass]="{ disabled: disabledList?.length || !resetPersonList?.length }"
+              (click)="handleOk()"
+              *ngIf="
+                source !== enumEntry.projectChangeSignOff &&
+                wbsService.editable &&
+                wbsService.projectChangeStatus['check_type_list']
+              "
+              >{{ 'dj-default-重置' | translate }}</a
+            >
+          </div>
+          <div class="content" *ngIf="personTree?.length && roleGroup?.length">
+            <div class="content_box" *ngFor="let role of personTree">
+              <div
+                class="li roleTitle"
+                [ngClass]="{
+                  collapse: expendedNodeKeys[role.role_no]
+                }"
+                *ngIf="role?.deptGroups?.length"
+              >
+                <span class="roleTitle" [class.del-active]="role.clickDel">
+                  <i
+                    class="icon"
+                    [class]="!expendedNodeKeys[role.role_no] ? 'icondown1' : 'iconup1'"
+                    athIcon
+                    iconfont="icondown1"
+                    (click)="expendAndCollapse(role, depWrapper, 'role_no')"
+                  ></i>
+                  <span [class.gray]="!hasDisableCheckbox(role.deptGroups, 0)">{{
+                    role.role_name
+                  }}</span>
+                  <em
+                    class="delete"
+                    athIcon
+                    iconfont="icon-shanchu"
+                    nz-popconfirm
+                    nzPopconfirmTitle="{{ 'dj-pcc-是否确认删除?' | translate }}"
+                    (nzPopconfirmVisibleChange)="role.clickDel = !role.clickDel"
+                    (nzOnConfirm)="deleteDeptOrPerson(role, 0)"
+                    *ngIf="hasDisableCheckbox(role.deptGroups, 0)"
+                  ></em
+                ></span>
+              </div>
+
+              <section
+                class="depClass"
+                #depWrapper
+                [class.collapse]="expendedNodeKeys[role.role_no]"
+                [@expandCollapse]="!expendedNodeKeys[role.role_no] ? 'expanded' : 'collapsed'"
+              >
+                <ng-container *ngFor="let item of role.deptGroups">
+                  <div
+                    class="li contentTitle"
+                    [class.collapse]="expendedNodeKeys[item.role_no + '_' + item.deptId]"
+                  >
+                    <span
+                      [ngClass]="{
+                        'title-box': true,
+                        'del-active': item.clickDel
+                      }"
+                    >
+                      <i
+                        (click)="expendAndCollapse(item, listOfPeopleDom, 'deptId')"
+                        class="icon"
+                        [class]="
+                          !expendedNodeKeys[item.role_no + '_' + item.deptId]
+                            ? 'icondown1'
+                            : 'iconup1'
+                        "
+                        athIcon
+                        iconfont="icondown1"
+                      ></i>
+                      <span class="title-content" [class.gray]="!hasDisableCheckbox(item.list, 1)"
+                        >{{ item.deptName }}（{{ item.list.length }}/{{ item.len }}）</span
+                      >
+                      <em
+                        class="delete"
+                        nz-popconfirm
+                        nzPopconfirmTitle="{{ 'dj-pcc-是否确认删除?' | translate }}"
+                        (nzOnConfirm)="deleteDeptOrPerson(item, 1)"
+                        (nzPopconfirmVisibleChange)="item.clickDel = !item.clickDel"
+                        *ngIf="hasDisableCheckbox(item.list, 1)"
+                        athIcon
+                        iconfont="icon-shanchu"
+                      ></em>
+                    </span>
+                  </div>
+                  <div
+                    #listOfPeopleDom
+                    class="list-of-people"
+                    [class.collapse]="expendedNodeKeys[item.role_no + '_' + item.deptId]"
+                    [@expandCollapse]="
+                      !expendedNodeKeys[item.role_no + '_' + item.deptId] ? 'expanded' : 'collapsed'
+                    "
+                  >
+                    <div
+                      class="li"
+                      [class.del-active]="data.clickDel"
+                      [class.can-do]="!data.disableCheckbox"
+                      *ngFor="let data of item.list"
+                    >
+                      <span [ngClass]="{ 'emp-name': true, gray: data.disableCheckbox }">
+                        {{ data.empName }}
+                      </span>
+                      <em
+                        nz-popconfirm
+                        nzPopconfirmTitle="{{ 'dj-pcc-是否确认删除?' | translate }}"
+                        (nzOnConfirm)="deleteDeptOrPerson(data, 2)"
+                        (nzPopconfirmVisibleChange)="data.clickDel = !data.clickDel"
+                        class="delete"
+                        *ngIf="
+                          !data.disableCheckbox && wbsService.projectChangeStatus['check_type_list']
+                        "
+                        athIcon
+                        iconfont="iconshanchu8"
+                      ></em>
+                    </div>
+                  </div>
+                </ng-container>
+              </section>
+            </div>
+          </div>
+          <div class="noData" *ngIf="!personTree?.length">
+            <app-svg-file [type]="'noData'"></app-svg-file>
+            {{ 'dj-c-暂无数据' | translate }}
+            <p>{{ 'dj-pcc-请选择部门与人员' | translate }}</p>
+          </div>
+        </nz-spin>
+      </div>
+    </div>
+  </div>
+  <nz-modal
+    [(nzVisible)]="isVisible"
+    nzTitle=""
+    [nzClosable]="isShowClose"
+    [nzWidth]="430"
+    nzClassName="departMentModal"
+  >
+    <ng-template nzModalContent>
+      <div class="title">{{ 'dj-pcc-是否确定重置？' | translate }}</div>
+      <p>{{ 'dj-pcc-重置后将删除已选择并且没有被安排任务的部门或人员' | translate }}</p>
+      <div class="departMentBtn">
+        <button nz-button nzType="default" (click)="handleCancel()">
+          {{ 'dj-default-取消' | translate }}
+        </button>
+        <button nz-button nzType="primary" (click)="resetPerson('重置')">
+          {{ 'dj-default-确定' | translate }}
+        </button>
+      </div>
+    </ng-template>
+  </nz-modal>
+  <div class="btn-box" *ngIf="wbsService.editable && source !== enumEntry.projectChange">
+    <ac-operation-button-save
+      athType="primary"
+      [disabled]="!activeStatus"
+      (click)="updateSubmit()"
+      saveText="{{ 'dj-default-提交' | translate }}"
+      [userBehavior]="{ name: 'dj-default-提交', code: updateSubmitCode }"
+    >
+    </ac-operation-button-save>
+  </div>
+</div>

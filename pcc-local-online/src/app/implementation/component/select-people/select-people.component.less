@@ -1,0 +1,35 @@
+:host {
+  .mask {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+  }
+
+  .open-icon,
+  .del-icon {
+    color: #999;
+    position: relative;
+    z-index: 999;
+    cursor: pointer;
+  }
+  .del-icon {
+    font-size: 12px;
+    margin-right: 6px;
+    display: none;
+  }
+  ::ng-deep {
+    .ant-input-affix-wrapper {
+      align-items: center;
+      .ant-input-suffix {
+        display: flex;
+      }
+    }
+  }
+  ac-open-window-employee:hover {
+    .del-icon {
+      display: inline-block;
+    }
+  }
+}

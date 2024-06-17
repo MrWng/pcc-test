@@ -1,0 +1,46 @@
+<div class="task-card-box">
+  <div class="spin-box" *ngIf="loading">
+    <nz-spin nzSimple></nz-spin>
+  </div>
+
+  <div class="task-card-content" *ngIf="!loading">
+    <div class="tabs">
+      <div
+        *ngFor="let tab of taskStatus"
+        [class]="{ active: state === tab.code }"
+        (click)="changeTab(tab.code)"
+      >
+        {{ tab.label | translate: { n: tab.sum } }}
+      </div>
+    </div>
+
+    <div class="table" *ngIf="editable; else infoTable">
+      <div class="table-content" *ngIf="dynamicGroup">
+        <div
+          dynamic-ant-form
+          [group]="dynamicGroup"
+          [model]="dynamicModel"
+          (change)="onChange($event)"
+        ></div>
+      </div>
+      <div
+        class="btnList"
+        [ngClass]="{ disabled: !canSubmit }"
+        *ngIf="showSubmitButton && state === '1'"
+      >
+        <button nz-button nzType="primary" (click)="submit()">
+          {{ 'dj-default-提交' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <ng-template #infoTable>
+      <div
+        dynamic-ant-form
+        [group]="dynamicGroup"
+        [model]="dynamicModel"
+        (change)="onChange($event)"
+      ></div>
+    </ng-template>
+  </div>
+</div>

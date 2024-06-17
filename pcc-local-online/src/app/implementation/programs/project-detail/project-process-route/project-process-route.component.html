@@ -1,0 +1,13 @@
+<div class="btn-box" *ngIf="!isFinish">
+  <button class="submit" [ngClass]="{ active: !unclosedProjectNumber }" (click)="closeProject()">
+    {{ 'dj-default-结案' | translate }}
+  </button>
+</div>
+<div class="action-no-btn" *ngIf="isFinish">
+  <i class="action-no-btn-icon">
+    <svg class="iconfont">
+      <use xlink:href="#iconz"></use>
+    </svg>
+  </i>
+  <p class="finishedTitle">- {{ 'dj-default-已结案' | translate }}-</p>
+</div>

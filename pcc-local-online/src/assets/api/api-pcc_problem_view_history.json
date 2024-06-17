@@ -1,0 +1,2481 @@
+{
+  "status": 200,
+  "statusDescription": "OK",
+  "response": {
+    "layout": [
+      {
+        "id": "259d8b7c-98c4-421e-a745-e839a89e98ce",
+        "type": "ACTIVITY_TITLE",
+        "schema": "uiBot__activity"
+      },
+      {
+        "id": "8e2cc827-aa9c-4a92-bf6a-3d0e2f98b55d",
+        "type": "APPROVAL_DESCRIPTION",
+        "schema": "uiBot__APPROVAL_DESCRIPTION",
+        "group": [
+          {
+            "id": "question_no",
+            "type": "LABEL",
+            "schema": "question_no",
+            "headerName": "问题编号",
+            "path": "question_info",
+            "editable": false,
+            "dataType": "string",
+            "sortable": true,
+            "filterable": true,
+            "rowGroupable": true,
+            "tagDefinitions": [
+              {
+                "code": "TYPE_STRING",
+                "name": "数据组件",
+                "description": "数据组件",
+                "category": "DATATYPE",
+                "interpreterServiceName": "typeStringTagInterpreter",
+                "customize": false,
+                "themeMapTag": {
+                  "id": 837278434785755138,
+                  "name": "顺序10",
+                  "code": "ORDER_10",
+                  "category": "ORDER",
+                  "value": "10",
+                  "uiBotCode": "ORDER",
+                  "extendedInfo": {}
+                },
+                "append": false
+              }
+            ],
+            "enableTrim": true,
+            "isFocusDisplay": false,
+            "relationSchemas": ["question_no"]
+          },
+          {
+            "id": "status",
+            "type": "SELECT",
+            "schema": "status",
+            "headerName": "状态",
+            "path": "question_info",
+            "disabled": true,
+            "editable": false,
+            "dataType": "string",
+            "tagDefinitions": [
+              {
+                "code": "SELECT",
+                "name": "数据组件",
+                "description": "数据组件",
+                "category": "DATATYPE",
+                "interpreterServiceName": "selectInterpreter",
+                "customize": false,
+                "themeMapTag": {
+                  "id": 837278434785755141,
+                  "name": "顺序20",
+                  "code": "ORDER_20",
+                  "category": "ORDER",
+                  "value": "20",
+                  "uiBotCode": "ORDER",
+                  "extendedInfo": {}
+                },
+                "append": false
+              }
+            ],
+            "isFocusDisplay": false,
+            "relationSchemas": ["status"],
+            "options": [
+              {
+                "title": "待处理",
+                "value": "2"
+              },
+              {
+                "title": "验收中",
+                "value": "3"
+              },
+              {
+                "title": "退回重办",
+                "value": "4"
+              },
+              {
+                "title": "处理中",
+                "value": "7"
+              },
+              {
+                "title": "已完成",
+                "value": "99"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "3bf2847b-c8bf-45b1-a728-019b4ce5a9df",
+        "type": "CONTENT_QUERY_BUTTON",
+        "supportShowInMaxedWindow": true,
+        "queryButtons": [
+          {
+            "defaultShow": true,
+            "dataStateCode": "waitting",
+            "dataSourceSet": {
+              "dataSourceList": [
+                {
+                  "title": "问题信息",
+                  "name": "question_info",
+                  "dataKeys": [],
+                  "type": "ESP",
+                  "actionId": "esp_project.question.process.get",
+                  "action": {
+                    "title": "问题信息",
+                    "actionId": "esp_project.question.process.get",
+                    "category": "ESP",
+                    "serviceId": {
+                      "tenant_id": "DCP",
+                      "prod": "PCC",
+                      "hostAcct": "athena",
+                      "name": "project.question.process.get"
+                    },
+                    "paras": {
+                      "question_do_info": [
+                        {
+                          "question_no": "20240422002",
+                          "question_do_no": "20240422002009"
+                        }
+                      ]
+                    },
+                    "businessUnit": {},
+                    "actionParams": [
+                      {
+                        "name": "question_do_info",
+                        "type": "PROCESS_VARIABLE",
+                        "value": "question_do_info",
+                        "required": false
+                      }
+                    ]
+                  },
+                  "notArray": true,
+                  "metadataFields": [],
+                  "dataSourceProcessors": [],
+                  "override": false,
+                  "extendedData": {
+                    "__workitemId": "1694487525889937408",
+                    "__processSerialNumber": "PCC_project_00041694487522165420032",
+                    "__workitemSqlId": 433732519501888
+                  }
+                }
+              ],
+              "mainDatasource": "question_info",
+              "dataProcess": []
+            },
+            "submitActions": [
+              {
+                "title": "提交",
+                "actionId": "esp_project.question.process.update",
+                "category": "ESP",
+                "serviceId": {
+                  "tenant_id": "DCP",
+                  "prod": "PCC",
+                  "hostAcct": "athena",
+                  "name": "project.question.process.update"
+                },
+                "businessUnit": {},
+                "actionParams": [
+                  {
+                    "name": "question_info.question_do_info",
+                    "type": "GET_ACTION_RESPONSE",
+                    "value": "question_info.question_do_info",
+                    "required": false,
+                    "typeConverter": ""
+                  },
+                  {
+                    "name": "question_info.question_no",
+                    "type": "GET_ACTION_RESPONSE",
+                    "value": "question_info.question_no",
+                    "required": false,
+                    "typeConverter": ""
+                  },
+                  {
+                    "name": "question_info.project_name",
+                    "type": "GET_ACTION_RESPONSE",
+                    "value": "question_info.project_name",
+                    "required": false,
+                    "typeConverter": ""
+                  }
+                ],
+                "trackCode": "SUBMIT",
+                "type": "ESP",
+                "id": "confirm",
+                "defaultAction": true,
+                "executeContext": {
+                  "locale": "zh_CN",
+                  "clientAgent": "webplatform",
+                  "tmProjectId": "PCC_project_0004",
+                  "tmActivityId": "PCC_task_0019",
+                  "backlogId": 433732519501888,
+                  "submitId": 0,
+                  "processSerialNumber": "PCC_project_00041694487522165420032",
+                  "bpmData": {
+                    "_planEndTime": "2024-05-02 10:42:28",
+                    "_in": [
+                      {
+                        "question_no": "20240422002",
+                        "question_do_no": "20240422002009"
+                      }
+                    ],
+                    "questionDo_d_info": [
+                      {
+                        "question_no": "20240422002",
+                        "question_do_no": "20240422002009"
+                      }
+                    ],
+                    "question_do_info": [
+                      {
+                        "question_no": "20240422002",
+                        "question_do_no": "20240422002009"
+                      }
+                    ],
+                    "process_EOC": {}
+                  },
+                  "pageCode": "task-detail",
+                  "pattern": "BUSINESS",
+                  "category": "PROCESS",
+                  "businessUnit": {},
+                  "dataFrom": "PTM",
+                  "taskType": 1,
+                  "abnormalWorkitemId": 433732519505984,
+                  "relationTag": {
+                    "identity": "performer",
+                    "activityId": "PCC_task_0019"
+                  }
+                },
+                "extendParas": {},
+                "submitType": {
+                  "isBatch": false,
+                  "schema": "question_info",
+                  "submitAll": false
+                },
+                "attachActions": [
+                  {
+                    "title": "提交数据到流程",
+                    "actionId": "submit-data",
+                    "category": "PTM",
+                    "serviceId": {
+                      "name": "submit-data",
+                      "serviceUri": "api/task/card/submit"
+                    },
+                    "paras": {
+                      "workitemId": "1694487525889937408",
+                      "backlogId": 433732519505984,
+                      "comment": "",
+                      "dispatchData": [],
+                      "locale": "zh_CN",
+                      "performerType": 0,
+                      "performerId": "dcp010"
+                    },
+                    "trackCode": "SUBMIT",
+                    "id": "submit-data",
+                    "defaultAction": false,
+                    "extendParas": {},
+                    "attachActions": []
+                  },
+                  {
+                    "title": "同意",
+                    "actionId": "dispatch",
+                    "category": "TaskEngine",
+                    "serviceId": {
+                      "name": "dispatch",
+                      "serviceUri": "v2/api/backlog/dispatch"
+                    },
+                    "paras": {
+                      "workitemId": "1694487525889937408",
+                      "comment": "",
+                      "locale": "zh_CN",
+                      "performerType": 0,
+                      "performerId": "dcp010"
+                    },
+                    "trackCode": "SUBMIT",
+                    "defaultAction": false,
+                    "extendParas": {
+                      "dataSource": "parent"
+                    }
+                  }
+                ]
+              }
+            ],
+            "showSubmitActions": true,
+            "operations": [
+              {
+                "title": "查看历程",
+                "type": "pcc_problem_view_history",
+                "sequence": 1,
+                "description": "",
+                "attach": {
+                  "target": "question_info",
+                  "mode": "all"
+                },
+                "isCustomize": true,
+                "switchData": true
+              },
+              {
+                "title": "查看问题附件",
+                "type": "pcc_problem_view_attachment",
+                "sequence": 1,
+                "description": "",
+                "attach": {
+                  "target": "question_info",
+                  "mode": "all"
+                },
+                "isCustomize": true,
+                "switchData": true
+              }
+            ],
+            "settings": {},
+            "showDataProperties": [
+              "project_no",
+              "project_name",
+              "task_name",
+              "initiator_name",
+              "question_happen_datetime",
+              "question_type_name",
+              "process_person_name",
+              "desire_finish_datetime",
+              "question_description",
+              "task_storage_seq",
+              "question_do_desc",
+              "process_person_no",
+              "process_person_name",
+              "plan_finish_datetime",
+              "process_status",
+              "actual_finish_datetime",
+              "process_desc",
+              "attachment"
+            ],
+            "showMetadatas": [
+              {
+                "type": "M",
+                "target": "question_info",
+                "fields": [
+                  {
+                    "fieldName": "project_no",
+                    "feature": "others",
+                    "score": 1
+                  },
+                  {
+                    "fieldName": "project_name",
+                    "feature": "others",
+                    "score": 2
+                  },
+                  {
+                    "fieldName": "task_name",
+                    "feature": "others",
+                    "score": 3
+                  },
+                  {
+                    "fieldName": "initiator_name",
+                    "feature": "others",
+                    "score": 4
+                  },
+                  {
+                    "fieldName": "question_happen_datetime",
+                    "feature": "others",
+                    "score": 5
+                  },
+                  {
+                    "fieldName": "question_type_name",
+                    "feature": "others",
+                    "score": 6
+                  },
+                  {
+                    "fieldName": "process_person_name",
+                    "feature": "others",
+                    "score": 7
+                  },
+                  {
+                    "fieldName": "desire_finish_datetime",
+                    "feature": "others",
+                    "score": 8
+                  },
+                  {
+                    "fieldName": "question_description",
+                    "feature": "others",
+                    "score": 9
+                  }
+                ]
+              },
+              {
+                "type": "D",
+                "target": "question_info.question_do_info",
+                "fields": [
+                  {
+                    "fieldName": "task_storage_seq",
+                    "feature": "others",
+                    "score": 1
+                  },
+                  {
+                    "fieldName": "question_do_desc",
+                    "feature": "others",
+                    "score": 2
+                  },
+                  {
+                    "fieldName": "process_person_no",
+                    "feature": "others",
+                    "score": 3
+                  },
+                  {
+                    "fieldName": "process_person_name",
+                    "feature": "others",
+                    "score": 4
+                  },
+                  {
+                    "fieldName": "plan_finish_datetime",
+                    "feature": "others",
+                    "score": 5
+                  },
+                  {
+                    "fieldName": "process_status",
+                    "feature": "others",
+                    "score": 6
+                  },
+                  {
+                    "fieldName": "actual_finish_datetime",
+                    "feature": "others",
+                    "score": 7
+                  },
+                  {
+                    "fieldName": "process_desc",
+                    "feature": "others",
+                    "score": 8
+                  },
+                  {
+                    "fieldName": "attachment",
+                    "feature": "others",
+                    "score": 9
+                  }
+                ]
+              }
+            ],
+            "autoAppendShelvedDataState": true,
+            "tabs": [],
+            "version": "2.0",
+            "queryTitle": "待处理",
+            "rowSize": 1,
+            "type": "UI",
+            "startApproveActivityName": "",
+            "startApproveActivity": [],
+            "finished": false
+          }
+        ]
+      },
+      {
+        "id": "820dda56-e4c5-4881-99e8-d40f4c2601ea",
+        "type": "FORM_LIST",
+        "schema": "question_info",
+        "disabled": false,
+        "editable": true,
+        "dataType": "object",
+        "operations": [
+          {
+            "title": "查看历程",
+            "type": "pcc_problem_view_history",
+            "sequence": 1,
+            "description": "",
+            "attach": {
+              "target": "question_info",
+              "mode": "all"
+            },
+            "isCustomize": true,
+            "switchData": true
+          },
+          {
+            "title": "查看问题附件",
+            "type": "pcc_problem_view_attachment",
+            "sequence": 1,
+            "description": "",
+            "attach": {
+              "target": "question_info",
+              "mode": "all"
+            },
+            "isCustomize": true,
+            "switchData": true
+          }
+        ],
+        "supportShowInMaxedWindow": true,
+        "relationSchemas": ["question_info"],
+        "isNavigate": false,
+        "collapse": true,
+        "group": [
+          {
+            "id": "22b774cf-847d-401a-862a-7ed5f96e886b",
+            "type": "FORM_LIST",
+            "title": "基本信息",
+            "dataType": "object",
+            "operations": [],
+            "group": [
+              {
+                "id": "project_no",
+                "type": "INPUT",
+                "schema": "project_no",
+                "headerName": "项目编号",
+                "path": "question_info",
+                "editable": false,
+                "dataType": "string",
+                "sortable": true,
+                "filterable": true,
+                "rowGroupable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "DISPLAY_NOT_CONTAIN_EXPLICIT",
+                    "name": "非内含外显",
+                    "description": "非内含外显",
+                    "category": "DISPLAY",
+                    "interpreterServiceName": "",
+                    "customize": false,
+                    "extendedInfo": {},
+                    "themeMapTag": {
+                      "id": 198762489,
+                      "name": "DISPLAY_NOT_CONTAIN_EXPLICIT",
+                      "code": "DISPLAY_NOT_CONTAIN_EXPLICIT",
+                      "category": "BUSINESS",
+                      "uiBotCode": "DISPLAY_NOT_CONTAIN_EXPLICIT",
+                      "extendedInfo": {}
+                    },
+                    "append": false
+                  },
+                  {
+                    "code": "TYPE_STRING",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "typeStringTagInterpreter",
+                    "customize": false,
+                    "themeMapTag": {
+                      "id": 837278434785755136,
+                      "name": "不可编辑",
+                      "code": "UNEDITABLE",
+                      "category": "BUSINESS",
+                      "uiBotCode": "UNEDITABLE",
+                      "extendedInfo": {}
+                    },
+                    "append": false
+                  }
+                ],
+                "enableTrim": true,
+                "isFocusDisplay": false,
+                "relationSchemas": ["project_no"]
+              },
+              {
+                "id": "project_name",
+                "type": "INPUT",
+                "schema": "project_name",
+                "headerName": "项目名称",
+                "path": "question_info",
+                "editable": false,
+                "dataType": "string",
+                "sortable": true,
+                "filterable": true,
+                "rowGroupable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "DISPLAY_NOT_CONTAIN_EXPLICIT",
+                    "name": "非内含外显",
+                    "description": "非内含外显",
+                    "category": "DISPLAY",
+                    "interpreterServiceName": "",
+                    "customize": false,
+                    "extendedInfo": {},
+                    "themeMapTag": {
+                      "id": 198762489,
+                      "name": "DISPLAY_NOT_CONTAIN_EXPLICIT",
+                      "code": "DISPLAY_NOT_CONTAIN_EXPLICIT",
+                      "category": "BUSINESS",
+                      "uiBotCode": "DISPLAY_NOT_CONTAIN_EXPLICIT",
+                      "extendedInfo": {}
+                    },
+                    "append": false
+                  },
+                  {
+                    "code": "TYPE_STRING",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "typeStringTagInterpreter",
+                    "customize": false,
+                    "themeMapTag": {
+                      "id": 837278434785755136,
+                      "name": "不可编辑",
+                      "code": "UNEDITABLE",
+                      "category": "BUSINESS",
+                      "uiBotCode": "UNEDITABLE",
+                      "extendedInfo": {}
+                    },
+                    "append": false
+                  }
+                ],
+                "enableTrim": true,
+                "isFocusDisplay": false,
+                "relationSchemas": ["project_name"]
+              },
+              {
+                "id": "task_name",
+                "type": "INPUT",
+                "schema": "task_name",
+                "headerName": "任务名称",
+                "path": "question_info",
+                "editable": false,
+                "dataType": "string",
+                "sortable": true,
+                "filterable": true,
+                "rowGroupable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "TYPE_STRING",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "typeStringTagInterpreter",
+                    "customize": false,
+                    "themeMapTag": {
+                      "id": 837278434785755136,
+                      "name": "不可编辑",
+                      "code": "UNEDITABLE",
+                      "category": "BUSINESS",
+                      "uiBotCode": "UNEDITABLE",
+                      "extendedInfo": {}
+                    },
+                    "append": false
+                  }
+                ],
+                "enableTrim": true,
+                "isFocusDisplay": false,
+                "relationSchemas": ["task_name"]
+              },
+              {
+                "id": "initiator_name",
+                "type": "INPUT",
+                "schema": "initiator_name",
+                "headerName": "发起人名称",
+                "path": "question_info",
+                "editable": false,
+                "dataType": "string",
+                "sortable": true,
+                "filterable": true,
+                "rowGroupable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "TYPE_STRING",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "typeStringTagInterpreter",
+                    "customize": false,
+                    "themeMapTag": {
+                      "id": 837278434785755136,
+                      "name": "不可编辑",
+                      "code": "UNEDITABLE",
+                      "category": "BUSINESS",
+                      "uiBotCode": "UNEDITABLE",
+                      "extendedInfo": {}
+                    },
+                    "append": false
+                  }
+                ],
+                "enableTrim": true,
+                "isFocusDisplay": false,
+                "relationSchemas": ["initiator_name"]
+              },
+              {
+                "id": "question_happen_datetime",
+                "type": "DATEPICKER",
+                "schema": "question_happen_datetime",
+                "headerName": "问题发生日期",
+                "title": "问题发生日期",
+                "path": "question_info",
+                "dataType": "date",
+                "sortable": true,
+                "filterable": true,
+                "rowGroupable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "TYPE_DATE",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "typeDateTagInterpreter",
+                    "customize": false,
+                    "themeMapTag": {
+                      "id": 837278434785755136,
+                      "name": "不可编辑",
+                      "code": "UNEDITABLE",
+                      "category": "BUSINESS",
+                      "uiBotCode": "UNEDITABLE",
+                      "extendedInfo": {}
+                    },
+                    "append": false
+                  }
+                ],
+                "relationSchemas": ["question_happen_datetime"],
+                "important": false
+              },
+              {
+                "id": "question_type_name",
+                "type": "INPUT",
+                "schema": "question_type_name",
+                "headerName": "问题类型名称",
+                "path": "question_info",
+                "editable": false,
+                "dataType": "string",
+                "sortable": true,
+                "filterable": true,
+                "rowGroupable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "TYPE_STRING",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "typeStringTagInterpreter",
+                    "customize": false,
+                    "themeMapTag": {
+                      "id": 837278434785755136,
+                      "name": "不可编辑",
+                      "code": "UNEDITABLE",
+                      "category": "BUSINESS",
+                      "uiBotCode": "UNEDITABLE",
+                      "extendedInfo": {}
+                    },
+                    "append": false
+                  }
+                ],
+                "enableTrim": true,
+                "isFocusDisplay": false,
+                "relationSchemas": ["question_type_name"]
+              },
+              {
+                "id": "process_person_name",
+                "type": "INPUT",
+                "schema": "process_person_name",
+                "headerName": "问题负责人名称",
+                "path": "question_info",
+                "editable": false,
+                "dataType": "string",
+                "sortable": true,
+                "filterable": true,
+                "rowGroupable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "TYPE_STRING",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "typeStringTagInterpreter",
+                    "customize": false,
+                    "themeMapTag": {
+                      "id": 837278434785755136,
+                      "name": "不可编辑",
+                      "code": "UNEDITABLE",
+                      "category": "BUSINESS",
+                      "uiBotCode": "UNEDITABLE",
+                      "extendedInfo": {}
+                    },
+                    "append": false
+                  }
+                ],
+                "enableTrim": true,
+                "isFocusDisplay": false,
+                "relationSchemas": ["process_person_name"]
+              },
+              {
+                "id": "desire_finish_datetime",
+                "type": "DATEPICKER",
+                "schema": "desire_finish_datetime",
+                "headerName": "期望关闭日期",
+                "title": "期望关闭日期",
+                "path": "question_info",
+                "dataType": "date",
+                "sortable": true,
+                "filterable": true,
+                "rowGroupable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "TYPE_DATE",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "typeDateTagInterpreter",
+                    "customize": false,
+                    "themeMapTag": {
+                      "id": 837278434785755136,
+                      "name": "不可编辑",
+                      "code": "UNEDITABLE",
+                      "category": "BUSINESS",
+                      "uiBotCode": "UNEDITABLE",
+                      "extendedInfo": {}
+                    },
+                    "append": false
+                  }
+                ],
+                "relationSchemas": ["desire_finish_datetime"],
+                "important": false
+              }
+            ],
+            "scriptFilters": []
+          },
+          {
+            "id": "48432984-9464-4f3d-a571-f4375a5a5079",
+            "type": "FORM_LIST",
+            "dataType": "object",
+            "operations": [],
+            "group": [
+              {
+                "id": "question_description",
+                "type": "TEXTAREA",
+                "schema": "question_description",
+                "headerName": "问题描述",
+                "path": "question_info",
+                "editable": false,
+                "dataType": "string",
+                "dataPrecision": {
+                  "length": 300
+                },
+                "sortable": true,
+                "filterable": true,
+                "rowGroupable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "TEXTAREA",
+                    "category": "BUSINESS",
+                    "interpreterServiceName": "textAreaTagInterpreter",
+                    "customize": false,
+                    "themeMapTag": {
+                      "id": 198762555,
+                      "name": "文本域",
+                      "code": "TEXTAREA",
+                      "category": "BUSINESS",
+                      "uiBotCode": "TEXTAREA",
+                      "extendedInfo": {}
+                    },
+                    "append": false
+                  }
+                ],
+                "isFocusDisplay": false,
+                "relationSchemas": ["question_description"],
+                "label": "问题描述"
+              }
+            ],
+            "direction": "COLUMN",
+            "scriptFilters": []
+          }
+        ],
+        "direction": "COLUMN",
+        "allFields": [
+          {
+            "name": "question_no",
+            "path": "question_info",
+            "headerName": "问题编号",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false,
+            "filterable": false
+          },
+          {
+            "name": "question_description",
+            "path": "question_info",
+            "headerName": "问题描述",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true,
+            "filterable": false
+          },
+          {
+            "name": "project_no",
+            "path": "question_info",
+            "headerName": "项目编号",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true,
+            "filterable": false
+          },
+          {
+            "name": "project_name",
+            "path": "question_info",
+            "headerName": "项目名称",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true,
+            "filterable": false
+          },
+          {
+            "name": "task_no",
+            "path": "question_info",
+            "headerName": "任务编号",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false,
+            "filterable": false
+          },
+          {
+            "name": "task_name",
+            "path": "question_info",
+            "headerName": "任务名称",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true,
+            "filterable": false
+          },
+          {
+            "name": "question_type_no",
+            "path": "question_info",
+            "headerName": "问题类型编号",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false,
+            "filterable": false
+          },
+          {
+            "name": "question_type_name",
+            "path": "question_info",
+            "headerName": "问题类型名称",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true,
+            "filterable": false
+          },
+          {
+            "name": "question_happen_datetime",
+            "path": "question_info",
+            "headerName": "问题发生日期",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "date",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true,
+            "filterable": false
+          },
+          {
+            "name": "initiator_no",
+            "path": "question_info",
+            "headerName": "发起人编号",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false,
+            "filterable": false
+          },
+          {
+            "name": "initiator_name",
+            "path": "question_info",
+            "headerName": "发起人名称",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true,
+            "filterable": false
+          },
+          {
+            "name": "process_person_no",
+            "path": "question_info",
+            "headerName": "问题负责人编号",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true,
+            "filterable": false
+          },
+          {
+            "name": "process_person_name",
+            "path": "question_info",
+            "headerName": "问题负责人名称",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true,
+            "filterable": false
+          },
+          {
+            "name": "acceptance_person_no",
+            "path": "question_info",
+            "headerName": "验收人编号",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false,
+            "filterable": false
+          },
+          {
+            "name": "acceptance_person_name",
+            "path": "question_info",
+            "headerName": "验收人名称",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false,
+            "filterable": false
+          },
+          {
+            "name": "plan_start_datetime",
+            "path": "question_info",
+            "headerName": "计划开始时间",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "date",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false,
+            "filterable": false
+          },
+          {
+            "name": "plan_finish_datetime",
+            "path": "question_info",
+            "headerName": "计划完成时间",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "date",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true,
+            "filterable": false
+          },
+          {
+            "name": "desire_finish_datetime",
+            "path": "question_info",
+            "headerName": "期望关闭日期",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "date",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true,
+            "filterable": false
+          },
+          {
+            "name": "create_date",
+            "path": "question_info",
+            "headerName": "创建时间",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "date",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false,
+            "filterable": false
+          },
+          {
+            "name": "create_by",
+            "path": "question_info",
+            "headerName": "创建人",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false,
+            "filterable": false
+          },
+          {
+            "name": "modified_date",
+            "path": "question_info",
+            "headerName": "修改时间",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "date",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false,
+            "filterable": false
+          },
+          {
+            "name": "modified_by",
+            "path": "question_info",
+            "headerName": "修改人",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false,
+            "filterable": false
+          },
+          {
+            "name": "status",
+            "path": "question_info",
+            "headerName": "状态",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false,
+            "filterable": false
+          },
+          {
+            "name": "question_do_desc",
+            "path": "question_info",
+            "headerName": "问题事项说明",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true,
+            "filterable": false
+          },
+          {
+            "name": "question_do_info",
+            "path": "question_info",
+            "headerName": "问题事项",
+            "level": 0,
+            "defaultValue": [],
+            "dataType": "array",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false,
+            "filterable": false
+          }
+        ]
+      },
+      {
+        "id": "question_do_info",
+        "type": "ATHENA_TABLE",
+        "schema": "question_do_info",
+        "path": "question_info",
+        "disabled": false,
+        "editable": true,
+        "dataType": "array",
+        "setting": {
+          "orderFields": [
+            {
+              "name": "process_person_name",
+              "description": "处理人名称"
+            },
+            {
+              "name": "process_person_no",
+              "description": "处理人编号"
+            },
+            {
+              "name": "task_storage_seq",
+              "description": "序号"
+            },
+            {
+              "name": "question_do_desc",
+              "description": "问题事项说明"
+            },
+            {
+              "name": "plan_finish_datetime",
+              "description": "计划完成日期"
+            },
+            {
+              "name": "process_status",
+              "description": "处理状态"
+            },
+            {
+              "name": "actual_finish_datetime",
+              "description": "实际完成日期"
+            },
+            {
+              "name": "process_desc",
+              "description": "处理说明"
+            }
+          ],
+          "hideDefaultToolbar": ["advanced-search"]
+        },
+        "operations": [],
+        "supportShowInMaxedWindow": true,
+        "relationSchemas": ["question_do_info"],
+        "tableTitle": "问题事项",
+        "checkbox": false,
+        "checkboxMerge": false,
+        "scriptFilters": [],
+        "columnDefs": [
+          {
+            "headerName": "序号",
+            "path": "question_info.question_do_info",
+            "level": 1,
+            "description": "",
+            "operations": [],
+            "width": 76,
+            "columns": [
+              {
+                "type": "INPUT",
+                "schema": "task_storage_seq",
+                "headerName": "序号",
+                "path": "question_info.question_do_info",
+                "level": 1,
+                "thousandthPercentile": true,
+                "editable": false,
+                "dataType": "numeric",
+                "sortable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "TYPE_NUMERIC",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "typeNumericTagInterpreter",
+                    "customize": false,
+                    "themeMapTag": {
+                      "id": 837278434785755136,
+                      "name": "不可编辑",
+                      "code": "UNEDITABLE",
+                      "category": "BUSINESS",
+                      "uiBotCode": "UNEDITABLE",
+                      "extendedInfo": {}
+                    },
+                    "append": false
+                  }
+                ],
+                "relationSchemas": ["task_storage_seq"]
+              }
+            ],
+            "headers": [],
+            "isUserDefined": false
+          },
+          {
+            "headerName": "问题事项说明",
+            "path": "question_info.question_do_info",
+            "level": 1,
+            "description": "",
+            "operations": [],
+            "width": 128,
+            "columns": [
+              {
+                "type": "LABEL",
+                "schema": "question_do_desc",
+                "headerName": "问题事项说明",
+                "path": "question_info.question_do_info",
+                "level": 1,
+                "dataType": "string",
+                "sortable": true,
+                "filterable": true,
+                "rowGroupable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "TYPE_STRING",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "typeStringTagInterpreter",
+                    "customize": false,
+                    "themeMapTag": {
+                      "id": 837278434785755136,
+                      "name": "不可编辑",
+                      "code": "UNEDITABLE",
+                      "category": "BUSINESS",
+                      "uiBotCode": "UNEDITABLE",
+                      "extendedInfo": {}
+                    },
+                    "append": false
+                  }
+                ],
+                "relationSchemas": ["question_do_desc"]
+              }
+            ],
+            "headers": [],
+            "isUserDefined": false
+          },
+          {
+            "headerName": "处理人名称",
+            "path": "question_info.question_do_info",
+            "level": 1,
+            "description": "",
+            "operations": [],
+            "width": 132,
+            "columns": [
+              {
+                "type": "NAME_CODE_COMPONENT",
+                "schema": "process_person_name",
+                "headerName": "处理人名称",
+                "path": "question_info.question_do_info",
+                "level": 1,
+                "sortable": true,
+                "filterable": true,
+                "width": 0,
+                "relationSchemas": ["process_person_name"],
+                "columns": [
+                  {
+                    "type": "LABEL",
+                    "schema": "process_person_name",
+                    "headerName": "处理人名称",
+                    "path": "question_info.question_do_info",
+                    "level": 1,
+                    "dataType": "string",
+                    "sortable": true,
+                    "filterable": true,
+                    "rowGroupable": true,
+                    "tagDefinitions": [
+                      {
+                        "code": "TYPE_STRING",
+                        "name": "数据组件",
+                        "description": "数据组件",
+                        "category": "DATATYPE",
+                        "interpreterServiceName": "typeStringTagInterpreter",
+                        "customize": false,
+                        "themeMapTag": {
+                          "id": 837278434785755136,
+                          "name": "不可编辑",
+                          "code": "UNEDITABLE",
+                          "category": "BUSINESS",
+                          "uiBotCode": "UNEDITABLE",
+                          "extendedInfo": {}
+                        },
+                        "append": false
+                      }
+                    ],
+                    "relationSchemas": ["process_person_name"]
+                  },
+                  {
+                    "type": "LABEL",
+                    "schema": "process_person_no",
+                    "headerName": "处理人编号",
+                    "path": "question_info.question_do_info",
+                    "level": 1,
+                    "dataType": "string",
+                    "sortable": true,
+                    "filterable": true,
+                    "rowGroupable": true,
+                    "tagDefinitions": [
+                      {
+                        "code": "TYPE_STRING",
+                        "name": "数据组件",
+                        "description": "数据组件",
+                        "category": "DATATYPE",
+                        "interpreterServiceName": "typeStringTagInterpreter",
+                        "customize": false,
+                        "themeMapTag": {
+                          "id": 837278434785755136,
+                          "name": "不可编辑",
+                          "code": "UNEDITABLE",
+                          "category": "BUSINESS",
+                          "uiBotCode": "UNEDITABLE",
+                          "extendedInfo": {}
+                        },
+                        "append": false
+                      }
+                    ],
+                    "relationSchemas": ["process_person_no"]
+                  }
+                ]
+              }
+            ],
+            "headers": [],
+            "isUserDefined": false
+          },
+          {
+            "headerName": "计划完成日期",
+            "path": "question_info.question_do_info",
+            "level": 1,
+            "description": "",
+            "operations": [],
+            "width": 150,
+            "columns": [
+              {
+                "type": "DATEPICKER",
+                "schema": "plan_finish_datetime",
+                "headerName": "计划完成日期",
+                "showIcon": true,
+                "path": "question_info.question_do_info",
+                "level": 1,
+                "dataType": "date",
+                "sortable": true,
+                "filterable": true,
+                "rowGroupable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "TYPE_DATE",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "typeDateTagInterpreter",
+                    "customize": false,
+                    "themeMapTag": {
+                      "id": 837278434785755136,
+                      "name": "不可编辑",
+                      "code": "UNEDITABLE",
+                      "category": "BUSINESS",
+                      "uiBotCode": "UNEDITABLE",
+                      "extendedInfo": {}
+                    },
+                    "append": false
+                  }
+                ],
+                "width": 150,
+                "relationSchemas": ["plan_finish_datetime"]
+              }
+            ],
+            "headers": [],
+            "isUserDefined": false
+          },
+          {
+            "headerName": "处理状态",
+            "path": "question_info.question_do_info",
+            "level": 1,
+            "description": "",
+            "operations": [],
+            "width": 120,
+            "columns": [
+              {
+                "type": "SELECT",
+                "schema": "process_status",
+                "headerName": "处理状态",
+                "path": "question_info.question_do_info",
+                "level": 1,
+                "disabled": false,
+                "editable": true,
+                "dataType": "string",
+                "tagDefinitions": [
+                  {
+                    "code": "SELECT",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "selectInterpreter",
+                    "customize": false,
+                    "append": false
+                  }
+                ],
+                "width": 120,
+                "relationSchemas": ["process_status"],
+                "editor": {
+                  "id": "63fcde7e-a0ee-42f2-80f2-f67bb5b94a30",
+                  "type": "SELECT",
+                  "schema": "process_status",
+                  "disabled": false,
+                  "editable": true,
+                  "dataType": "string",
+                  "width": 150,
+                  "options": [
+                    {
+                      "title": "已转任务",
+                      "value": "3"
+                    },
+                    {
+                      "title": "已完成",
+                      "value": "4"
+                    },
+                    {
+                      "title": "未完成",
+                      "value": "8"
+                    }
+                  ]
+                }
+              }
+            ],
+            "headers": [],
+            "isUserDefined": false
+          },
+          {
+            "headerName": "实际完成日期",
+            "path": "question_info.question_do_info",
+            "level": 1,
+            "description": "",
+            "operations": [],
+            "width": 150,
+            "columns": [
+              {
+                "type": "DATEPICKER",
+                "schema": "actual_finish_datetime",
+                "headerName": "实际完成日期",
+                "showIcon": true,
+                "path": "question_info.question_do_info",
+                "level": 1,
+                "disabled": false,
+                "editable": true,
+                "dataType": "date",
+                "sortable": true,
+                "filterable": true,
+                "rowGroupable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "TYPE_DATE",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "typeDateTagInterpreter",
+                    "customize": false,
+                    "append": false
+                  }
+                ],
+                "width": 150,
+                "relationSchemas": ["actual_finish_datetime"],
+                "editor": {
+                  "id": "666d1047-79d5-451c-9619-3746ba5c9d01",
+                  "type": "DATEPICKER",
+                  "schema": "actual_finish_datetime",
+                  "editable": true,
+                  "dataType": "date"
+                }
+              }
+            ],
+            "headers": [],
+            "isUserDefined": false
+          },
+          {
+            "headerName": "处理说明",
+            "path": "question_info.question_do_info",
+            "level": 1,
+            "description": "",
+            "operations": [],
+            "width": 102,
+            "columns": [
+              {
+                "type": "INPUT",
+                "schema": "process_desc",
+                "headerName": "处理说明",
+                "path": "question_info.question_do_info",
+                "level": 1,
+                "disabled": false,
+                "editable": true,
+                "dataType": "string",
+                "sortable": true,
+                "filterable": true,
+                "rowGroupable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "TYPE_STRING",
+                    "name": "数据组件",
+                    "description": "数据组件",
+                    "category": "DATATYPE",
+                    "interpreterServiceName": "typeStringTagInterpreter",
+                    "customize": false,
+                    "append": false
+                  }
+                ],
+                "enableTrim": true,
+                "relationSchemas": ["process_desc"],
+                "editor": {
+                  "id": "3dfe737e-5084-46b3-9e35-b99d24736bd3",
+                  "type": "INPUT",
+                  "schema": "process_desc",
+                  "showIcon": true,
+                  "editable": true,
+                  "dataType": "string"
+                }
+              }
+            ],
+            "headers": [],
+            "isUserDefined": false
+          },
+          {
+            "headerName": "附件",
+            "path": "question_info.question_do_info",
+            "level": 1,
+            "description": "",
+            "operations": [],
+            "width": 150,
+            "columns": [
+              {
+                "type": "FILE_UPLOAD",
+                "schema": "attachment",
+                "headerName": "附件",
+                "path": "question_info.question_do_info",
+                "level": 1,
+                "disabled": false,
+                "editable": true,
+                "dataType": "object",
+                "sortable": true,
+                "tagDefinitions": [
+                  {
+                    "code": "BUSINESS_ATTACHMENT_FILE",
+                    "name": "附件",
+                    "description": "附件",
+                    "category": "BUSINESS",
+                    "interpreterServiceName": "attachmentFileInterpreter",
+                    "customize": false,
+                    "extendedInfo": {
+                      "attachment": {
+                        "configs": [
+                          {
+                            "targetSchema": "attachment",
+                            "disableAam": true,
+                            "uploadEnable": true,
+                            "uploadCategory": "pccUploadAttachment",
+                            "description": {
+                              "language": {
+                                "title": {
+                                  "zh_TW": "附檔",
+                                  "en_US": "Attachment",
+                                  "zh_CN": "附件"
+                                }
+                              },
+                              "title": "附件",
+                              "lang": {
+                                "title": {
+                                  "zh_TW": "附檔",
+                                  "zh_CN": "附件"
+                                }
+                              }
+                            },
+                            "fileUploadLimit": {
+                              "extensions": [],
+                              "size": 52428800,
+                              "count": 3
+                            },
+                            "deleteCategory": ["pccUploadAttachment"],
+                            "enableEffectAfterSubmit": true,
+                            "enable": true,
+                            "readEnable": true,
+                            "readCategory": ["pccUploadAttachment"],
+                            "onlyDeleteByOwner": false,
+                            "deleteEnable": true
+                          }
+                        ],
+                        "enable": true
+                      }
+                    },
+                    "themeMapTag": {
+                      "id": 198770119,
+                      "name": "附件",
+                      "code": "BUSINESS_ATTACHMENT_FILE",
+                      "category": "BUSINESS",
+                      "uiBotCode": "BUSINESS_ATTACHMENT_FILE",
+                      "extendedInfo": {
+                        "attachment": {
+                          "configs": [
+                            {
+                              "targetSchema": "attachment",
+                              "disableAam": true,
+                              "uploadEnable": true,
+                              "uploadCategory": "pccUploadAttachment",
+                              "description": {
+                                "language": {
+                                  "title": {
+                                    "zh_TW": "附檔",
+                                    "en_US": "Attachment",
+                                    "zh_CN": "附件"
+                                  }
+                                },
+                                "title": "附件",
+                                "lang": {
+                                  "title": {
+                                    "zh_TW": "附檔",
+                                    "zh_CN": "附件"
+                                  }
+                                }
+                              },
+                              "fileUploadLimit": {
+                                "extensions": [],
+                                "size": 52428800,
+                                "count": 3
+                              },
+                              "deleteCategory": ["pccUploadAttachment"],
+                              "enableEffectAfterSubmit": true,
+                              "enable": true,
+                              "readEnable": true,
+                              "readCategory": ["pccUploadAttachment"],
+                              "onlyDeleteByOwner": false,
+                              "deleteEnable": true
+                            }
+                          ],
+                          "enable": true
+                        }
+                      }
+                    },
+                    "append": false
+                  }
+                ],
+                "width": 150,
+                "relationSchemas": ["attachment"],
+                "attribute": {
+                  "disableAam": true,
+                  "uploadEnable": true,
+                  "editable": true,
+                  "uploadCategory": "pccUploadAttachment",
+                  "type": "DMC",
+                  "deleteCategory": ["pccUploadAttachment"],
+                  "fileCount": 3,
+                  "fileExtensions": [],
+                  "filterKey": "name",
+                  "enableEffectAfterSubmit": false,
+                  "operations": [],
+                  "fileMaxSize": 52428800,
+                  "readEnable": true,
+                  "readCategory": ["pccUploadAttachment"],
+                  "onlyDeleteByOwner": false,
+                  "id": "cfda0022-b203-4998-8465-332cdc069b02",
+                  "deleteEnable": true
+                }
+              }
+            ],
+            "headers": [],
+            "isUserDefined": false
+          }
+        ],
+        "allFields": [
+          {
+            "name": "question_do_no",
+            "path": "question_info.question_do_info",
+            "headerName": "问题事项编号",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false,
+            "filterable": false
+          },
+          {
+            "name": "question_do_desc",
+            "path": "question_info.question_do_info",
+            "headerName": "问题事项说明",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true,
+            "filterable": false
+          },
+          {
+            "name": "task_storage_seq",
+            "path": "question_info.question_do_info",
+            "headerName": "序号",
+            "level": 0,
+            "dataType": "numeric",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true,
+            "filterable": false
+          },
+          {
+            "name": "process_person_no",
+            "path": "question_info.question_do_info",
+            "headerName": "处理人编号",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true,
+            "filterable": false
+          },
+          {
+            "name": "process_person_name",
+            "path": "question_info.question_do_info",
+            "headerName": "处理人名称",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true,
+            "filterable": false
+          },
+          {
+            "name": "process_status",
+            "path": "question_info.question_do_info",
+            "headerName": "处理状态",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true,
+            "filterable": false
+          },
+          {
+            "name": "process_desc",
+            "path": "question_info.question_do_info",
+            "headerName": "处理说明",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "string",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true,
+            "filterable": false
+          },
+          {
+            "name": "plan_finish_datetime",
+            "path": "question_info.question_do_info",
+            "headerName": "计划完成日期",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "date",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true,
+            "filterable": false
+          },
+          {
+            "name": "actual_finish_datetime",
+            "path": "question_info.question_do_info",
+            "headerName": "实际完成日期",
+            "level": 0,
+            "defaultValue": "",
+            "dataType": "date",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true,
+            "filterable": false
+          },
+          {
+            "name": "is_conversion_task",
+            "path": "question_info.question_do_info",
+            "headerName": "是否转为任务",
+            "level": 0,
+            "dataType": "boolean",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": false,
+            "filterable": false
+          },
+          {
+            "name": "attachment",
+            "path": "question_info.question_do_info",
+            "headerName": "附件",
+            "level": 0,
+            "defaultValue": {
+              "data": [],
+              "row_data": ""
+            },
+            "dataType": "object",
+            "sort": false,
+            "isDataKey": false,
+            "isShow": true,
+            "filterable": false
+          }
+        ],
+        "filterMode": "value",
+        "saveColumnsWidth": true,
+        "disabledUserDefined": true,
+        "suppressAutoAddRow": true
+      }
+    ],
+    "style": {},
+    "rules": [
+      {
+        "schema": "process_desc",
+        "path": "question_info.question_do_info",
+        "validatorType": "error",
+        "scope": "EDIT",
+        "errorMessage": "处理说明必填",
+        "trigger": {
+          "condition": "true",
+          "type": "sync",
+          "point": "default"
+        },
+        "lang": {
+          "name": {
+            "zh_TW": "處理說明必填",
+            "en_US": "is required",
+            "zh_CN": "处理说明必填"
+          },
+          "errorMessage": {
+            "zh_TW": "處理說明必填",
+            "en_US": "is required",
+            "zh_CN": "处理说明必填"
+          }
+        },
+        "key": "required",
+        "name": "处理说明必填"
+      },
+      {
+        "schema": "process_status",
+        "path": "question_info.question_do_info",
+        "validatorType": "error",
+        "scope": "EDIT",
+        "errorMessage": "处理状态必填",
+        "trigger": {
+          "condition": "true",
+          "type": "sync",
+          "point": "default"
+        },
+        "lang": {
+          "name": {
+            "zh_TW": "處理狀態必填",
+            "en_US": "is required",
+            "zh_CN": "处理状态必填"
+          },
+          "errorMessage": {
+            "zh_TW": "處理狀態必填",
+            "en_US": "is required",
+            "zh_CN": "处理状态必填"
+          }
+        },
+        "key": "required",
+        "name": "处理状态必填"
+      },
+      {
+        "schema": "process_status",
+        "path": "question_info.question_do_info",
+        "scope": "EDIT",
+        "name": "处理状态联动控制",
+        "trigger": {
+          "condition": "true",
+          "type": "sync",
+          "point": "default"
+        },
+        "relations": [
+          {
+            "path": "process_status",
+            "operations": [
+              {
+                "name": "",
+                "type": "script",
+                "script": "let process_status=currentControl.parent.get('process_status').value;\n\nif(process_status==='4'){\ncurrentControl.parent.get('actual_finish_datetime').setValue(moment().format('YYYY-MM-DD'));\n}"
+              }
+            ]
+          }
+        ],
+        "lang": {
+          "name": {
+            "zh_TW": "",
+            "en_US": "",
+            "zh_CN": "处理状态联动控制"
+          }
+        },
+        "key": "connection",
+        "relationIsLinkage": false
+      },
+      {
+        "schema": "actual_finish_datetime",
+        "path": "question_info.question_do_info",
+        "validatorType": "error",
+        "linkageSchemas": ["process_status"],
+        "scope": "EDIT",
+        "name": "实际完成日期必填控制",
+        "errorMessage": "状态已完成时实际完成日必填",
+        "trigger": {
+          "condition": "data.process_status==='4' && utils.isEmpty(data.actual_finish_datetime)",
+          "type": "sync",
+          "point": "default"
+        },
+        "lang": {
+          "errorMessage": {
+            "zh_TW": "狀態已完成時實際完成日必填",
+            "en_US": "状态已完成时实际完成日必填",
+            "zh_CN": "状态已完成时实际完成日必填"
+          },
+          "name": {
+            "zh_TW": "實際完成日期必填控制",
+            "en_US": "实际完成日期必填控制",
+            "zh_CN": "实际完成日期必填控制"
+          }
+        },
+        "key": "custom",
+        "crossFieldOrNot": false
+      },
+      {
+        "schema": "process_status",
+        "path": "question_info.question_do_info",
+        "validatorType": "warning",
+        "scope": "EDIT",
+        "name": "处理状态颜色控制",
+        "trigger": {
+          "condition": "(() => {      let process_status = currentControl.parent.get('process_status').value;     console.log(process_status);     if (process_status === '4') {         return '#22a356';     } else if (process_status === '8') {         return '#f58b00ff';     } else if (process_status === '3') {         return '#266ae5ff';     } })()",
+          "type": "sync",
+          "point": "default"
+        },
+        "lang": {
+          "name": {
+            "zh_TW": "",
+            "en_US": "",
+            "zh_CN": "处理状态颜色控制"
+          }
+        },
+        "key": "color"
+      }
+    ],
+    "pageData": {
+      "uiBot__activity": {
+        "taskStartTime": "2024-04-29 00:00:00",
+        "endTime": "2024-05-02 10:42:28",
+        "name": "问题处理事项回报",
+        "remainTime": "2天",
+        "taskEndTime": "2024-04-29 00:00:00",
+        "taskName": "問題管理202308300001 [第一次]",
+        "readCount": 4,
+        "extendedFields": {
+          "signOffProgressData": {
+            "processInstances": [
+              {
+                "workitemId": 433732519501888,
+                "processSerialNumber": "PCC_project_00041694487522165420032",
+                "tmActivityIds": ["PCC_task_0019"]
+              }
+            ],
+            "locale": "zh_CN"
+          }
+        },
+        "processSerialNumber": "PCC_project_00041694487522165420032",
+        "workitemId": "1694487525889937408",
+        "processCreateTime": "2024-04-29 10:42:27",
+        "merge": false
+      },
+      "uiBot__content": {
+        "title": "问题处理事项回报",
+        "subTitle": "问题处理事项回报"
+      },
+      "uiBot__APPROVAL_DESCRIPTION": {
+        "task_name": "3ASSC",
+        "acceptance_person_no": "dcp012",
+        "question_no": "20240422002",
+        "question_type_no": "飞天的感觉的天赋法国队与广度与发遍大江南北飞天的感觉的天赋法国队与广度与发遍大江南北",
+        "desire_finish_datetime": "2024-04-22",
+        "question_do_desc": "转任务1",
+        "project_name": "第一次",
+        "process_person_name": "采购员小白",
+        "initiator_no": "dcp012",
+        "create_by": "dcp012",
+        "create_date": "2024-04-22 16:44:38",
+        "process_person_no": "dcp012",
+        "task_no": "3",
+        "question_happen_datetime": "2024-04-22",
+        "question_do_info": [
+          {
+            "is_conversion_task": true,
+            "question_do_no": "20240422002009",
+            "process_desc": "2323",
+            "question_do_desc": "转任务1",
+            "process_person_name": "采购员小蓝",
+            "actual_finish_datetime": "9998-12-31",
+            "plan_finish_datetime": "2024-04-29",
+            "attachment": {
+              "data": [
+                {
+                  "id": "a3221ea1-e279-422a-8223-3d0d877fc03f",
+                  "uid": "qcpkk4p0mw",
+                  "url": "https://dmc-hw-test.digiwincloud.com.cn/api/dmc/v2/file/Athena/share/c8da1f1f-bee6-4ed0-bf1b-44e198476a1b",
+                  "name": "PCC项目中控台_2024-I02.pptx",
+                  "size": 4900934.0,
+                  "status": "done",
+                  "category": "pccUploadAttachment",
+                  "iconType": "",
+                  "categoryId": "pccUploadAttachment",
+                  "isImageUrl": true,
+                  "previewUrl": "https://dmc-hw-test.digiwincloud.com.cn/api/dmc/v2/file/Athena/online/preview/a3221ea1-e279-422a-8223-3d0d877fc03f",
+                  "showDelete": false,
+                  "create_date": "2024-04-29 10:41:56",
+                  "isUploading": false,
+                  "lastModified": "2024-04-29 10:41:56",
+                  "showDownload": true,
+                  "upload_user_id": "dcp012",
+                  "upload_user_name": "采购员小白"
+                }
+              ],
+              "row_data": "bd5a7ee3-06d7-cd89-89c2-1fe7968ae863"
+            },
+            "process_status": "3",
+            "task_storage_seq": 1.0,
+            "process_person_no": "dcp010"
+          }
+        ],
+        "project_no": "202308300001",
+        "acceptance_person_name": "采购员小白",
+        "question_type_name": "飞天的感觉的天赋法国队与广度与发遍大江南北飞天的感觉的天赋法国队与广度与发遍大江南北",
+        "question_description": "你看看",
+        "modified_by": "",
+        "initiator_name": "采购员小白",
+        "status": "2"
+      },
+      "question_info": {
+        "task_name": "3ASSC",
+        "acceptance_person_no": "dcp012",
+        "question_no": "20240422002",
+        "question_type_no": "飞天的感觉的天赋法国队与广度与发遍大江南北飞天的感觉的天赋法国队与广度与发遍大江南北",
+        "desire_finish_datetime": "2024-04-22",
+        "question_do_desc": "转任务1",
+        "project_name": "第一次",
+        "process_person_name": "采购员小白",
+        "initiator_no": "dcp012",
+        "create_by": "dcp012",
+        "create_date": "2024-04-22 16:44:38",
+        "process_person_no": "dcp012",
+        "task_no": "3",
+        "question_happen_datetime": "2024-04-22",
+        "question_do_info": [
+          {
+            "is_conversion_task": true,
+            "question_do_no": "20240422002009",
+            "process_desc": "2323",
+            "question_do_desc": "转任务1",
+            "process_person_name": "采购员小蓝",
+            "actual_finish_datetime": "9998-12-31",
+            "plan_finish_datetime": "2024-04-29",
+            "attachment": {
+              "data": [
+                {
+                  "id": "a3221ea1-e279-422a-8223-3d0d877fc03f",
+                  "uid": "qcpkk4p0mw",
+                  "url": "https://dmc-hw-test.digiwincloud.com.cn/api/dmc/v2/file/Athena/share/c8da1f1f-bee6-4ed0-bf1b-44e198476a1b",
+                  "name": "PCC项目中控台_2024-I02.pptx",
+                  "size": 4900934.0,
+                  "status": "done",
+                  "category": "pccUploadAttachment",
+                  "iconType": "",
+                  "categoryId": "pccUploadAttachment",
+                  "isImageUrl": true,
+                  "previewUrl": "https://dmc-hw-test.digiwincloud.com.cn/api/dmc/v2/file/Athena/online/preview/a3221ea1-e279-422a-8223-3d0d877fc03f",
+                  "showDelete": false,
+                  "create_date": "2024-04-29 10:41:56",
+                  "isUploading": false,
+                  "lastModified": "2024-04-29 10:41:56",
+                  "showDownload": true,
+                  "upload_user_id": "dcp012",
+                  "upload_user_name": "采购员小白"
+                }
+              ],
+              "row_data": "bd5a7ee3-06d7-cd89-89c2-1fe7968ae863"
+            },
+            "process_status": "3",
+            "task_storage_seq": 1.0,
+            "process_person_no": "dcp010"
+          }
+        ],
+        "project_no": "202308300001",
+        "acceptance_person_name": "采购员小白",
+        "question_type_name": "飞天的感觉的天赋法国队与广度与发遍大江南北飞天的感觉的天赋法国队与广度与发遍大江南北",
+        "question_description": "你看看",
+        "modified_by": "",
+        "initiator_name": "采购员小白",
+        "status": "2"
+      },
+      "uiBot__prompt_message": ""
+    },
+    "pageDataKeys": {},
+    "actions": [
+      {
+        "title": "提交",
+        "actionId": "esp_project.question.process.update",
+        "category": "ESP",
+        "serviceId": {
+          "tenant_id": "DCP",
+          "prod": "PCC",
+          "hostAcct": "athena",
+          "name": "project.question.process.update"
+        },
+        "businessUnit": {},
+        "actionParams": [
+          {
+            "name": "question_info.question_do_info",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "question_info.question_do_info",
+            "required": false,
+            "typeConverter": ""
+          },
+          {
+            "name": "question_info.question_no",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "question_info.question_no",
+            "required": false,
+            "typeConverter": ""
+          },
+          {
+            "name": "question_info.project_name",
+            "type": "GET_ACTION_RESPONSE",
+            "value": "question_info.project_name",
+            "required": false,
+            "typeConverter": ""
+          }
+        ],
+        "trackCode": "SUBMIT",
+        "type": "ESP",
+        "id": "confirm",
+        "defaultAction": true,
+        "executeContext": {
+          "locale": "zh_CN",
+          "clientAgent": "webplatform",
+          "tmProjectId": "PCC_project_0004",
+          "tmActivityId": "PCC_task_0019",
+          "backlogId": 433732519501888,
+          "submitId": 0,
+          "processSerialNumber": "PCC_project_00041694487522165420032",
+          "bpmData": {
+            "_planEndTime": "2024-05-02 10:42:28",
+            "_in": [
+              {
+                "question_no": "20240422002",
+                "question_do_no": "20240422002009"
+              }
+            ],
+            "questionDo_d_info": [
+              {
+                "question_no": "20240422002",
+                "question_do_no": "20240422002009"
+              }
+            ],
+            "question_do_info": [
+              {
+                "question_no": "20240422002",
+                "question_do_no": "20240422002009"
+              }
+            ],
+            "process_EOC": {}
+          },
+          "pageCode": "task-detail",
+          "pattern": "BUSINESS",
+          "category": "PROCESS",
+          "businessUnit": {},
+          "dataFrom": "PTM",
+          "taskType": 1,
+          "abnormalWorkitemId": 433732519505984,
+          "relationTag": {
+            "identity": "performer",
+            "activityId": "PCC_task_0019"
+          }
+        },
+        "extendParas": {},
+        "submitType": {
+          "isBatch": false,
+          "schema": "question_info",
+          "submitAll": false
+        },
+        "attachActions": [
+          {
+            "title": "提交数据到流程",
+            "actionId": "submit-data",
+            "category": "PTM",
+            "serviceId": {
+              "name": "submit-data",
+              "serviceUri": "api/task/card/submit"
+            },
+            "paras": {
+              "workitemId": "1694487525889937408",
+              "backlogId": 433732519505984,
+              "comment": "",
+              "dispatchData": [],
+              "locale": "zh_CN",
+              "performerType": 0,
+              "performerId": "dcp010"
+            },
+            "trackCode": "SUBMIT",
+            "id": "submit-data",
+            "defaultAction": false,
+            "extendParas": {},
+            "attachActions": []
+          },
+          {
+            "title": "同意",
+            "actionId": "dispatch",
+            "category": "TaskEngine",
+            "serviceId": {
+              "name": "dispatch",
+              "serviceUri": "v2/api/backlog/dispatch"
+            },
+            "paras": {
+              "workitemId": "1694487525889937408",
+              "comment": "",
+              "locale": "zh_CN",
+              "performerType": 0,
+              "performerId": "dcp010"
+            },
+            "trackCode": "SUBMIT",
+            "defaultAction": false,
+            "extendParas": {
+              "dataSource": "parent"
+            }
+          }
+        ]
+      }
+    ],
+    "finished": false,
+    "executeContext": {
+      "locale": "zh_CN",
+      "clientAgent": "webplatform",
+      "agentType": "standardweb",
+      "identity": "performer",
+      "tmProjectId": "PCC_project_0004",
+      "chargeId": "Athena",
+      "taskWithBacklogData": {
+        "bpmData": {
+          "_planEndTime": "2024-05-02 10:42:28",
+          "_in": [
+            {
+              "question_no": "20240422002",
+              "question_do_no": "20240422002009"
+            }
+          ],
+          "questionDo_d_info": [
+            {
+              "question_no": "20240422002",
+              "question_do_no": "20240422002009"
+            }
+          ],
+          "question_do_info": [
+            {
+              "question_no": "20240422002",
+              "question_do_no": "20240422002009"
+            }
+          ],
+          "process_EOC": {}
+        },
+        "businessUnit": {},
+        "eocName": [],
+        "tmActivityId": "PCC_task_0019",
+        "tmActivityName": "问题处理事项回报",
+        "tmCategory": "PROCESS",
+        "tmPattern": "BUSINESS",
+        "bpmActivityId": "StartSubProjectNode_c61174cd-c6cc-3bef-046c-e080b07a4262",
+        "proxyToken": "",
+        "processSerialNumber": "PCC_project_00041694487522165420032",
+        "bpmActivityType": "UserTask",
+        "backlog": [
+          {
+            "backlogId": 433732519501888,
+            "submitId": 0,
+            "backlogName": "问题处理事项回报",
+            "targetTenantId": "DCP",
+            "performerId": "dcp010",
+            "performerName": "采购员小蓝",
+            "readCount": 4,
+            "startTime": "2024-04-29 10:42:27",
+            "planEndTime": "2024-05-02 10:42:28",
+            "remainTime": "2天",
+            "workitemList": [
+              {
+                "id": 433732519501888,
+                "activityStepId": 433732519469120,
+                "createTime": "2024-04-29 10:42:28",
+                "performerId": "dcp010",
+                "performerName": "采购员小蓝",
+                "workitemId": "1694487525889937408",
+                "comment": "",
+                "state": 1,
+                "agentPerformerId": "",
+                "agentPerformerName": "",
+                "performerType": 0,
+                "readCount": 4,
+                "subState": 0,
+                "createType": 0,
+                "approvalState": "",
+                "fromWorkitemId": "",
+                "groupId": 433732519501888,
+                "targetTenantId": "DCP",
+                "importance": 0,
+                "importanceSource": "self"
+              }
+            ],
+            "closed": false,
+            "bpmSignReason": "",
+            "ptmBacklogId": 433732519505984,
+            "ptmWorkItemId": 433732519501888,
+            "merge": false,
+            "backlogPerformId": "dcp010"
+          }
+        ],
+        "taskUid": "1694487522878451712"
+      },
+      "allBpmData": [
+        {
+          "_planEndTime": "2024-05-02 10:42:28",
+          "_in": [
+            {
+              "question_no": "20240422002",
+              "question_do_no": "20240422002009"
+            }
+          ],
+          "questionDo_d_info": [
+            {
+              "question_no": "20240422002",
+              "question_do_no": "20240422002009"
+            }
+          ],
+          "question_do_info": [
+            {
+              "question_no": "20240422002",
+              "question_do_no": "20240422002009"
+            }
+          ],
+          "process_EOC": {}
+        }
+      ],
+      "taskType": 1,
+      "backlogId": 433732519501888,
+      "ptmBacklogId": "433732519505984",
+      "abnormalWorkitemId": 433732519505984,
+      "approvalInfo": {},
+      "tmActivityId": "PCC_task_0019",
+      "tmActivityName": "问题处理事项回报",
+      "tenantId": "DCP",
+      "pageCode": "task-detail",
+      "pattern": "BUSINESS",
+      "category": "PROCESS",
+      "relationTag": {
+        "identity": "performer",
+        "activityId": "PCC_task_0019"
+      },
+      "businessUnit": {},
+      "isShared": false,
+      "enableSimplifyPack": false,
+      "dataFrom": "PTM",
+      "gridSchema": "question_do_info",
+      "bpmData": {
+        "_planEndTime": "2024-05-02 10:42:28",
+        "_in": [
+          {
+            "question_no": "20240422002",
+            "question_do_no": "20240422002009"
+          }
+        ],
+        "questionDo_d_info": [
+          {
+            "question_no": "20240422002",
+            "question_do_no": "20240422002009"
+          }
+        ],
+        "question_do_info": [
+          {
+            "question_no": "20240422002",
+            "question_do_no": "20240422002009"
+          }
+        ],
+        "process_EOC": {}
+      },
+      "projectBpmData": {
+        "processEmergency": 50,
+        "dueDate": "2024-04-29",
+        "atmcProjectStartDate": "2024-04-29",
+        "atmcProjectName": "問題管理202308300001 [第一次]",
+        "atmcProjectEndDate": "2024-04-29",
+        "questionDo_d_info": [
+          {
+            "question_no": "20240422002",
+            "question_do_no": "20240422002009"
+          }
+        ],
+        "sourceIds": "20240422002-20240422002009",
+        "personInCharge": "Athena",
+        "process_EOC": {},
+        "personInChargeName": "Athena"
+      },
+      "submitId": 0,
+      "isSuperAdmin": false,
+      "isTaskEngine": true
+    },
+    "pageCountSize": 1,
+    "mechnismConfig": {
+      "rules": []
+    }
+  }
+}

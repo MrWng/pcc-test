@@ -1,0 +1,24 @@
+diff --git a/node_modules/@schematics/update/migrate/schema.json b/node_modules/@schematics/update/migrate/schema.json
+index 58fca36..257ee01 100644
+--- a/node_modules/@schematics/update/migrate/schema.json
++++ b/node_modules/@schematics/update/migrate/schema.json
+@@ -1,6 +1,6 @@
+ {
+   "$schema": "http://json-schema.org/schema",
+-  "id": "PostUpdateSchema",
++  "$id": "PostUpdateSchema",
+   "type": "object",
+   "properties": {
+     "package": {
+diff --git a/node_modules/@schematics/update/update/schema.json b/node_modules/@schematics/update/update/schema.json
+index d921b9d..465cf9e 100644
+--- a/node_modules/@schematics/update/update/schema.json
++++ b/node_modules/@schematics/update/update/schema.json
+@@ -1,6 +1,6 @@
+ {
+   "$schema": "http://json-schema.org/schema",
+-  "id": "SchematicsUpdateSchema",
++  "$id": "SchematicsUpdateSchema",
+   "title": "Schematic Options Schema",
+   "type": "object",
+   "properties": {

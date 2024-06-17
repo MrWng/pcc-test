@@ -1,0 +1,39 @@
+<section class="proj-plan-other-info">
+  <nz-spin [nzSpinning]="isSpinning">
+    <div
+      class="form-content"
+      [ngClass]="{
+        'form-content_editable': copEditable
+      }"
+    >
+      <div
+        #dynamicCop
+        dynamic-ant-form
+        *ngIf="curFormGroup"
+        [group]="curFormGroup"
+        [model]="curFormModel"
+      ></div>
+    </div>
+    <div class="btn-group" *ngIf="copEditable">
+      <button
+        [disabled]="saveBtnDisabled"
+        ath-button
+        nzSize="large"
+        nzType="primary"
+        (click)="submit()"
+      >
+        {{ 'dj-pcc-保存' | translate }}
+      </button>
+      <button
+        [disabled]="delBtnDisabled"
+        class="save"
+        ath-button
+        nzSize="large"
+        nzType="primary"
+        (click)="deleteHandle()"
+      >
+        {{ 'dj-default-删除' | translate }}
+      </button>
+    </div>
+  </nz-spin>
+</section>

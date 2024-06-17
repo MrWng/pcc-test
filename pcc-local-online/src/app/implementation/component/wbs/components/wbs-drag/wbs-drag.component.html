@@ -1,0 +1,16 @@
+<div
+  cdkDropList
+  cdkDropListOrientation="horizontal"
+  [cdkDropListDisabled]="!wbsService.editable"
+  class="example-list"
+  (cdkDropListDropped)="drop($event)"
+  [ngStyle]="{ width: data?.length * (248 + 24 * 2) + 'px' }"
+>
+  <div
+    class="example-box"
+    [ngClass]="{ 'drag-disabled': !wbsService.editable }"
+    *ngFor="let item of data"
+    cdkDragLockAxis="x"
+    cdkDrag
+  ></div>
+</div>

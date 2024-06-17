@@ -1,0 +1,50 @@
+<div
+  class="table-content"
+  *ngIf="
+    dynamicGroup &&
+    (attachmentList.length ||
+      sampleAttachmentList.length ||
+      planChanges.length ||
+      projectChangeTask.length ||
+      plmList?.length ||
+      projectStatusChange.length)
+  "
+>
+  <div class="table_tree">
+    <nz-tree
+      [nzData]="treeData"
+      [nzExpandAll]="nzExpandAll"
+      [nzSelectedKeys]="defaultSelectedKeys"
+      (nzClick)="nzEvent($event)"
+    ></nz-tree>
+  </div>
+  <div class="table_container deliverable_table" *ngIf="[2, 3].includes(tabIndex)">
+    <div class="downLoad-box">
+      <span class="downLoad" (click)="downLoadAll()">{{ 'dj-pcc-批量下载' | translate }}</span>
+    </div>
+    <div
+      dynamic-ant-form
+      [group]="dynamicGroup"
+      [model]="dynamicModel"
+      (change)="onChange($event)"
+    ></div>
+  </div>
+</div>
+<div
+  class="no-data-box"
+  *ngIf="
+    dynamicGroup &&
+    !attachmentList.length &&
+    !sampleAttachmentList.length &&
+    !planChanges.length &&
+    !projectStatusChange.length
+  "
+>
+  <div>
+    <app-svg-file [type]="'noData'"></app-svg-file>
+    <p>{{ 'dj-c-暂无数据' | translate }}</p>
+  </div>
+</div>
+<div class="spin-box" *ngIf="!dynamicGroup">
+  <nz-spin nzSimple></nz-spin>
+</div>

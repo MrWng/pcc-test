@@ -1,0 +1,72 @@
+# 每行代码最长长度
+# default: 80
+printWidth: 100
+
+# tab 缩进位数
+#  default: 2
+tabWidth: 2
+
+# 缩进方式
+# enum: [true: 使用制表符缩进行 false: 使用空格缩进行]
+# default: false
+useTabs: false
+
+# 是否使用单引号
+# enum: [true: 单引号 false: 双引号]
+# default: false
+singleQuote: true
+
+# 对象的 key 仅在必要时用引号
+# enum: ['as-needed' 'consistent' 'preserve']
+# default: 'as-need'
+quoteProps: 'as-needed'
+
+# 末尾加上分号
+# enum: [true: 加 false: 不加]
+# default: true
+semi: true
+
+# 在对象文字中的括号之间打印空格
+# enum: [true: { foo: bar } false: {foo: bar}]
+# default: true
+bracketSpacing: true
+
+# JSX的>的放置位置
+# enum: [true: 放在末尾 false: 单独一行]
+# default: false
+jsxBracketSameLine: true
+
+# JSX中使用单引号
+# enum: [true: 使用 false: 不使用]
+# default: false
+jsxSingleQuote: true
+
+# 在单独的箭头函数参数周围包括括号
+# enum: ['always': (x) => x 'avoid': x => x]
+# default: 'always'
+arrowParens: 'always'
+
+# 多行时尽可能打印尾随逗号
+# enum: ['es5' 'none' 'all']
+# default: 'es5'
+trailingComma: 'es5'
+
+# 换行符使用 lf
+# enum: ['lf' 'crlf' 'cr' 'auto']
+# default: 'lf'
+endOfLine: 'lf'
+
+# 不需要写文件开头的 @prettier
+# enum: [true false]
+# default: false
+requirePragma: false
+
+# 不需要自动在文件开头插入 @prettier
+# enum: [true false]
+# default: false
+insertPragma: false
+
+# 根据显示样式决定 html 要不要折行 / html 空格敏感度
+# enum: ['css' 'strict' 'ignore']
+# default: 'css'
+htmlWhitespaceSensitivity: 'css'

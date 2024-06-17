@@ -1,0 +1,40 @@
+:host {
+  height: 100%;
+  .content-body {
+    height: calc(100% - 56px);
+    overflow: auto;
+    padding: 4px 16px;
+    &.page-disabled {
+      height: 100%;
+    }
+  }
+  .btn-group {
+    height: 56px;
+    width: 100%;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8fbff;
+    position: relative;
+    button {
+      margin-right: 22px;
+    }
+  }
+
+  ::ng-deep {
+    nz-spin {
+      height: 100%;
+      .ant-spin-container {
+        height: 100%;
+      }
+    }
+    
+  }
+
+}
+::ng-deep .pcc-confirm-modal-center {
+  .tip-text {
+    color: red
+  }
+}

@@ -1,0 +1,9 @@
+<ac-table-cell [showMsg]="showMsg" [errorMessage]="errorMessage" class="pcc-checkbox">
+  <span
+    class='wbs-table-cell-checkBox'
+    ath-checkbox
+    [nzDisabled]="_disable"
+    [(ngModel)]="value"
+    (ngModelChange)="onChange($event)"
+  ></span>
+</ac-table-cell>

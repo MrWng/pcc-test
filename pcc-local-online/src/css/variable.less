@@ -1,0 +1,211 @@
+/*******************************************************这里是规范中的所有样式变量********************************************************/
+/* -----------------------------字体，如果强调，则需要加粗-------------------------------- */
+// 标签一类
+@tag-fontsize: 10px;
+// 说明文本、提示一类
+@tip-fontsize: 12px;
+@tip-lineHeight: 16px;
+// 正常文本
+@normal-fontsize: 14px;
+@normal-lineHeight: 18px;
+// Tab标签、列表标题、二级标题
+@title-fontsize: 16px;
+@title-lineHeight: 20px;
+// 模块大标题
+@module-fontsize: 18px;
+// 强调数字
+@stress-fontsize: 20px;
+@stress-lineHeight: 24px;
+
+/* ----------------------------背景色-------------------------------- */
+// 主色，正常色
+@main-color: #1677FE;
+// 第二级的颜色
+@secondary-color: #5099FF;
+// 背景色
+@bg-color: #E7F1FF;
+// 图标hover背景色
+@icon-hover-color: #EEEEEE;
+// 背景蒙层
+@mask-bg-color: rgba(0, 0, 0, 0.65);
+// toast背景蒙层
+@toast-bg-color: rgba(0, 0, 0, 0.80);
+
+/* ---------------------------文本颜色-------------------------------- */
+// 主要字体颜色
+@default-font-color: #34404B;
+// 辅助文案字体颜色
+@subtitle-color: #666666;
+// placeholder颜色
+@placeholder-color: #999999;
+// 异常色
+@warning-font-color: #EA3D46;
+// 正常色
+@normal-font-color: #289939;
+// 描述文本颜色
+@desc-font-color: #FE7B1D;
+// 弱文案/失效文案
+@disable-font-color: #CCCCCC;
+// 字体链接
+@link-color: @main-color;
+@link-hover-color: @secondary-color;
+
+/* -----------------------------边框颜色------------------------------- */
+// 输入框、选择框、弹窗中的次按钮
+@border-color: #DDDDDD;
+
+/* -------------------------------阴影-------------------------------- */
+// 正常，一般是hover态，淡蓝色
+@shadow-normal: 0 0 8px 0 #D9E2F4;
+// 异常
+@shadow-abnormal: 0 0 8px 0 #F6E7E7;
+// 普通
+@shadow-common: 0 0 8px 0 #F6E7E7;
+
+/* -------------------------------圆角-------------------------------- */
+// 外层容器，弹窗、卡片等
+@radius-outer-box: 8px;
+// 内层容器
+@radius-inner-box: 6px;
+// 所有的搜索框、输入框
+@radius-operate: 4px;
+
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++为了方便统一使用，这里初始化了一些样式++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+// 蓝色点击文本背景色以及hover态颜色
+.click-link {
+  color: @link-color;
+  &:hover {
+    color: @link-hover-color;
+  }
+}
+
+.page-btn() {
+  width: 120px;
+  height: 36px;
+  border-radius: 18px;
+  box-sizing: border-box;
+}
+
+// 页面按钮 实心正常态
+.page-fill-btn-normal {
+  .page-btn();
+  background-color: @main-color;
+  border-color: @main-color;
+  color: white;
+  // hover态
+  &:hover {
+    background-color: @secondary-color;
+    border-color: @secondary-color;
+  }
+}
+
+// 页面按钮 实心disable态
+.page-fill-btn-disable {
+  .page-btn();
+  background-color: #8BBBFF;
+  border-color: #8BBBFF;
+  color: #C4DDFF;
+}
+
+// 页面按钮 空心按钮正常态
+.page-outline-btn-normal {
+  .page-btn();
+  border: 1px solid @main-color;
+  background-color: white;
+  color: @main-color;
+  // hover态
+  &:hover {
+    border-color: @secondary-color;
+    color: @secondary-color;
+  }
+}
+
+// 空心按钮disable态
+.page-outline-btn-disable {
+  .page-btn();
+  border: 1px solid #8BBBFF;
+  background-color: white;
+  color: #8BBBFF;
+}
+
+/* 弹窗按钮 */
+.pop-btn() {
+  width: 88px;
+  height: 32px;
+  border-radius: 16px;
+  box-sizing: border-box;
+}
+
+// 实心正常态
+.pop-fill-btn-normal {
+  .pop-btn();
+  background-color: @main-color;
+  border-color: @main-color;
+  color: white;
+  // hover态
+  &:hover {
+    background-color: @secondary-color;
+    border-color: @secondary-color;
+  }
+}
+
+// 实心disable态
+.pop-fill-btn-disable {
+  .pop-btn();
+  background-color: #8BBBFF;
+  border-color: #8BBBFF;
+  color: #C4DDFF;
+}
+
+// 空心按钮正常态
+.pop-outline-btn-normal {
+  .pop-btn();
+  border: 1px solid @border-color;
+  background-color: #FAFAFA;
+  color: @default-font-color;
+  // hover态
+  &:hover {
+    background-color: #F3F3F3;
+  }
+}
+
+// 空心按钮disable态
+.pop-outline-btn-disable {
+  .pop-btn();
+  border: 1px solid @border-color;
+  background-color: #FAFAFA;
+  color: @disable-font-color;
+}
+
+/* 消息弹框实心按钮正常态 */
+.message-fill-btn-normal {
+  .pop-btn();
+  background-color: #F66923;
+  color: white;
+  // hover态
+  &:hover {
+    background-color: @desc-font-color;
+  }
+}
+
+// 消息弹框空心按钮正常态
+.message-outline-btn-normal {
+  .pop-btn();
+  background-color: white;
+  border: 1px solid #F66923;
+  color: #F66923;
+  // hover态
+  &:hover {
+    border-color: @desc-font-color;
+    color: @desc-font-color;
+  }
+}
+
+// 下拉select，选中以及hover背景色
+.select-hover{
+  background-color: #EFF6FF;
+}
+
+.validate-error{
+  border-color: @warning-font-color !important;
+}

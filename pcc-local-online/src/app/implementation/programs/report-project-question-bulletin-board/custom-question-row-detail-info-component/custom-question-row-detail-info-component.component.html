@@ -1,0 +1,19 @@
+<div class="operate-detail-box">
+  <div class="detail-btn" (click)="showDetailInfoWindow()">{{ 'dj-default-查看详情' | translate}}</div>
+    <ng-template #tplContent let-params>
+      <div class="pcc-template-top">
+        <div class="template-title">{{ 'dj-pcc-问题详情' | translate}}</div>
+        <div class="close-btn" (click)="closeLoadingModal()">
+          <i athIcon [iconfont]="'icon-guanbi'"></i>
+        </div>
+      </div>
+      <div class="pcc-template-content">
+        <app-pcc-problem-handling
+          #pccProblemHandling
+          [model]="model"
+          [group]="group"
+        ></app-pcc-problem-handling>
+      </div>
+    </ng-template>
+  <!-- </div> -->
+</div>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <linearGradient x1="18.2622686%" y1="0%" x2="100%" y2="87.0656449%" id="linearGradient-1">
+            <stop stop-color="#55D69F" offset="0%"></stop>
+            <stop stop-color="#00CD69" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="5.63198459%" x2="50%" y2="95.1449509%" id="linearGradient-2">
+            <stop stop-color="#FFFFFF" offset="0%"></stop>
+            <stop stop-color="#B4FFE2" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="I05" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="03-状态切图" transform="translate(-262.000000, -69.000000)">
+            <g id="卡片/标签/里程碑备份-9" transform="translate(262.000000, 69.000000)">
+                <circle id="椭圆形" fill="url(#linearGradient-1)" cx="8" cy="8" r="8"></circle>
+                <path d="M6.4790304,4 L9.4790304,4 C9.75517277,4 9.9790304,4.22385763 9.9790304,4.5 L9.9790304,8 L9.9790304,8 L11.5540324,8 C11.7749463,8 11.9540324,8.1790861 11.9540324,8.40000001 C11.9540324,8.50415799 11.913404,8.60420809 11.8407858,8.67887722 L8.28826555,12.3317293 C8.13424591,12.4900988 7.88100447,12.4936251 7.72263495,12.3396054 C7.7194706,12.336528 7.71635742,12.3333984 7.71329667,12.3302179 L4.19795293,8.67736589 C4.04476798,8.51818887 4.04962552,8.26496946 4.20880254,8.11178451 C4.28332821,8.04006429 4.38273793,8 4.48616842,8 L5.9790304,8 L5.9790304,8 L5.9790304,4.5 C5.9790304,4.22385763 6.20288802,4 6.4790304,4 Z" id="矩形" fill="url(#linearGradient-2)" fill-rule="nonzero"></path>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,34 @@
+<div class="uploadItem">
+  <div *ngIf="title" class="title" style="width: 72px">{{ title }}：</div>
+  <div class="upload">
+    <div class="file-list">
+      <div class="file" *ngFor="let item of fileList; let i = index">
+        <div nz-tooltip [nzTooltipTitle]="item.name" class="file-info">
+          <div class="name">{{ item.name }}</div>
+          <div class="size">{{ addSubProjectCardService.renderSize(item.size) }}</div>
+          <a
+            class="delete-btn"
+            nz-popconfirm
+            [nzPopconfirmTitle]="translateWordPcc('是否确认删除?')"
+            [nzOkText]="translateWord('确定')"
+            [nzCancelText]="translateWord('取消')"
+            (nzOnConfirm)="deleteFile(i)"
+            nzPopconfirmOverlayClassName="fileButton"
+          >
+            <em nz-icon nzType="delete" nzTheme="outline"></em>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="uploadBtn" *ngIf="fileList.length < 3">
+      {{ 'dj-default-请上传50MB以内的附件' | translate }}<br />
+      <em nz-icon nzType="cloud-upload" nzTheme="outline"></em>
+      <input
+        type="file"
+        name="multipartFile"
+        class="upload-file-reset"
+        (change)="importData($event)"
+      />
+    </div>
+  </div>
+</div>

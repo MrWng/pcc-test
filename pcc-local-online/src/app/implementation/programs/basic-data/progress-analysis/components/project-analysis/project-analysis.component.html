@@ -1,0 +1,249 @@
+<div class="spin-box" *ngIf="isShowSpin">
+  <nz-spin nzSimple></nz-spin>
+</div>
+<div class="project-analysis-box" *ngIf="!isShowSpin">
+  <div class="record-analysis">
+    <div class="record-left">
+      <div class="all-project-box">
+        <p>{{ 'dj-default-计划项目' | translate }}</p>
+        <p class="all-num">{{ projectScheduleInfo?.plan_project_count }}</p>
+      </div>
+      <div class="part-content">
+        <div class="part-project-box">
+          <p class="type">
+            <em class="icon">
+              <svg class="iconfont" aria-hidden="true">
+                <use xlink:href="#iconzhunshi"></use>
+              </svg>
+            </em>
+            <span>{{ 'dj-default-准时项目' | translate }}</span>
+          </p>
+          <p class="num">{{ projectScheduleInfo?.on_schedule_project_count }}</p>
+        </div>
+        <div class="part-project-box">
+          <p class="type">
+            <em class="icon">
+              <svg class="iconfont" aria-hidden="true">
+                <use xlink:href="#iconlahou"></use>
+              </svg>
+            </em>
+            <span>{{ 'dj-default-落后项目' | translate }}</span>
+          </p>
+          <p class="num">{{ projectScheduleInfo?.overdue_project_count }}</p>
+        </div>
+        <div class="part-project-box">
+          <p class="type">
+            <em class="icon">
+              <svg class="iconfont" aria-hidden="true">
+                <use xlink:href="#iconchaoqian"></use>
+              </svg>
+            </em>
+            <span>{{ 'dj-default-超前项目' | translate }}</span>
+          </p>
+          <p class="num">{{ projectScheduleInfo?.advance_project_count }}</p>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="record-right">
+      <p class="title">
+        <i class="icon">
+          <svg class="iconfont" aria-hidden="true">
+            <use xlink:href="#iconyingwanchengshengyugongshi"></use>
+          </svg>
+        </i>
+        <span>{{ 'dj-default-应完工剩余工时' | translate }}</span>
+      </p>
+      <p class="num">{{ projectScheduleInfo?.total_remaining_work_hours }}<span>{{ 'dj-default-小时' | translate }}</span></p>
+    </div> -->
+    <div>
+      {{ 'dj-default-项目状态：' | translate }}
+      <nz-select
+        [(ngModel)]="projectStatus"
+        [nzOptions]="projectStatusOfOption"
+        (ngModelChange)="projectStatusChange($event)"
+        nzAllowClear
+      >
+      </nz-select>
+    </div>
+  </div>
+  <nz-table
+    #basicTable
+    [nzData]="projectScheduleInfo?.project_schedule_detail"
+    [nzShowPagination]="false"
+    [nzFrontPagination]="false"
+    [nzScroll]="{ y: 'calc(100vh - 460px)' }"
+  >
+    <thead>
+      <tr>
+        <th nzWidth="95px">
+          {{ 'dj-pcc-项目类型' | translate }}
+          <nz-filter-trigger
+            [(nzVisible)]="projectTypeNameVisible"
+            [nzActive]="projectTypeNameSearchValue.length > 0"
+            [nzDropdownMenu]="projectTypeNameMenu"
+          >
+            <em nz-icon nzType="search"></em>
+          </nz-filter-trigger>
+        </th>
+        <th nzWidth="80px">
+          {{ 'dj-default-项目集' | translate }}
+          <nz-filter-trigger
+            [(nzVisible)]="projectSetNameVisible"
+            [nzActive]="projectSetNameSearchValue.length > 0"
+            [nzDropdownMenu]="projectSetNameMenu"
+          >
+            <em nz-icon nzType="search"></em>
+          </nz-filter-trigger>
+        </th>
+        <th nzWidth="95px">{{ 'dj-default-项目名称' | translate }}</th>
+        <th nzWidth="95px">{{ 'dj-default-客户简称' | translate }}</th>
+        <th nzWidth="110px">
+          {{ 'dj-default-项目负责人' | translate }}
+          <nz-filter-trigger
+            [(nzVisible)]="projectLeaderNameVisible"
+            [nzActive]="projectLeaderNameSearchValue.length > 0"
+            [nzDropdownMenu]="projectLeaderNameMenu"
+          >
+            <em nz-icon nzType="search"></em>
+          </nz-filter-trigger>
+        </th>
+        <th
+          nzShowFilter
+          [nzFilters]="currentStatusOfFilter"
+          (nzFilterChange)="currentStatusFilterFn($event)"
+          nzWidth="120px"
+        >
+          {{ 'dj-default-当前进度状态' | translate }}
+        </th>
+        <th nzWidth="165px">{{ 'dj-default-实际完成率' | translate }}</th>
+        <th nzWidth="120px">{{ 'dj-default-预计完成率' | translate }}</th>
+        <!-- <th nzWidth="120px">{{ 'dj-default-任务逾期率' | translate }}</th> -->
+        <th nzWidth="140px">{{ 'dj-default-目前应完成任务' | translate }}</th>
+        <th nzWidth="120px">{{ 'dj-default-实际完成任务' | translate }}</th>
+        <th nzWidth="120px">{{ 'dj-default-预计总任务数' | translate }}</th>
+        <th nzWidth="140px">{{ 'dj-default-应完工剩余工时' | translate }}</th>
+        <th nzWidth="140px">{{ 'dj-default-项目预计完成日' | translate }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of basicTable.data">
+        <td *ngIf="item.isShow" [attr.rowspan]="item.nameNum">{{ item.project_type_name }}</td>
+        <td>{{ item.project_set_name }}</td>
+        <td>
+          <ng-container>
+            <div class="project_name" (click)="goTaskAnalysisDetail(item)">
+              {{ item.project_name }}>
+            </div>
+          </ng-container>
+        </td>
+        <td>{{ item.customer_shortname }}</td>
+        <td>{{ item.project_leader_name }}</td>
+        <td>
+          <ng-container>
+            <app-current-status [currentStatus]="item.currentStatus"></app-current-status>
+          </ng-container>
+        </td>
+        <td [nzAlign]="right">
+          <ng-container>
+            <app-progress-line
+              [actualCompleteRate]="item.actual_complete_rate"
+              [currentStatus]="item.currentStatus"
+            >
+            </app-progress-line>
+          </ng-container>
+        </td>
+        <td [nzAlign]="'right'">{{ item.plan_complete_rate }}%</td>
+        <!-- <td [nzAlign]="'right'">
+          <ng-container>
+            <div class="overdue_rate" [ngClass]="{ danger: item.overdue_rate > 0 }">
+              <i class="icon" *ngIf="item.overdue_rate > 10">
+                <svg class="iconfont" aria-hidden="true">
+                  <use xlink:href="#iconrenwuyuqishuaitishi"></use>
+                </svg>
+              </i>
+              {{ item.overdue_rate }}%
+            </div>
+          </ng-container>
+        </td> -->
+        <td [nzAlign]="'right'">{{ item.plan_complete_task_count }}</td>
+        <td [nzAlign]="'right'">{{ item.actual_complete_task_count }}</td>
+        <td [nzAlign]="'right'">{{ item.totoal_plan_task_count }}</td>
+        <td [nzAlign]="'right'">{{ item.remaining_work_hours }}</td>
+        <td>{{ item.plan_finish_date }}</td>
+      </tr>
+    </tbody>
+  </nz-table>
+  <!-- 筛选框 -->
+  <nz-dropdown-menu #projectTypeNameMenu="nzDropdownMenu">
+    <div class="ant-table-filter-dropdown">
+      <div class="search-box">
+        <input
+          type="text"
+          nz-input
+          [placeholder]="translateWord('请输入关键词')"
+          [(ngModel)]="projectTypeNameSearchValue"
+        />
+        <button
+          nz-button
+          nzSize="small"
+          nzType="primary"
+          (click)="projectTypeNameSearch()"
+          class="search-button"
+        >
+          {{ 'dj-default-确定' | translate }}
+        </button>
+        <button nz-button nzSize="small" (click)="reset()">
+          {{ 'dj-default-重置' | translate }}
+        </button>
+      </div>
+    </div>
+  </nz-dropdown-menu>
+  <nz-dropdown-menu #projectSetNameMenu="nzDropdownMenu">
+    <div class="ant-table-filter-dropdown">
+      <div class="search-box">
+        <input
+          type="text"
+          nz-input
+          [placeholder]="translateWord('请输入关键词')"
+          [(ngModel)]="projectSetNameSearchValue"
+        />
+        <button
+          nz-button
+          nzSize="small"
+          nzType="primary"
+          (click)="projectSetNameSearch()"
+          class="search-button"
+        >
+          {{ 'dj-default-确定' | translate }}
+        </button>
+        <button nz-button nzSize="small" (click)="reset()">
+          {{ 'dj-default-重置' | translate }}
+        </button>
+      </div>
+    </div>
+  </nz-dropdown-menu>
+  <nz-dropdown-menu #projectLeaderNameMenu="nzDropdownMenu">
+    <div class="ant-table-filter-dropdown">
+      <div class="search-box">
+        <input
+          type="text"
+          nz-input
+          [placeholder]="translateWord('请输入关键词')"
+          [(ngModel)]="projectLeaderNameSearchValue"
+        />
+        <button
+          nz-button
+          nzSize="small"
+          nzType="primary"
+          (click)="projectLeaderNameSearch()"
+          class="search-button"
+        >
+          {{ 'dj-default-确定' | translate }}
+        </button>
+        <button nz-button nzSize="small" (click)="reset()">
+          {{ 'dj-default-重置' | translate }}
+        </button>
+      </div>
+    </div>
+  </nz-dropdown-menu>
+</div>

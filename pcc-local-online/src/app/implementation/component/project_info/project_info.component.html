@@ -1,0 +1,44 @@
+<div class="taskPre">
+  <button ath-toolbar-button (click)="showTable()" class="showTitle">
+    {{ 'dj-pcc-项目信息' | translate }}
+  </button>
+</div>
+<ng-container *ngIf="isVisible">
+  <ac-modal-tabs
+    [nzSize]="'fullscreen'"
+    [(nzVisible)]="isVisible"
+    [nzFooter]="null"
+    [nzClosable]="true"
+    (nzOnCancel)="handleCancel()"
+    [tabs]="tabs"
+    [nzSelectedIndex]="selectedIndex"
+    [tabContent]="tabContent"
+  ></ac-modal-tabs>
+
+  <ng-template #tabContent>
+    <div class="pccProjectInfoTab" *ngIf="tabIndex === 0">
+      <app-dynamic-wbs
+        *ngIf="project_info"
+        [tabName]="tabName"
+        [tabIndex]="tabIndex"
+        #wbsComponent
+        [source]="Entry.card"
+        [sourceRealy]="Entry.projectInfo"
+      ></app-dynamic-wbs>
+    </div>
+    <div class="pccProjectInfoTab" *ngIf="tabIndex === 1">
+      <app-project-creation
+        *ngIf="wbsService.projectInfo?.project_no"
+        [potentialStatus]="wbsTabsService.potentialStatus"
+        [tabName]="tabName"
+        [tabIndex]="tabIndex"
+        [source]="Entry.projectChangeSignOff"
+        [sourceRealy]="Entry.projectChangeSignOff"
+        [signOff]="true"
+        (successTransfer)="successTransfer($event)"
+        (changeConfig)="changeConfig($event)"
+        #creationComponent
+      ></app-project-creation>
+    </div>
+  </ng-template>
+</ng-container>

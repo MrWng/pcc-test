@@ -1,0 +1,127 @@
+<div class="clue-information" [formGroup]="templateGroup">
+  <div class="table-wrapper t-a">
+    <dl class="top-header table-row">
+      <dd class="table-cell cell-title">{{ 'dj-pcc-客户联系人姓名' | translate }}</dd>
+      <dd class="table-cell cell-title">{{ 'dj-pcc-联系人职级' | translate }}</dd>
+      <dd class="table-cell cell-title">{{ 'dj-pcc-联系方式' | translate }}</dd>
+    </dl>
+    <dl class="table-row" *ngFor="let item of opportunityCustomerContactCtrs; let i = index">
+      <dd class="table-cell">
+        <input
+          class="input-ctr"
+          athInput
+          type="text"
+          placeholder="{{ 'dj-请输入' | translate }}"
+          [formControl]="item.get('customer_name')"
+          [title]="item.get('customer_name').value || ''"
+        />
+      </dd>
+      <dd class="table-cell">
+        <input
+          class="input-ctr"
+          athInput
+          type="text"
+          placeholder="{{ 'dj-请输入' | translate }}"
+          [formControl]="item.get('contact_rank')"
+          [title]="item.get('contact_rank').value || ''"
+        />
+      </dd>
+      <dd class="table-cell">
+        <input
+          class="input-ctr"
+          athInput
+          type="text"
+          placeholder="{{ 'dj-请输入' | translate }}"
+          [formControl]="item.get('contact_info')"
+          [title]="item.get('contact_info').value || ''"
+        />
+      </dd>
+      <!-- todo -->
+      <!-- <dd class="icon-templateGroup" *ngIf="i >= defaultTopTableRows - 1">
+        <i
+          *ngIf="i >= opportunityCustomerContactCtrs.length - 1"
+          class="add-icon"
+          class="icon"
+          athIcon
+          iconfont="icontianjia"
+          (click)="addRow()"
+        ></i>
+        <i
+          *ngIf="i > defaultTopTableRows - 1"
+          class="remove-icon"
+          class="icon"
+          athIcon
+          iconfont="iconjianshao"
+          (click)="removeRow(i)"
+        ></i>
+      </dd> -->
+    </dl>
+  </div>
+  <div class="table-wrapper t-b">
+    <dl class="table-row">
+      <dd class="table-cell cell-title">{{ 'dj-pcc-项目背景' | translate }}：</dd>
+      <dd class="table-cell">
+        <ath-input-group [suffix]="inputClearTpl">
+          <textarea
+            athInput
+            placeholder="{{ 'dj-请输入' | translate }}"
+            [rows]="4"
+            [maxlength]="2000"
+            [autosize]="{
+              minRows: 4,
+              maxRows: 6
+            }"
+            [formControl]="templateGroup.get('background')"
+            [title]="templateGroup.get('background').value || ''"
+          ></textarea>
+        </ath-input-group>
+        <ng-template #inputClearTpl>
+          <i
+            class="ant-input-clear-icon"
+            athIcon
+            iconfont="icon-guanbi1"
+            [hidden]="!templateGroup.get('background').value"
+            (click)="templateGroup.get('background').setValue('')"
+          ></i>
+        </ng-template>
+      </dd>
+    </dl>
+  </div>
+  <div class="table-wrapper t-c">
+    <dl class="table-row">
+      <dd class="table-cell cell-title">{{ 'dj-pcc-项目来源' | translate }}：</dd>
+      <dd class="table-cell">
+        <ath-select
+          [formControl]="templateGroup.get('project_source')"
+          nzPlaceHolder="{{ 'dj-请选择' | translate }}"
+        >
+          <ath-option
+            *ngFor="let item of projectSourceOptions"
+            [nzValue]="item.value"
+            [nzLabel]="item.label"
+          ></ath-option>
+        </ath-select>
+      </dd>
+      <dd class="table-cell cell-title">{{ 'dj-pcc-是否转商机' | translate }}：</dd>
+      <dd class="table-cell">
+        <ath-select
+          [formControl]="templateGroup.get('is_transfer_business_opportunities')"
+          nzPlaceHolder="{{ 'dj-请选择' | translate }}"
+        >
+          <ath-option nzValue="1" nzLabel="{{ 'dj-pcc-是' | translate }}"></ath-option>
+          <ath-option nzValue="2" nzLabel="{{ 'dj-pcc-否' | translate }}"></ath-option>
+        </ath-select>
+      </dd>
+      <dd class="table-cell cell-title">{{ 'dj-pcc-Target内/外' | translate }}：</dd>
+      <dd class="table-cell">
+        <ath-select
+          [formControl]="templateGroup.get('target_inside_or_outside')"
+          nzPlaceHolder="{{ 'dj-请选择' | translate }}"
+        >
+          <ath-option nzValue="1" nzLabel="{{ 'dj-pcc-内' | translate }}"></ath-option>
+          <ath-option nzValue="2" nzLabel="{{ 'dj-pcc-外' | translate }}"></ath-option>
+        </ath-select>
+      </dd>
+    </dl>
+  </div>
+</div>
